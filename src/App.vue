@@ -6,7 +6,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import MapComponent from './components/MapComponent.vue'; // Ensure the path is correct
+import MapComponent from './components/MapComponent.vue' // Ensure the path is correct
 
 export default defineComponent({
   name: 'App',
