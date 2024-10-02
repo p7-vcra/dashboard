@@ -1,53 +1,56 @@
 <template>
-    <div class="map-container">
-      <l-map ref="map" v-model:zoom="zoom" :center="[56.27526584557727, 9.321697552292468]":maxBounds="maxBounds">
-        <l-tile-layer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          layer-type="base"
-          name="OpenStreetMap"
-        ></l-tile-layer>
-      </l-map>
-    </div>
-  </template>
-  
-  <script>
-  import "leaflet/dist/leaflet.css";
-  import { LMap, LTileLayer } from "@vue-leaflet/vue-leaflet";
-  
-  export default {
-    components: {
-      LMap,
-      LTileLayer,
-    },
-    data() {
-      return {
-        zoom: 2.8,
-        maxBounds:[
-          [83.6341, -141.0],
-          [-80.0, 200.0]
-        ],
-      };
-    },
-    mounted(){
-      if(!this.$refs.map_leaflet_id){
-        console.log("Map is initialized");
-      }
-      else{
-        console.log("Map is already initialized");
-      }
-    }
-  };
-  </script>
-  
-  <style scoped>
-  .map-container {
-    height: calc(100vh - 50px); /* Full height minus 50px for footer or bottom space */
-    width: 100vw; /* Full width */
-    display: flex;
+  <div id="map" style="height: 100vh;"></div>
+  <VesselMarker
+    v-for="vessel in vesselArray"
+    :key="vessel.MMSI"
+    :map="map"
+    :mmsi="vessel.MMSI"
+    :latitude="vessel.latitude"
+    :longitude="vessel.longitude"
+    @vessel-clicked="handleVesselClick"
+  />
+</template>
+
+<script lang="ts">
+import { defineComponent, onMounted, ref, computed } from 'vue';
+import L from 'leaflet';
+import { initializeDataFeed, vessels } from '../dataHandler';
+import VesselMarker from './VesselMarker.vue';
+
+export default defineComponent({
+  components: {
+    VesselMarker
+  },
+  setup() {
+    const map = ref<L.Map | null>(null);
+
+    // Initialize the Leaflet map
+    onMounted(() => {
+      map.value = L.map('map').setView([56.0, 10.0], 8);  // Initial view over a default location
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map.value);
+
+      // Start the SSE connection to receive vessel data
+      initializeDataFeed();
+    });
+
+    // Transform vessels object into an array
+    const vesselArray = computed(() => {
+      const array = Object.values(vessels.value);
+      console.log('Computed vesselArray:', array);  // Log vesselArray
+      return array;
+    });
+
+    const handleVesselClick = (mmsi: number) => {
+      console.log(`Vessel with MMSI ${mmsi} clicked`);
+    };
+
+    return {
+      map,
+      vesselArray,
+      handleVesselClick
+    };
   }
-  
-  .l-map {
-    flex: 1; /* Make the map fill all available space */
-  }
-  </style>
-  
+});
+</script>
+<style>
+</style>
