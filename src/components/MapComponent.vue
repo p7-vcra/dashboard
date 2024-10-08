@@ -9,6 +9,7 @@
     :longitude="vessel.longitude"
     @vessel-clicked="handleVesselClick"
   />
+  
 </template>
 
 <script lang="ts">
@@ -17,17 +18,20 @@ import L from 'leaflet';
 import { initializeDataFeed, vessels } from '../dataHandler';
 import VesselMarker from './VesselMarker.vue';
 
+
 export default defineComponent({
   components: {
-    VesselMarker
-  },
+    VesselMarker,
+},
   setup() {
     const map = ref<L.Map | null>(null);
 
     // Initialize the Leaflet map
     onMounted(() => {
       map.value = L.map('map').setView([56.0, 10.0], 8);  // Initial view over a default location
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map.value);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        noWrap: true
+      }).addTo(map.value);
 
       // Start the SSE connection to receive vessel data
       initializeDataFeed();

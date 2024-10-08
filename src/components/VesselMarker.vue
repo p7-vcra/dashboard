@@ -3,10 +3,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, watch } from 'vue';
+import { defineComponent, onMounted, ref, watch, onUnmounted } from 'vue';
 import L from 'leaflet';
 
 export default defineComponent({
+  name: 'VesselMarker',
   props: {
     map: {
       type: Object,
@@ -14,40 +15,61 @@ export default defineComponent({
     },
     mmsi: {
       type: Number,
-      required: true,
+      required: true
     },
     latitude: {
       type: Number,
-      required: true,
+      required: true
     },
     longitude: {
       type: Number,
-      required: true,
-    },
+      required: true
+    }
   },
   setup(props) {
-    let marker: L.Marker | null = null;
+    const marker = ref<L.Marker | null>(null);
+    const customIcon = L.icon({
+      iconUrl: 'src/assets/ship.png', // Replace with the path to your custom icon
+      iconSize: [25, 41], // Size of the icon
+      //iconAnchor: [props.latitude, props.longtitude], // Point of the icon which will correspond to marker's location
+      //popupAnchor: [props.latitude, props.longtitude], // Point from which the popup should open relative to the iconAnchor
+      //shadowSize: [41, 41], // Optional: size of the shadow image
+      //shadowAnchor: [12, 41]  // Optional: point of the shadow which will correspond to marker's location
+    });
+     
+    
 
-    // Add marker to the map when the component mounts
     onMounted(() => {
-      if (props.map) {
-        marker = L.marker([props.latitude, props.longitude])
+      if (props.latitude !== undefined && props.longitude !== undefined && props.map) {
+        console.log(`Creating marker for vessel with MMSI ${props.mmsi} at (${props.latitude}, ${props.longitude})`);
+        marker.value = L.marker([props.latitude, props.longitude], {icon: customIcon})
           .addTo(props.map)
-          .bindPopup(`Vessel MMSI: ${props.mmsi}`);
+          .bindPopup(`Vessel MMSI: ${props.mmsi} <br> Vessel position: (${props.latitude} </br>, ${props.longitude})`);
+          console.log(customIcon)
+        // Show popup on hover
+        marker.value.on('mouseover', () => {
+          marker.value?.openPopup();
+        });
+
+        // Hide popup when not hovering
+        marker.value.on('mouseout', () => {
+          marker.value?.closePopup();
+        });
+      } else {
+        console.error(`Invalid coordinates for vessel with MMSI ${props.mmsi}: (${props.latitude}, ${props.longitude})`);
       }
     });
 
-    // Watch for changes in latitude and longitude to update the marker position
     watch(() => [props.latitude, props.longitude], ([newLat, newLng]) => {
-      if (marker) {
-        marker.setLatLng([newLat, newLng]);
+      if (marker.value) {
+        console.log(`Updating marker position for vessel with MMSI ${props.mmsi} to (${newLat}, ${newLng})`);
+        marker.value.setLatLng([newLat, newLng]);
       }
     });
 
-    // Clean up the marker when the component is unmounted
     onUnmounted(() => {
-      if (marker) {
-        marker.remove();
+      if (marker.value) {
+        marker.value.remove();
       }
     });
 
@@ -55,3 +77,4 @@ export default defineComponent({
   }
 });
 </script>
+
