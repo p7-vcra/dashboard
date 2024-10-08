@@ -8,17 +8,23 @@
   
   <script lang="ts">
   import { defineComponent } from 'vue';
+  import { LPolyline } from "@vue-leaflet/vue-leaflet"
+
   
   export default defineComponent({
+    components: {
+      LPolyline
+    },
+    name: 'VesselPath',
     props: {
       history: {
-        type: Array,
+        type: Array as () => { latitude: number, longitude: number }[],
         required: true
       }
     },
     computed: {
-      path() {
-        return this.history.map(point => [point.latitude, point.longitude]);
+      path(): [number, number][] {
+        return (this as any).history.map((point: { latitude: number, longitude: number }) => [point.latitude, point.longitude]);
       }
     }
   });
