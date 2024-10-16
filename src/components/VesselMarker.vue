@@ -2,7 +2,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, watch, PropType } from 'vue';
+import { defineComponent, ref, onMounted, onUnmounted, watch, PropType } from 'vue';
 import L from 'leaflet';
 
 export default defineComponent({
@@ -29,14 +29,20 @@ export default defineComponent({
     },
   },
   setup(props) {
-    let marker: L.Marker | null = null;
+    let marker = ref<L.Marker | null>(null);
+
+     const customIcon = L.icon({
+      iconUrl: 'src/assets/ship.png', // Path to custom icon
+      iconSize: [25, 41], // Size of the icon
+      
+    });
 
     // Add marker to the map when the component mounts
     onMounted(() => {
       if (props.map) {
-        marker = L.marker([props.latitude, props.longitude])
+        marker = L.marker([props.latitude, props.longitude], { icon: customIcon })
           .addTo(props.map)
-          .bindPopup(`Vessel MMSI: ${props.mmsi}`)
+          .bindPopup(`Vessel MMSI: ${props.mmsi} <br> Vessel latitude ${props.latitude} <br> Vessel longitude ${props.longitude}`)
           .on('click', () => props.onMarkerClick(props.mmsi));
       }
     });

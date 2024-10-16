@@ -19,7 +19,9 @@ export default defineComponent({
 
     onMounted(() => {
       map.value = L.map('map').setView([56.0, 10.0], 8);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map.value as L.Map);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        noWrap: true
+      }).addTo(map.value as L.Map);
       initializeDataFeed();
 
       map.value.on('click', () => {
