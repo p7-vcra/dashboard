@@ -1,7 +1,15 @@
 <template>
   <div id="map" style="height: 100vh;"></div>
-  <VesselMarker v-for="vessel in vesselArray" :key="vessel.MMSI" :map="map" :mmsi="vessel.MMSI"
-    :latitude="vessel.latitude" :longitude="vessel.longitude" :onMarkerClick="showVesselPath" />
+  <VesselMarker
+    v-for="vessel in vesselArray"
+    :key="vessel.MMSI"
+    :map="map"
+    :mmsi="vessel.MMSI"
+    :latitude="vessel.latitude"
+    :longitude="vessel.longitude"
+    @vessel-clicked="handleVesselClick"
+  />
+  
 </template>
 
 <script lang="ts">
@@ -12,53 +20,41 @@ import VesselMarker from './VesselMarker.vue';
 
 
 export default defineComponent({
-  components: { VesselMarker },
+  components: {
+    VesselMarker,
+},
   setup() {
     const map = ref<L.Map | null>(null);
-    const polylines = ref<{ [key: number]: L.Polyline }>({});
-    const selectedVesselMMSI = ref<number | null>(null);
 
+    // Initialize the Leaflet map
     onMounted(() => {
-      map.value = L.map('map').setView([56.0, 10.0], 8);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map.value as L.Map);
-      initializeDataFeed();
+      map.value = L.map('map').setView([56.0, 10.0], 8);  // Initial view over a default location
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        noWrap: true
+      }).addTo(map.value);
 
-      map.value.on('click', () => {
-        if (selectedVesselMMSI.value !== null) {
-          const polyline = polylines.value[selectedVesselMMSI.value];
-          if (polyline) {
-            polyline.remove();
-            delete polylines.value[selectedVesselMMSI.value];
-          }
-          selectedVesselMMSI.value = null;
-        }
-      });
+      // Start the SSE connection to receive vessel data
+      initializeDataFeed();
     });
 
-    const vesselArray = computed(() => Object.values(vessels.value));
+    // Transform vessels object into an array
+    const vesselArray = computed(() => {
+      const array = Object.values(vessels.value);
+      console.log('Computed vesselArray:', array);  // Log vesselArray
+      return array;
+    });
 
-    const showVesselPath = (mmsi: number) => {
-      const vessel = vessels.value[mmsi];
-      if (!vessel || !map.value) return;
-
-      // Remove existing polyline if it exists
-      if (selectedVesselMMSI.value !== null && polylines.value[selectedVesselMMSI.value]) {
-        polylines.value[selectedVesselMMSI.value].remove();
-        delete polylines.value[selectedVesselMMSI.value];
-      }
-
-      // Create a new polyline for the vessel's path
-      const latlngs: L.LatLngTuple[] = vessel.history.map(point => [point.latitude, point.longitude] as L.LatLngTuple);
-      const polyline = L.polyline(latlngs, { color: 'red' }).addTo(map.value as L.Map);
-      polylines.value[mmsi] = polyline;
-
-      // Update the selected vessel MMSI
-      selectedVesselMMSI.value = mmsi;
+    const handleVesselClick = (mmsi: number) => {
+      console.log(`Vessel with MMSI ${mmsi} clicked`);
     };
 
-    return { map, vesselArray, showVesselPath };
+    return {
+      map,
+      vesselArray,
+      handleVesselClick
+    };
   }
 });
 </script>
-
-<style></style>
+<style>
+</style>

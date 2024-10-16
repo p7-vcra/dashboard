@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/vue": "^1.0.31",
     "@vue/compiler-sfc": "^3.5.10",
     "vue": "^3.5.10",
     "vue-leaflet": "^0.1.0"

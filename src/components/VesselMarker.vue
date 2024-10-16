@@ -1,15 +1,16 @@
 <template>
+  <!-- Nothing in the template since we are using Leaflet directly -->
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, watch, PropType } from 'vue';
+import { defineComponent, onMounted, ref, watch, onUnmounted } from 'vue';
 import L from 'leaflet';
 
 export default defineComponent({
   name: 'VesselMarker',
   props: {
     map: {
-      type: Object as () => L.Map,
+      type: Object,
       required: true
     },
     mmsi: {
@@ -22,12 +23,8 @@ export default defineComponent({
     },
     longitude: {
       type: Number,
-      required: true,
-    },
-    onMarkerClick: {
-      type: Function as PropType<(mmsi: number) => void>,
-      required: true,
-    },
+      required: true
+    }
   },
   setup(props) {
     const marker = ref<L.Marker | null>(null);
@@ -47,8 +44,19 @@ export default defineComponent({
         console.log(`Creating marker for vessel with MMSI ${props.mmsi} at (${props.latitude}, ${props.longitude})`);
         marker.value = L.marker([props.latitude, props.longitude], {icon: customIcon})
           .addTo(props.map)
-          .bindPopup(`Vessel MMSI: ${props.mmsi}`)
-          .on('click', () => props.onMarkerClick(props.mmsi));
+          .bindPopup(`Vessel MMSI: ${props.mmsi} <br> Vessel position: (${props.latitude} </br>, ${props.longitude})`);
+          console.log(customIcon)
+        // Show popup on hover
+        marker.value.on('mouseover', () => {
+          marker.value?.openPopup();
+        });
+
+        // Hide popup when not hovering
+        marker.value.on('mouseout', () => {
+          marker.value?.closePopup();
+        });
+      } else {
+        console.error(`Invalid coordinates for vessel with MMSI ${props.mmsi}: (${props.latitude}, ${props.longitude})`);
       }
     });
 
