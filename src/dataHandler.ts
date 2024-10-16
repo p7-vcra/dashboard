@@ -58,7 +58,7 @@ function processVesselData(newData: Array<any>) {
 
     if (vessel) {
       updateVessel(vessel, Latitude, Longitude);
-    } else {
+    } else if (Object.keys(vessels.value).length < 500) {
       addNewVessel(MMSI, VesselType, Latitude, Longitude, Timestamp);
     }
   });
@@ -78,9 +78,9 @@ function updateVessel(vessel: Vessel, latitude: number, longitude: number) {
 
 function addNewVessel(MMSI: number,VesselType: String, latitude: number, longitude: number, timestamp: string) {
   // Ensure MMSI is a valid number before adding the vessel
-  if (isNaN(MMSI) || VesselType == "Class B") {
+  if (isNaN(MMSI) || VesselType != "Class A") {
     //console.warn('Invalid MMSI value:', MMSI);
-    return;  // Skip adding the vessel if MMSI is invalid
+    return;  // Skip adding the vessel if MMSI is invaslid
   }
 
   vessels.value[MMSI] = {

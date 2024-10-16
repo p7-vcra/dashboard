@@ -1,15 +1,14 @@
 <template>
-  <!-- Nothing in the template since we are using Leaflet directly -->
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, watch } from 'vue';
+import { defineComponent, onMounted, onUnmounted, watch, PropType } from 'vue';
 import L from 'leaflet';
 
 export default defineComponent({
   props: {
     map: {
-      type: Object,
+      type: Object as () => L.Map,
       required: true
     },
     mmsi: {
@@ -24,6 +23,10 @@ export default defineComponent({
       type: Number,
       required: true,
     },
+    onMarkerClick: {
+      type: Function as PropType<(mmsi: number) => void>,
+      required: true,
+    },
   },
   setup(props) {
     let marker: L.Marker | null = null;
@@ -33,7 +36,8 @@ export default defineComponent({
       if (props.map) {
         marker = L.marker([props.latitude, props.longitude])
           .addTo(props.map)
-          .bindPopup(`Vessel MMSI: ${props.mmsi}`);
+          .bindPopup(`Vessel MMSI: ${props.mmsi}`)
+          .on('click', () => props.onMarkerClick(props.mmsi));
       }
     });
 
