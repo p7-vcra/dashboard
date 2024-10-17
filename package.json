@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@vue/compiler-sfc": "^3.5.10",
-    "vue": "^3.5.10",
+    "vue": "^3.5.12",
     "vue-leaflet": "^0.1.0"
   },
   "devDependencies": {

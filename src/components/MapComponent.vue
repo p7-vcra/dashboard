@@ -1,11 +1,11 @@
 <template>
   <div id="map" style="height: 100vh;"></div>
   <VesselMarker v-for="vessel in vesselArray" :key="vessel.MMSI" :map="map" :mmsi="vessel.MMSI"
-    :latitude="vessel.latitude" :longitude="vessel.longitude" :onMarkerClick="showVesselPath" />
+    :latitude="vessel.latitude" :longitude="vessel.longitude" :onMarkerClick="handleMarkerClick" />
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref, watch, computed } from 'vue';
+import { defineComponent, onMounted, ref, computed, watch } from 'vue';
 import L from 'leaflet';
 import { initializeDataFeed, vessels } from '../dataHandler';
 import VesselMarker from './VesselMarker.vue';
@@ -14,25 +14,7 @@ export default defineComponent({
   components: { VesselMarker },
   setup() {
     const map = ref<L.Map | null>(null);
-
-    watch(vessels, (newVessels: { [key: number]: any }) => {
-      // Handle changes in the vessels data
-      Object.keys(polylines.value).forEach(mmsiStr => {
-      const mmsi = Number(mmsiStr);
-      if (!newVessels[mmsi]) {
-        // Remove polyline if the vessel no longer exists
-        polylines.value[mmsi].remove();
-        delete polylines.value[mmsi];
-      } else {
-        // Update polyline if the vessel still exists
-        const vessel = newVessels[mmsi];
-        const latlngs: L.LatLngTuple[] = vessel.history.map((point: { latitude: number; longitude: number }) => [point.latitude, point.longitude] as L.LatLngTuple);
-        polylines.value[mmsi].setLatLngs(latlngs);
-      }
-      });
-    }, { deep: true });
     const polylines = ref<{ [key: number]: L.Polyline }>({});
-
     const selectedVesselMMSI = ref<number | null>(null);
 
     onMounted(() => {
@@ -47,7 +29,6 @@ export default defineComponent({
           const polyline = polylines.value[selectedVesselMMSI.value];
           if (polyline) {
             polyline.remove();
-            delete polylines.value[selectedVesselMMSI.value];
           }
           selectedVesselMMSI.value = null;
         }
@@ -56,26 +37,33 @@ export default defineComponent({
 
     const vesselArray = computed(() => Object.values(vessels.value));
 
-    const showVesselPath = (mmsi: number) => {
+    const handleMarkerClick = (mmsi: number) => {
+      selectedVesselMMSI.value = mmsi;
+    };
+
+    const updatePolyline = (mmsi: number) => {
       const vessel = vessels.value[mmsi];
       if (!vessel || !map.value) return;
 
       // Remove existing polyline if it exists
-      if (selectedVesselMMSI.value !== null && polylines.value[selectedVesselMMSI.value]) {
-        polylines.value[selectedVesselMMSI.value].remove();
-        delete polylines.value[selectedVesselMMSI.value];
+      if (polylines.value[mmsi]) {
+        polylines.value[mmsi].remove();
+        delete polylines.value[mmsi];
       }
 
       // Create a new polyline for the vessel's path
       const latlngs: L.LatLngTuple[] = vessel.history.map(point => [point.latitude, point.longitude] as L.LatLngTuple);
       const polyline = L.polyline(latlngs, { color: 'red' }).addTo(map.value as L.Map);
       polylines.value[mmsi] = polyline;
-
-      // Update the selected vessel MMSI
-      selectedVesselMMSI.value = mmsi;
     };
 
-    return { map, vesselArray, showVesselPath };
+    watch(() => vessels.value, () => {
+      if (selectedVesselMMSI.value !== null) {
+        updatePolyline(selectedVesselMMSI.value);
+      }
+    }, { deep: true });
+
+    return { map, vesselArray, selectedVesselMMSI, handleMarkerClick };
   }
 });
 </script>
