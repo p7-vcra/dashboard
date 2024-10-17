@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref, computed } from 'vue';
+import { defineComponent, onMounted, ref, watch, computed } from 'vue';
 import L from 'leaflet';
 import { initializeDataFeed, vessels } from '../dataHandler';
 import VesselMarker from './VesselMarker.vue';
@@ -14,7 +14,25 @@ export default defineComponent({
   components: { VesselMarker },
   setup() {
     const map = ref<L.Map | null>(null);
+
+    watch(vessels, (newVessels: { [key: number]: any }) => {
+      // Handle changes in the vessels data
+      Object.keys(polylines.value).forEach(mmsiStr => {
+      const mmsi = Number(mmsiStr);
+      if (!newVessels[mmsi]) {
+        // Remove polyline if the vessel no longer exists
+        polylines.value[mmsi].remove();
+        delete polylines.value[mmsi];
+      } else {
+        // Update polyline if the vessel still exists
+        const vessel = newVessels[mmsi];
+        const latlngs: L.LatLngTuple[] = vessel.history.map((point: { latitude: number; longitude: number }) => [point.latitude, point.longitude] as L.LatLngTuple);
+        polylines.value[mmsi].setLatLngs(latlngs);
+      }
+      });
+    }, { deep: true });
     const polylines = ref<{ [key: number]: L.Polyline }>({});
+
     const selectedVesselMMSI = ref<number | null>(null);
 
     onMounted(() => {
