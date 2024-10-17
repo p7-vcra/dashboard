@@ -40,7 +40,7 @@ export default defineComponent({
     // Add marker to the map when the component mounts
     onMounted(() => {
       if (props.map) {
-        marker = L.marker([props.latitude, props.longitude], { icon: customIcon })
+        marker.value = L.marker([props.latitude, props.longitude], { icon: customIcon })
           .addTo(props.map)
           .bindPopup(`Vessel MMSI: ${props.mmsi} <br> Vessel latitude ${props.latitude} <br> Vessel longitude ${props.longitude}`)
           .on('click', () => props.onMarkerClick(props.mmsi));
@@ -49,15 +49,15 @@ export default defineComponent({
 
     // Watch for changes in latitude and longitude to update the marker position
     watch(() => [props.latitude, props.longitude], ([newLat, newLng]) => {
-      if (marker) {
-        marker.setLatLng([newLat, newLng]);
+      if (marker.value) {
+        marker.value.setLatLng([newLat, newLng]);
       }
     });
 
     // Clean up the marker when the component is unmounted
     onUnmounted(() => {
-      if (marker) {
-        marker.remove();
+      if (marker.value) {
+        marker.value.remove();
       }
     });
 
