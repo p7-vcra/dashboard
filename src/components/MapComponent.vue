@@ -1,5 +1,8 @@
 <template>
-  <div id="map" style="height: 100vh;"></div>
+  <div id="map-container">
+    <div id="map" style="height: 100vh;"></div>
+    <CursorCoordinates :latitude="cursorLat" :longitude="cursorLng" />
+  </div>
   <VesselMarker v-for="vessel in vesselArray" :key="vessel.MMSI" :map="map" :mmsi="vessel.MMSI"
     :latitude="vessel.latitude" :longitude="vessel.longitude" :onMarkerClick="handleMarkerClick" />
 </template>
@@ -9,13 +12,16 @@ import { defineComponent, onMounted, ref, computed, watch } from 'vue';
 import L from 'leaflet';
 import { initializeDataFeed, vessels } from '../dataHandler';
 import VesselMarker from './VesselMarker.vue';
+import CursorCoordinates from './CursorCoordinates.vue';
 
 export default defineComponent({
-  components: { VesselMarker },
+  components: { VesselMarker, CursorCoordinates },
   setup() {
     const map = ref<L.Map | null>(null);
     const polylines = ref<{ [key: number]: L.Polyline }>({});
     const selectedVesselMMSI = ref<number | null>(null);
+    const cursorLat = ref<number>(0);
+    const cursorLng = ref<number>(0);
 
     onMounted(() => {
       map.value = L.map('map').setView([56.0, 10.0], 8);
@@ -32,6 +38,11 @@ export default defineComponent({
           }
           selectedVesselMMSI.value = null;
         }
+      });
+
+      map.value.on('mousemove', (e: L.LeafletMouseEvent) => {
+        cursorLat.value = e.latlng.lat;
+        cursorLng.value = e.latlng.lng;
       });
     });
 
@@ -63,9 +74,18 @@ export default defineComponent({
       }
     }, { deep: true });
 
-    return { map, vesselArray, selectedVesselMMSI, handleMarkerClick };
+    return { map, vesselArray, selectedVesselMMSI, handleMarkerClick, cursorLat, cursorLng };
   }
 });
 </script>
 
-<style></style>
+<style>
+#map-container {
+  position: relative;
+  height: 100vh;
+}
+
+#map {
+  height: 100%;
+}
+</style>
