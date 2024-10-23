@@ -1,16 +1,16 @@
 <template>
   <div id="map-container">
-    <div id="map" style="height: 100vh;"></div>
+    <div id="map" style="height: 90vh;"></div>
     <CursorCoordinates :latitude="cursorLat" :longitude="cursorLng" />
   </div>
-  <VesselMarker v-for="vessel in vesselArray" :key="vessel.MMSI" :map="map" :mmsi="vessel.MMSI"
+  <VesselMarker v-for="vessel in vesselArray" :key="vessel.MMSI" :map="initializedMap" :mmsi="vessel.MMSI"
     :latitude="vessel.latitude" :longitude="vessel.longitude" :onMarkerClick="handleMarkerClick" />
 </template>
 
 <script lang="ts">
 import { defineComponent, onMounted, ref, computed, watch } from 'vue';
 import L from 'leaflet';
-import { initializeDataFeed, vessels } from '../dataHandler';
+import { initializeDataFeed, vessels, removeVesselsOutsideBounds} from '../dataHandler';
 import VesselMarker from './VesselMarker.vue';
 import CursorCoordinates from './CursorCoordinates.vue';
 
@@ -22,14 +22,19 @@ export default defineComponent({
     const selectedVesselMMSI = ref<number | null>(null);
     const cursorLat = ref<number>(0);
     const cursorLng = ref<number>(0);
+    const latLowerBound = ref<number>(0);
+    const latUpperBound = ref<number>(0);
+    const lngLowerBound = ref<number>(0);
+    const lngUpperBound = ref<number>(0);
 
     onMounted(() => {
-      map.value = L.map('map').setView([56.0, 10.0], 8);
+      map.value = L.map('map').setView([56.0, 10.0], 10);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         noWrap: true
       }).addTo(map.value as L.Map);
-      initializeDataFeed();
-
+      //initializeDataFeed(latLowerBound.value, latUpperBound.value, lngLowerBound.value, lngUpperBound.value);
+      //initializeDataFeed(54,55,7,8);
+      
       map.value.on('click', () => {
         if (selectedVesselMMSI.value !== null) {
           const polyline = polylines.value[selectedVesselMMSI.value];
@@ -44,6 +49,21 @@ export default defineComponent({
         cursorLat.value = e.latlng.lat;
         cursorLng.value = e.latlng.lng;
       });
+
+      map.value.on('moveend', () => {
+        const bounds = map.value?.getBounds();
+        if (bounds) {
+          latLowerBound.value = bounds.getSouthWest().lat;
+          latUpperBound.value = bounds.getNorthEast().lat;
+          lngLowerBound.value = bounds.getSouthWest().lng;
+          lngUpperBound.value = bounds.getNorthEast().lng;
+          console.log('Bounds:', latLowerBound.value, latUpperBound.value, lngLowerBound.value, lngUpperBound.value);
+        removeVesselsOutsideBounds(latLowerBound.value, latUpperBound.value, lngLowerBound.value, lngUpperBound.value);
+        initializeDataFeed(latLowerBound.value, latUpperBound.value, lngLowerBound.value, lngUpperBound.value);
+
+        }
+      });
+
     });
 
     const vesselArray = computed(() => Object.values(vessels.value));
@@ -74,7 +94,9 @@ export default defineComponent({
       }
     }, { deep: true });
 
-    return { map, vesselArray, selectedVesselMMSI, handleMarkerClick, cursorLat, cursorLng };
+    const initializedMap = computed(() => map.value as L.Map);
+
+    return { map, vesselArray, selectedVesselMMSI, handleMarkerClick, cursorLat, cursorLng, initializedMap };
   }
 });
 </script>
