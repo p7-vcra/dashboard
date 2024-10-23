@@ -10,7 +10,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref, computed, watch } from 'vue';
 import L from 'leaflet';
-import { initializeDataFeed, vessels, removeVesselsOutsideBounds} from '../dataHandler';
+import { initializeDataFeed, vessels, removeVesselsOutsideBounds } from '../dataHandler';
 import VesselMarker from './VesselMarker.vue';
 import CursorCoordinates from './CursorCoordinates.vue';
 
@@ -32,9 +32,7 @@ export default defineComponent({
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         noWrap: true
       }).addTo(map.value as L.Map);
-      //initializeDataFeed(latLowerBound.value, latUpperBound.value, lngLowerBound.value, lngUpperBound.value);
-      //initializeDataFeed(54,55,7,8);
-      
+
       map.value.on('click', () => {
         if (selectedVesselMMSI.value !== null) {
           const polyline = polylines.value[selectedVesselMMSI.value];
@@ -58,15 +56,20 @@ export default defineComponent({
           lngLowerBound.value = bounds.getSouthWest().lng;
           lngUpperBound.value = bounds.getNorthEast().lng;
           console.log('Bounds:', latLowerBound.value, latUpperBound.value, lngLowerBound.value, lngUpperBound.value);
-        removeVesselsOutsideBounds(latLowerBound.value, latUpperBound.value, lngLowerBound.value, lngUpperBound.value);
-        initializeDataFeed(latLowerBound.value, latUpperBound.value, lngLowerBound.value, lngUpperBound.value);
-
+          initializeDataFeed(latLowerBound.value, latUpperBound.value, lngLowerBound.value, lngUpperBound.value);
+          removeVesselsOutsideBounds(latLowerBound.value, latUpperBound.value, lngLowerBound.value, lngUpperBound.value);
         }
       });
-
     });
 
-    const vesselArray = computed(() => Object.values(vessels.value));
+    const isVesselWithinBounds = (vessel: any) => {
+      return vessel.latitude >= latLowerBound.value &&
+             vessel.latitude <= latUpperBound.value &&
+             vessel.longitude >= lngLowerBound.value &&
+             vessel.longitude <= lngUpperBound.value;
+    };
+
+    const vesselArray = computed(() => Object.values(vessels.value).filter(isVesselWithinBounds));
 
     const handleMarkerClick = (mmsi: number) => {
       selectedVesselMMSI.value = mmsi;

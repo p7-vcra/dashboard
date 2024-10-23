@@ -73,11 +73,12 @@ function processVesselData(newData: Array<any>) {
 
     if (vessel) {
       updateVessel(vessel, Latitude, Longitude);
-    } else if (Object.keys(vessels.value).length < 500) {
+    } else if (Object.keys(vessels.value).length < 50) {
       addNewVessel(MMSI, VesselType, Latitude, Longitude, Timestamp);
     }
   });
   console.log("Number of vessels:", Object.keys(vessels.value).length);
+  console.log ("Vessel mmsi:", Object.keys(vessels.value));
 }
 
 // Update existing vessel data
