@@ -9,6 +9,7 @@
       :mmsi="vessel.MMSI"
       :latitude="vessel.latitude"
       :longitude="vessel.longitude"
+      :history="vessel.history"
       :onMarkerClick="handleVesselClick"
     />
     <div v-if="isGridView" class="ship-grid">
@@ -16,7 +17,6 @@
         v-for="vessel in vesselArray"
         :key="vessel.MMSI"
         :ship="vessel"
-        :showPath="() => showVesselPath(vessel.MMSI)"
       />
     </div>
   </div>
@@ -40,6 +40,7 @@ export default defineComponent({
   setup() {
     const map = ref<L.Map | null>(null);
     const polylines = ref<{ [key: number]: L.Polyline }>({});
+    const startMarkers = ref<{ [key: number]: L.Marker }>({});
     const selectedVesselMMSI = ref<number | null>(null);
     const isGridView = ref(false);
     const isMenuOpen = ref(false);
@@ -50,16 +51,28 @@ export default defineComponent({
       const vessel = vessels.value[mmsi];
       if (!vessel || !map.value) return;
 
-      // Remove existing polyline if it exists
-      if (selectedVesselMMSI.value !== null && polylines.value[selectedVesselMMSI.value]) {
-        polylines.value[selectedVesselMMSI.value].remove();
-        delete polylines.value[selectedVesselMMSI.value];
+      // Remove existing polyline and start marker if they exist
+      if (selectedVesselMMSI.value !== null) {
+        if (polylines.value[selectedVesselMMSI.value]) {
+          polylines.value[selectedVesselMMSI.value].remove();
+          delete polylines.value[selectedVesselMMSI.value];
+        }
+        if (startMarkers.value[selectedVesselMMSI.value]) {
+          startMarkers.value[selectedVesselMMSI.value].remove();
+          delete startMarkers.value[selectedVesselMMSI.value];
+        }
       }
 
       // Create a new polyline for the selected vessel
       const latLngs = vessel.history.map(point => [point.latitude, point.longitude]);
       const polyline = L.polyline(latLngs, { color: 'blue' }).addTo(map.value);
       polylines.value[mmsi] = polyline;
+
+      // Add a start marker for the selected vessel
+      const startLatLng = latLngs[0];
+      const startMarker = L.marker(startLatLng).addTo(map.value);
+      startMarkers.value[mmsi] = startMarker;
+
       selectedVesselMMSI.value = mmsi;
     };
 
@@ -74,6 +87,12 @@ export default defineComponent({
       } else {
         const polyline = L.polyline(latLngs, { color: 'blue' }).addTo(map.value);
         polylines.value[mmsi] = polyline;
+      }
+
+      // Update the start marker for the selected vessel if it exists
+      if (startMarkers.value[mmsi]) {
+        const startLatLng = latLngs[0];
+        startMarkers.value[mmsi].setLatLng(startLatLng);
       }
     };
 
@@ -98,6 +117,7 @@ export default defineComponent({
       console.log(`Initializing map at (${initialLatLng[0]}, ${initialLatLng[1]})`);
       map.value = L.map('map').setView(initialLatLng, 13);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        noWrap: true,
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       }).addTo(map.value);
 
@@ -111,25 +131,35 @@ export default defineComponent({
             polyline.remove();
             delete polylines.value[selectedVesselMMSI.value];
           }
+          if (startMarkers.value[selectedVesselMMSI.value]) {
+            startMarkers.value[selectedVesselMMSI.value].remove();
+            delete startMarkers.value[selectedVesselMMSI.value];
+          }
           selectedVesselMMSI.value = null;
         }
       });
     });
 
-   watch(vessels, (newVessels: { [key: number]: any }) => {
+    watch(vessels, (newVessels: { [key: number]: any }) => {
       // Handle changes in the vessels data
       Object.keys(polylines.value).forEach(mmsiStr => {
-      const mmsi = Number(mmsiStr);
-      if (!newVessels[mmsi]) {
-        // Remove polyline if the vessel no longer exists
-        polylines.value[mmsi].remove();
-        delete polylines.value[mmsi];
-      } else {
-        // Update polyline if the vessel still exists
-        const vessel = newVessels[mmsi];
-        const latlngs: L.LatLngTuple[] = vessel.history.map((point: { latitude: number; longitude: number }) => [point.latitude, point.longitude] as L.LatLngTuple);
-        polylines.value[mmsi].setLatLngs(latlngs);
-      }
+        const mmsi = Number(mmsiStr);
+        if (!newVessels[mmsi]) {
+          // Remove polyline if the vessel no longer exists
+          polylines.value[mmsi].remove();
+          delete polylines.value[mmsi];
+        } else {
+          // Update polyline if the vessel still exists
+          const vessel = newVessels[mmsi];
+          const latlngs: L.LatLngTuple[] = vessel.history.map((point: { latitude: number; longitude: number }) => [point.latitude, point.longitude] as L.LatLngTuple);
+          polylines.value[mmsi].setLatLngs(latlngs);
+
+          // Update the start marker for the selected vessel if it exists
+          if (startMarkers.value[mmsi]) {
+            const startLatLng = latlngs[0];
+            startMarkers.value[mmsi].setLatLng(startLatLng);
+          }
+        }
       });
     }, { deep: true });
 
