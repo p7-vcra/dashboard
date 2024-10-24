@@ -10,7 +10,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref, computed, watch } from 'vue';
 import L from 'leaflet';
-import { initializeDataFeed, vessels, removeVesselsOutsideBounds } from '../dataHandler';
+import { fetchLocationBoundData, vessels, removeVesselsOutsideBounds } from '../dataHandler';
 import VesselMarker from './VesselMarker.vue';
 import CursorCoordinates from './CursorCoordinates.vue';
 
@@ -56,7 +56,7 @@ export default defineComponent({
           lngLowerBound.value = bounds.getSouthWest().lng;
           lngUpperBound.value = bounds.getNorthEast().lng;
           console.log('Bounds:', latLowerBound.value, latUpperBound.value, lngLowerBound.value, lngUpperBound.value);
-          initializeDataFeed(latLowerBound.value, latUpperBound.value, lngLowerBound.value, lngUpperBound.value);
+          fetchLocationBoundData(latLowerBound.value, latUpperBound.value, lngLowerBound.value, lngUpperBound.value);
           removeVesselsOutsideBounds(latLowerBound.value, latUpperBound.value, lngLowerBound.value, lngUpperBound.value);
         }
       });
