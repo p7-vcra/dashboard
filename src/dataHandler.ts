@@ -13,7 +13,7 @@ export interface Vessel {
 const vessels = ref<{ [MMSI: number]: Vessel }>({});
 
 // Function to initialize the EventSource connection
-export function initializeDataFeed(
+export function fetchLocationBoundData(
   latLowerbound: Number,
   latUpperbound: Number,
   longLowerbound: Number,
