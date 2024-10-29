@@ -1,11 +1,11 @@
 <template>
-    <div class="cursor-coordinates">
+    <div ref="cursorBox" class="cursor-coordinates">
         Latitude: {{ latitude }}, Longitude: {{ longitude }}
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, onMounted, onBeforeUnmount, ref } from 'vue';
 
 export default defineComponent({
     props: {
@@ -17,15 +17,37 @@ export default defineComponent({
             type: Number,
             required: true,
         },
-    }
+    },
+    setup() {
+        const cursorBox = ref<HTMLElement | null>(null);
+
+        const updatePosition = () => {
+            if (cursorBox.value) {
+                const mapWidth = window.innerWidth; // Assuming the map takes the full width of the window
+                cursorBox.value.style.left = `${mapWidth / 2}px`;
+            }
+        };
+
+        onMounted(() => {
+            window.addEventListener('resize', updatePosition);
+            updatePosition(); // Initial position update
+        });
+
+        onBeforeUnmount(() => {
+            window.removeEventListener('resize', updatePosition);
+        });
+
+        return {
+            cursorBox,
+        };
+    },
 });
 </script>
 
 <style scoped>
 .cursor-coordinates {
     position: absolute;
-    bottom: 10px;
-    left: 50%;
+    bottom: 100px;
     transform: translateX(-50%);
     background-color: rgba(255, 255, 255, 0.8);
     padding: 5px;
