@@ -55,7 +55,7 @@ export default defineComponent({
 
     // Function to get the rotation angle based on the vessel's history
     const getRotationAngle = (history) => {
-      if (history.length < 2) return history.heading; // Return heading if history has less than 2 points
+      if (history.length < 2) return 0; // Return heading if history has less than 2 points
       const p1 = history[history.length - 2]; // Second last point
       const p2 = history[history.length - 1]; // Last point
       const bearing = getBearing(p1.latitude, p1.longitude, p2.latitude, p2.longitude); // Calculate bearing between last two points
@@ -74,7 +74,7 @@ export default defineComponent({
                 <path d="M12.5 0 L25 41 Q12.5 35 0 41 Z"/>
               </svg>`,
         className: 'custom-icon',
-        iconSize: [15, 16],
+        iconSize: [12.5, 16],
         iconAnchor: [12.5, 16]
       });
     };
