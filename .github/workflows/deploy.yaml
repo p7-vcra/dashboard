@@ -27,6 +27,7 @@ jobs:
             cd ${{ secrets.APP_PATH }}
             git pull origin main
             npm install
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/dashboard/dist
             npm run build
             sudo systemctl reload nginx
           ENDSSH
