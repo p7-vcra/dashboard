@@ -93,7 +93,6 @@ function addNewVessel(MMSI: number, VesselType: String, latitude: number, longit
     latitude,
     longitude,
     history: [{ latitude, longitude, timestamp }],
-
   };
 
   //console.log('New vessel added:', vessels.value[MMSI]);
