@@ -16,14 +16,14 @@ jobs:
       - name: Set up SSH key and known hosts
         run: |
           mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/strato_key.pem
-          chmod 600 ~/.ssh/strato_key.pem
-          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+          echo "${{ secrets.SSH_PRIAVTE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p 22 ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+          sudo apt-get install sshpass
 
       - name: Deploy to Server
         run: |
-          ssh -i ~/.ssh/strato_key.pem -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.SERVER_IP }} << 'ENDSSH'
+          ssh -v -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.SERVER_IP }} <<'ENDSSH'
             cd ${{ secrets.APP_PATH }}
             git pull origin main
             npm install
