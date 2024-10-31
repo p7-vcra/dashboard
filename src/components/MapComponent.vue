@@ -10,6 +10,7 @@
       :latitude="vessel.latitude"
       :longitude="vessel.longitude"
       :history="vessel.history"
+      :heading="vessel.heading"
       :onMarkerClick="handleVesselClick"
     />
     <div v-if="isGridView" class="ship-grid">
@@ -76,7 +77,7 @@ export default defineComponent({
       selectedVesselMMSI.value = mmsi;
     };
 
-    const updateVesselPath = (mmsi: number) => {
+  /*   const updateVesselPath = (mmsi: number) => {
       const vessel = vessels.value[mmsi];
       if (!vessel || !map.value) return;
 
@@ -94,7 +95,7 @@ export default defineComponent({
         const startLatLng = latLngs[0];
         startMarkers.value[mmsi].setLatLng(startLatLng);
       }
-    };
+    }; */
 
     const toggleView = (view: string) => {
       isGridView.value = view === 'dashboard';
