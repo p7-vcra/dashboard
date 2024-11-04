@@ -1,0 +1,33 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up SSH key and known hosts
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p 22 ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+          sudo apt-get install sshpass
+
+      - name: Deploy to Server
+        run: |
+          ssh -v -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.SERVER_IP }} <<'ENDSSH'
+            cd ${{ secrets.APP_PATH }}
+            git pull origin main
+            npm install
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/dashboard/dist
+            npm run build
+            sudo systemctl reload nginx
+          ENDSSH
