@@ -6,7 +6,7 @@
     <VesselMarker
       v-for="vessel in vesselArray"
       :key="vessel.MMSI"
-      :map="map"
+      :map="map || {}"
       :mmsi="vessel.MMSI"
       :latitude="vessel.latitude"
       :longitude="vessel.longitude"
@@ -46,7 +46,6 @@ export default defineComponent({
   setup() {
     const map = ref<L.Map | null>(null);
     const polylines = ref<{ [key: number]: L.Polyline }>({});
-    const startMarkers = ref<{ [key: number]: L.Marker }>({});
     const selectedVesselMMSI = ref<number | null>(null);
     const isGridView = ref(false);
     const isMenuOpen = ref(false);
@@ -69,28 +68,16 @@ export default defineComponent({
           polylines.value[selectedVesselMMSI.value].remove();
           delete polylines.value[selectedVesselMMSI.value];
         }
-        if (startMarkers.value[selectedVesselMMSI.value]) {
-          startMarkers.value[selectedVesselMMSI.value].remove();
-          delete startMarkers.value[selectedVesselMMSI.value];
-        }
       }
 
       // Create a new polyline for the selected vessel
-      const latLngs = vessel.history.map(point => [point.latitude, point.longitude]);
-      const polyline = L.polyline(latLngs, { color: 'blue' }).addTo(map.value);
+      const latLngs: L.LatLngTuple[] = vessel.history.map(point => [point.latitude, point.longitude] as L.LatLngTuple);
+      const polyline = L.polyline(latLngs, { color: 'blue' }).addTo(map.value as L.Map);
       polylines.value[mmsi] = polyline;
-
-      // Add a start marker for the selected vessel
-      const startLatLng = latLngs[0];
-      const startMarker = L.marker(startLatLng).addTo(map.value);
-      startMarkers.value[mmsi] = startMarker;
+      
 
       selectedVesselMMSI.value = mmsi;
     };
-
-  
-
-
 
     const toggleView = (view: string) => {
       isGridView.value = view === 'dashboard';
@@ -118,10 +105,6 @@ export default defineComponent({
           const polyline = polylines.value[selectedVesselMMSI.value];
           if (polyline) {
             polyline.remove();
-          }
-          if (startMarkers.value[selectedVesselMMSI.value]) {
-            startMarkers.value[selectedVesselMMSI.value].remove();
-            delete startMarkers.value[selectedVesselMMSI.value];
           }
           selectedVesselMMSI.value = null;
         }
