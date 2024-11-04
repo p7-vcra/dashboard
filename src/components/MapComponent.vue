@@ -10,7 +10,8 @@
       :latitude="vessel.latitude"
       :longitude="vessel.longitude"
       :history="vessel.history"
-      :heading="vessel.heading"
+      :cog="vessel.cog"
+      :sog="vessel.sog"
       :onMarkerClick="handleVesselClick"
     />
     <div v-if="isGridView" class="ship-grid">

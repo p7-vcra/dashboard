@@ -5,7 +5,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref, watch, onUnmounted } from 'vue';
 import L from 'leaflet';
-import { vessels } from '../dataHandler';
+//import { vessels } from '../dataHandler';
 
 
 export default defineComponent({
@@ -31,7 +31,11 @@ export default defineComponent({
       type: Array,
       required: true
     },
-    heading:{
+    cog:{
+      type: Number,
+      required: true
+    },
+    sog:{
       type: Number,
       required: true
     },
@@ -45,7 +49,7 @@ export default defineComponent({
 
     const customIcon = () => {
       return L.divIcon({
-        html: `<svg viewBox="0 0 25 41" xmlns="http://www.w3.org/2000/svg" style="transform: rotate(${props.heading}deg); transform-origin: center bottom">
+        html: `<svg viewBox="0 0 25 41" xmlns="http://www.w3.org/2000/svg" style="transform: rotate(${props.cog}deg); transform-origin: center bottom">
                 <path d="M12.5 0 L25 41 Q12.5 35 0 41 Z"/>
               </svg>`,
         className: 'custom-icon',
@@ -57,7 +61,7 @@ export default defineComponent({
     onMounted(() => {
       if (props.latitude !== undefined && props.longitude !== undefined && props.map) {
         //(`Creating marker for vessel with MMSI ${props.mmsi} at (${props.latitude}, ${props.longitude}) with angle ${angle}`);
-        marker.value = L.marker([props.latitude, props.longitude], { icon: customIcon(props.heading) })
+        marker.value = L.marker([props.latitude, props.longitude], { icon: customIcon(props.cog) })
           .addTo(props.map)
           .bindPopup(`Vessel MMSI: ${props.mmsi} <br> Vessel position: (${props.latitude}, ${props.longitude})`);
 
@@ -70,12 +74,14 @@ export default defineComponent({
       }
     });
 
-    watch(() => [props.latitude, props.longitude, props.history], ([newLat, newLng]) => {
+    watch(() => [props.latitude, props.longitude, props.history, props.cog, props.sog], ([newLat, newLng, newCog, newSog]) => {
       if (marker.value) {
-        console.log(`Updating marker position for vessel with MMSI ${props.mmsi} and heading ${props.heading} to (${newLat}, ${newLng}) `);
-        marker.value.setLatLng([newLat, newLng]);
-        marker.value.setIcon(customIcon(props.heading));
+        console.log(`Updating marker position for vessel with MMSI ${props.mmsi} and COG ${props.cog} sog ${props.sog} to (${newLat}, ${newLng})`);
+        marker.value.setLatLng([newLat, newLng, newCog]);
+        marker.value.setIcon(customIcon(newCog));
+        
       }
+
     });
 
     onUnmounted(() => {
