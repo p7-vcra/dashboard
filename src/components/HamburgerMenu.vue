@@ -15,7 +15,7 @@ import { defineComponent, ref } from 'vue';
 
 export default defineComponent({
   name: 'HamburgerMenu',
-  emits: ['viewSelected'],
+  emits: ['viewSelected', 'menuToggled'],
   setup(_, { emit }) {
     const isMenuOpen = ref(false);
 
