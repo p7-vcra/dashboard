@@ -1,60 +1,89 @@
 <template>
+  <div></div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, onUnmounted, watch, PropType } from 'vue';
+import { defineComponent, onMounted, ref, watch, onUnmounted } from 'vue';
 import L from 'leaflet';
+//import { vessels } from '../dataHandler';
+
 
 export default defineComponent({
+  name: 'VesselMarker',
   props: {
     map: {
-      type: Object as () => L.Map,
+      type: Object,
       required: true
     },
     mmsi: {
       type: Number,
-      required: true,
+      required: true
     },
     latitude: {
       type: Number,
-      required: true,
+      required: true
     },
     longitude: {
       type: Number,
-      required: true,
+      required: true
+    },
+    history: {
+      type: Array,
+      required: true
+    },
+    cog:{
+      type: Number,
+      required: true
+    },
+    sog:{
+      type: Number,
+      required: true
     },
     onMarkerClick: {
-      type: Function as PropType<(mmsi: number) => void>,
-      required: true,
-    },
+      type: Function,
+      required: true
+    }
   },
   setup(props) {
-    let marker = ref<L.Marker | null>(null);
+    const marker = ref<L.Marker | null>(null);
 
-     const customIcon = L.icon({
-      iconUrl: 'src/assets/ship.png', // Path to custom icon
-      iconSize: [25, 41], // Size of the icon
-      
-    });
+    const customIcon = () => {
+      return L.divIcon({
+        html: `<svg viewBox="0 0 25 41" xmlns="http://www.w3.org/2000/svg" style="transform: rotate(${props.cog}deg); transform-origin: center bottom">
+                <path d="M12.5 0 L25 41 Q12.5 35 0 41 Z"/>
+              </svg>`,
+        className: 'custom-icon',
+        iconSize: [12.5, 16],
+        iconAnchor: [12.5, 16]
+      });
+    };
 
-    // Add marker to the map when the component mounts
     onMounted(() => {
-      if (props.map) {
-        marker.value = L.marker([props.latitude, props.longitude], { icon: customIcon })
+      if (props.latitude !== undefined && props.longitude !== undefined && props.map) {
+        //(`Creating marker for vessel with MMSI ${props.mmsi} at (${props.latitude}, ${props.longitude}) with angle ${angle}`);
+        marker.value = L.marker([props.latitude, props.longitude], { icon: customIcon(props.cog) })
           .addTo(props.map)
-          .bindPopup(`Vessel MMSI: ${props.mmsi} <br> Vessel latitude ${props.latitude} <br> Vessel longitude ${props.longitude}`)
-          .on('click', () => props.onMarkerClick(props.mmsi));
+          .bindPopup(`Vessel MMSI: ${props.mmsi} <br> Vessel position: (${props.latitude}, ${props.longitude})`);
+
+        // Handle marker click
+        marker.value.on('click', () => {
+          props.onMarkerClick(props.mmsi);
+        });
+      } else {
+        console.error(`Invalid coordinates for vessel with MMSI ${props.mmsi}: (${props.latitude}, ${props.longitude})`);
       }
     });
 
-    // Watch for changes in latitude and longitude to update the marker position
-    watch(() => [props.latitude, props.longitude], ([newLat, newLng]) => {
+    watch(() => [props.latitude, props.longitude, props.history, props.cog, props.sog], ([newLat, newLng, newCog, newSog]) => {
       if (marker.value) {
-        marker.value.setLatLng([newLat, newLng]);
+        console.log(`Updating marker position for vessel with MMSI ${props.mmsi} and COG ${props.cog} sog ${props.sog} to (${newLat}, ${newLng})`);
+        marker.value.setLatLng([newLat, newLng, newCog]);
+        marker.value.setIcon(customIcon(newCog));
+        
       }
+
     });
 
-    // Clean up the marker when the component is unmounted
     onUnmounted(() => {
       if (marker.value) {
         marker.value.remove();
@@ -65,3 +94,12 @@ export default defineComponent({
   }
 });
 </script>
+
+<style>
+.custom-icon {
+  fill: green;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>
