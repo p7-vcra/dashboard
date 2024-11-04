@@ -13,6 +13,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
       - name: Set up SSH key and known hosts
         run: |
           mkdir -p ~/.ssh
@@ -21,12 +26,15 @@ jobs:
           ssh-keyscan -p 22 ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
           sudo apt-get install sshpass
 
+      - name: Clear npm cache
+        run: npm cache clean --force
+
       - name: Deploy to Server
         run: |
           ssh -v -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.SERVER_IP }} <<'ENDSSH'
             cd ${{ secrets.APP_PATH }}
             git pull origin main
-            npm install
+            npm install --verbose
             sudo chown -R ubuntu:ubuntu /home/ubuntu/dashboard/dist
             npm run build
             sudo systemctl reload nginx
