@@ -47,20 +47,22 @@ export default defineComponent({
   setup(props) {
     const marker = ref<L.Marker | null>(null);
 
-    const customIcon = (cog: number) => {
+    const customIcon = () => {
       return L.divIcon({
-      html: `<img src="/public/assets/fullyColoredArrow.svg" style="transform: rotate(${cog}deg); transform-origin: center bottom" />`,
+      html: `<img src="assets/fullyColoredArrow.svg" style="transform: rotate(${props.cog}deg); transform-origin: center bottom" />`,
       className: 'custom-icon',
-      iconSize: [25, 41],
-      iconAnchor: [12.5, 41]
+      iconSize: [15, 20],
+      iconAnchor: [15, 20]
+      
       });
     };
   
+    //"public/assets/fullyColoredArrow.svg"
 
     onMounted(() => {
       if (props.latitude !== undefined && props.longitude !== undefined && props.map) {
         //(`Creating marker for vessel with MMSI ${props.mmsi} at (${props.latitude}, ${props.longitude}) with angle ${angle}`);
-        marker.value = L.marker([props.latitude, props.longitude], { icon: customIcon(props.cog) })
+        marker.value = L.marker([props.latitude, props.longitude], { icon: customIcon() })
       .addTo(props.map as L.Map)
       .bindPopup(`Vessel MMSI: ${props.mmsi} <br> Vessel position: (${props.latitude}, ${props.longitude})`);
 
@@ -77,7 +79,7 @@ export default defineComponent({
       if (marker.value) {
         console.log(`Updating marker position for vessel with MMSI ${props.mmsi} and COG ${props.cog} sog ${props.sog} to (${newLat}, ${newLng})`);
         marker.value.setLatLng([newLat as number, newLng as number, newCog as number]);
-        marker.value.setIcon(customIcon(newCog as number));
+        marker.value.setIcon(customIcon());
         
       }
 
