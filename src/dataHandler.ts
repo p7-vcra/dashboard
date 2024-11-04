@@ -6,8 +6,9 @@ export interface Vessel {
   VesselType: String;
   latitude: number;
   longitude: number;
-  history: Array<{ latitude: number, longitude: number, timestamp: string, heading: number }>;
-  heading: number;
+  history: Array<{ latitude: number, longitude: number, timestamp: string, cog: number, sog: number }>;
+  cog: number;
+  sog: number
 }
 
 // Create a reactive object to store vessel data
@@ -47,11 +48,11 @@ function handleEventError(error: Event, eventSource: EventSource) {
 // Process new vessel data
 function processVesselData(newData: Array<any>) {
   newData.forEach((data) => {
-    const { MMSI, "Type of mobile": VesselType, Latitude, Longitude, Timestamp, Heading } = data;
+    const { MMSI, "Type of mobile": VesselType, Latitude, Longitude, Timestamp, COG, SOG } = data;
     //console.log(`Vessel with mmsi: ${MMSI} has heading: ${Heading}`);
     
-    // Validate MMSI, Latitude, Longitude and Heading
-    if (!MMSI || isNaN(MMSI) || isNaN(Latitude) || isNaN(Longitude) || isNaN(Heading)) {
+    // Validate MMSI, Latitude, Longitude COG, and SOG values
+    if (!MMSI || isNaN(MMSI) || isNaN(Latitude) || isNaN(Longitude) || isNaN(COG) || isNaN(SOG)) {
       console.warn('Invalid vessel data:', data);  // Log invalid data for debugging
       return;  // Skip invalid data
     }
@@ -59,30 +60,32 @@ function processVesselData(newData: Array<any>) {
     const vessel = vessels.value[MMSI];
 
     if (vessel) {
-      updateVessel(vessel, Latitude, Longitude, Heading);
+      updateVessel(vessel, Latitude, Longitude, COG, SOG);
     } else if (Object.keys(vessels.value).length < 50) {
-      addNewVessel(MMSI, VesselType, Latitude, Longitude, Timestamp, Heading);
+      addNewVessel(MMSI, VesselType, Latitude, Longitude, Timestamp, COG, SOG);
     }
   });
   //console.log('Number of vessels:', Object.keys(vessels.value).length);
 }
 
 // Update existing vessel data
-function updateVessel(vessel: Vessel, latitude: number, longitude: number, heading: number) {
+function updateVessel(vessel: Vessel, latitude: number, longitude: number, cog: number, sog: number) {
   vessel.history.push({
     latitude: vessel.latitude,
     longitude: vessel.longitude,
     timestamp: vessel.history[vessel.history.length - 1]?.timestamp || '',
-    heading: vessel.heading
+    cog: vessel.cog,
+    sog: vessel.sog
   });
   vessel.latitude = latitude;
   vessel.longitude = longitude;
-  vessel.heading = heading;
+  vessel.cog = cog;
+  vessel.sog = sog;
 }
 
-function addNewVessel(MMSI: number, VesselType: String, latitude: number, longitude: number, timestamp: string, heading: number) {
+function addNewVessel(MMSI: number, VesselType: String, latitude: number, longitude: number, timestamp: string, cog: number, sog: number) {
   // Ensure MMSI is a valid number before adding the vessel
-  if (isNaN(MMSI) || VesselType !== "Class A" || heading === null) {
+  if (isNaN(MMSI) || VesselType !== "Class A" || cog === null || sog === null) {
     //console.warn('Invalid MMSI value:', MMSI);
     return;  // Skip adding the vessel if MMSI is invalid
   }
@@ -92,8 +95,9 @@ function addNewVessel(MMSI: number, VesselType: String, latitude: number, longit
     VesselType,
     latitude,
     longitude,
-    heading,
-    history: [{ latitude, longitude, timestamp, heading }],
+    cog,
+    sog,
+    history: [{ latitude, longitude, timestamp, cog, sog }],
   };
 
   //console.log('New vessel added:', vessels.value[MMSI]);

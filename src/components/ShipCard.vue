@@ -4,6 +4,8 @@
     <p>Type: {{ ship.VesselType }}</p>
     <p>Latitude: {{ ship.latitude }}</p>
     <p>Longitude: {{ ship.longitude }}</p>
+    <p>COG: {{ ship.cog }}</p>
+    <p>SOG: {{ ship.sog }}</p>
   </div>
 </template>
 
