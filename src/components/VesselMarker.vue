@@ -56,8 +56,6 @@ export default defineComponent({
       
       });
     };
-  
-    //"public/assets/fullyColoredArrow.svg"
 
     onMounted(() => {
       if (props.latitude !== undefined && props.longitude !== undefined && props.map) {

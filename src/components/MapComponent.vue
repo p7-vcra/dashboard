@@ -13,7 +13,7 @@
       :history="vessel.history"
       :cog="vessel.cog"
       :sog="vessel.sog"
-      :onMarkerClick="handleVesselClick"
+      :onMarkerClick="handleMarkerClick"
     />
     <div v-if="isGridView" class="ship-grid">
       <ShipCard
@@ -56,36 +56,11 @@ export default defineComponent({
     const lngLowerBound = ref<number>(0);
     const lngUpperBound = ref<number>(0);
 
-    //const vesselArray = computed(() => Object.values(vessels.value));
-  
-    const showVesselPath = (mmsi: number) => {
-      const vessel = vessels.value[mmsi];
-      if (!vessel || !map.value) return;
-
-      // Remove existing polyline and start marker if they exist
-      if (selectedVesselMMSI.value !== null) {
-        if (polylines.value[selectedVesselMMSI.value]) {
-          polylines.value[selectedVesselMMSI.value].remove();
-          delete polylines.value[selectedVesselMMSI.value];
-        }
-      }
-
-      // Create a new polyline for the selected vessel
-      const latLngs: L.LatLngTuple[] = vessel.history.map(point => [point.latitude, point.longitude] as L.LatLngTuple);
-      const polyline = L.polyline(latLngs, { color: 'blue' }).addTo(map.value as L.Map);
-      polylines.value[mmsi] = polyline;
-      
-
-      selectedVesselMMSI.value = mmsi;
-    };
 
     const toggleView = (view: string) => {
       isGridView.value = view === 'dashboard';
     };
 
-    const handleVesselClick = (mmsi: number) => {
-      showVesselPath(mmsi);
-    };
 
     const handleMenuToggle = (isOpen: boolean) => {
       isMenuOpen.value = isOpen;
@@ -168,7 +143,6 @@ export default defineComponent({
     const initializedMap = computed(() => map.value as L.Map);
 
     return { map, vesselArray, selectedVesselMMSI, handleMarkerClick, cursorLat, cursorLng, initializedMap, toggleView,
-      handleVesselClick,
       isGridView,
       isMenuOpen,
       handleMenuToggle };
