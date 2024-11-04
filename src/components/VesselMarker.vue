@@ -49,14 +49,13 @@ export default defineComponent({
 
     const customIcon = (cog: number) => {
       return L.divIcon({
-        html: `<svg viewBox="0 0 25 41" xmlns="http://www.w3.org/2000/svg" style="transform: rotate(${cog}deg); transform-origin: center bottom">
-                <path d="M12.5 0 L25 41 Q12.5 35 0 41 Z"/>
-              </svg>`,
-        className: 'custom-icon',
-        iconSize: [12.5, 16],
-        iconAnchor: [12.5, 16]
+      html: `<img src="/public/assets/fullyColoredArrow.svg" style="transform: rotate(${cog}deg); transform-origin: center bottom" />`,
+      className: 'custom-icon',
+      iconSize: [25, 41],
+      iconAnchor: [12.5, 41]
       });
     };
+  
 
     onMounted(() => {
       if (props.latitude !== undefined && props.longitude !== undefined && props.map) {
