@@ -57,8 +57,8 @@ export default defineComponent({
     const lngLowerBound = ref<number>(0);
     const lngUpperBound = ref<number>(0);
 
-    const vesselArray = computed(() => Object.values(vessels.value));
-  /*
+    //const vesselArray = computed(() => Object.values(vessels.value));
+  
     const showVesselPath = (mmsi: number) => {
       const vessel = vessels.value[mmsi];
       if (!vessel || !map.value) return;
@@ -86,7 +86,7 @@ export default defineComponent({
       startMarkers.value[mmsi] = startMarker;
 
       selectedVesselMMSI.value = mmsi;
-    };*/
+    };
 
   
 
@@ -216,5 +216,5 @@ export default defineComponent({
   height: 100vh; /* Ensure the map takes the full height */
   position: relative;
   z-index: 1;
-
+}
 </style>
