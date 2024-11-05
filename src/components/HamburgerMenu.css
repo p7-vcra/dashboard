@@ -1,0 +1,42 @@
+.hamburger-button {
+    font-size: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 0px;
+    z-index: 1000;
+}
+
+.menu-content {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: fit-content;
+    height: fit-content;
+    background: white;
+    border-right: 1px solid #ccc;
+    padding: 10px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    transition: right 0.3s ease;
+    z-index: 999;
+}
+
+.menu-open {
+    right: 0;
+}
+.menu-close {
+    right: -100%;
+}
+
+.menu-content button {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 10px;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+}

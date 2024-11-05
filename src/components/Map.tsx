@@ -3,6 +3,8 @@ import _ from "lodash";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import MarkerClusterGroup from 'react-leaflet-markercluster';
+import HamburgerMenu from "./HamburgerMenu";
+import Shipcard from "./ShipCard";
 
 // Memoized Marker to prevent blinking
 const MemoizedMarker = React.memo(({ position, children }) => {
@@ -39,7 +41,7 @@ function MapContent() {
             const eventData = JSON.parse(event.data);
 
             const parsedData = eventData.reduce((acc, vessel) => {
-                const { MMSI: mmsi, "Type of mobile": vesselType, Latitude: latitude, Longitude: longitude } = vessel;
+                const { MMSI: mmsi, "Type of mobile": vesselType, Latitude: latitude, Longitude: longitude, SOG: sog, COG: cog } = vessel;
 
                 if (vesselType === "Class A" && !isNaN(mmsi)) {
                     acc[mmsi] = {
@@ -48,9 +50,11 @@ function MapContent() {
                         vesselType,
                         latitude,
                         longitude,
+                        sog,
+                        cog,
                         history: [
                             ...(vesselsRef.current[mmsi]?.history || []),
-                            { latitude, longitude, timestamp: new Date().toISOString() }
+                            { latitude, longitude, timestamp: new Date().toISOString(), sog, cog }
                         ]
                     };
                 }
@@ -72,7 +76,8 @@ function MapContent() {
                     <Popup>
                         <div>
                             <h1>{vessel.vesselType}</h1>
-                            <p>{vessel.mmsi}</p>
+                            <p> MMSI:{vessel.mmsi}</p>
+                            <p>{`Lat ${vessel.latitude}, Lng ${vessel.longitude}`}</p>
                         </div>
                     </Popup>
                 </MemoizedMarker>
@@ -85,8 +90,11 @@ function Map() {
     const denmarkCoords = new LatLng(56.2639, 9.5018);
 
     return (
+        
         <div className="w-full h-full border-red-600 border">
+            
             <MapContainer minZoom={5} maxZoom={30} center={denmarkCoords} zoom={4} className="w-full h-full" attributionControl={false}>
+                <HamburgerMenu />
                 <MapContent />
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -96,6 +104,7 @@ function Map() {
             </MapContainer>
         </div>
     );
+
 }
 
 export default Map;
