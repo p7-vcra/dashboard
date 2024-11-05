@@ -10,8 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.6.0",
+    "@fortawesome/free-solid-svg-icons": "^6.6.0",
+    "@fortawesome/react-fontawesome": "^0.2.2",
     "@microsoft/fetch-event-source": "^2.0.1",
     "leaflet": "^1.9.4",
+    "leaflet-rotatedmarker": "^0.2.0",
     "lodash": "^4.17.21",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -32,6 +36,7 @@
     "eslint-plugin-react-refresh": "^0.4.9",
     "globals": "^15.9.0",
     "postcss": "^8.4.47",
+    "react-router-dom": "^6.27.0",
     "tailwindcss": "^3.4.12",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",

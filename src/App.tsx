@@ -1,14 +1,19 @@
-import Map from "./components/Map";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import './leaflet.css';
+import Dashboard from "./pages/Dashboard";
+import Layout from "./pages/Layout";
+import Map from "./pages/Map";
 
 function App() {
   return (
-    <div className="flex h-[50rem]">
-      <div className="h-full w-full">
-        <Map></Map>
-
-      </div>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Map />} />
+          <Route path="dashboard" element={<Dashboard />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 
