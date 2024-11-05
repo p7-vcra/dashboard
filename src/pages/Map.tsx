@@ -1,20 +1,42 @@
-import { LatLng, Marker as LeafletMarker } from "leaflet";
+import { faLocationArrow } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import L, { LatLng, MarkerCluster } from "leaflet";
+import 'leaflet-rotatedmarker';
 import _ from "lodash";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import MarkerClusterGroup from 'react-leaflet-markercluster';
+import { Vessel, revivier as vesselsJsonRevivier } from "../components/Vessel";
+
+const arrowMarkup = renderToStaticMarkup(<FontAwesomeIcon icon={faLocationArrow} transform={{ rotate: -45, size: 25 }} />);
 
 // Memoized Marker to prevent blinking
-const MemoizedMarker = React.memo(({ position, children }) => {
+const MemoizedMarker = React.memo(({ position, rotation, children }) => {
     return (
-        <Marker position={position}>
+        <Marker position={position} icon={createVesselIcon()} rotationAngle={rotation} >
             {children}
-        </Marker>
+        </Marker >
     );
 });
 
+
+function createClusterIcon(cluster: MarkerCluster) {
+    return L.divIcon({
+        html: `<span class="text-white bg-red-700  h-7 w-7 font-medium rounded-full flex justify-center items-center">${cluster.getChildCount()}</span>`,
+        iconSize: L.point(33, 33, true),
+    })
+}
+
+function createVesselIcon() {
+    return L.divIcon({
+        html: arrowMarkup,
+    });
+}
+
+
 function MapContent() {
-    const [vessels, setVessels] = useState({});
+    const [vessels, setVessels] = useState<{ [mmsi: number]: Vessel }>({});
     const map = useMap();
     const vesselsRef = useRef(vessels);
     vesselsRef.current = vessels;
@@ -30,28 +52,19 @@ function MapContent() {
         const bounds = map.getBounds();
 
         const url = `http://130.225.37.58:8000/slice?latitude_range=${bounds.getSouth()},${bounds.getNorth()}&longitude_range=${bounds.getWest()},${bounds.getEast()}`;
-
         const eventSource = new EventSource(url);
 
         eventSource.onopen = () => console.log("EventSource connection opened");
 
         eventSource.addEventListener("ais", (event) => {
-            const eventData = JSON.parse(event.data);
-
-            const parsedData = eventData.reduce((acc, vessel) => {
-                const { MMSI: mmsi, "Type of mobile": vesselType, Latitude: latitude, Longitude: longitude } = vessel;
+            const eventData: Vessel[] = JSON.parse(event.data, vesselsJsonRevivier);
+            const parsedData = eventData.reduce((acc: { [mmsi: number]: Vessel }, vessel: Vessel) => {
+                const { mmsi, vesselType } = vessel;
 
                 if (vesselType === "Class A" && !isNaN(mmsi)) {
                     acc[mmsi] = {
                         ...vesselsRef.current[mmsi],
-                        mmsi,
-                        vesselType,
-                        latitude,
-                        longitude,
-                        history: [
-                            ...(vesselsRef.current[mmsi]?.history || []),
-                            { latitude, longitude, timestamp: new Date().toISOString() }
-                        ]
+                        ...vessel,
                     };
                 }
                 return acc;
@@ -66,9 +79,9 @@ function MapContent() {
     }, [map, updateVessels]);
 
     return (
-        <MarkerClusterGroup>
-            {Object.values(vessels).map((vessel) => (
-                <MemoizedMarker key={vessel.mmsi} position={new LatLng(vessel.latitude, vessel.longitude)}>
+        <MarkerClusterGroup iconCreateFunction={createClusterIcon}>
+            {Object.values(vessels).map((vessel: Vessel) => (
+                <MemoizedMarker key={vessel.mmsi} position={new LatLng(vessel.latitude, vessel.longitude)} rotation={vessel.cog}>
                     <Popup>
                         <div>
                             <h1>{vessel.vesselType}</h1>
@@ -81,11 +94,14 @@ function MapContent() {
     );
 }
 
+
+
+
 function Map() {
     const denmarkCoords = new LatLng(56.2639, 9.5018);
 
     return (
-        <div className="w-full h-full border-red-600 border">
+        <div className="relative h-screen">
             <MapContainer minZoom={5} maxZoom={30} center={denmarkCoords} zoom={4} className="w-full h-full" attributionControl={false}>
                 <MapContent />
                 <TileLayer
