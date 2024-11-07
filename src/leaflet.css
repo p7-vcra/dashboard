@@ -485,7 +485,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
 }
 
 /* popup */
-
+/* 
 .leaflet-popup {
   position: absolute;
   text-align: center;
@@ -573,7 +573,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
 .leaflet-oldie .leaflet-popup-content-wrapper,
 .leaflet-oldie .leaflet-popup-tip {
   border: 1px solid #999;
-}
+} */
 
 /* div icon */
 
@@ -584,7 +584,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
 /* Tooltip */
 /* Base styles for the element that has a tooltip */
-.leaflet-tooltip {
+/* .leaflet-tooltip {
   position: absolute;
   padding: 6px;
   background-color: #fff;
@@ -612,7 +612,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   border: 6px solid transparent;
   background: transparent;
   content: '';
-}
+} */
 
 /* Directions */
 
