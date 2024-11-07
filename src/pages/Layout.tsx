@@ -1,7 +1,5 @@
-// Basic menu layout
-import { faDashboard, faMap } from '@fortawesome/free-solid-svg-icons';
+import { faMap, faShip } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React from 'react';
 import { Link, Outlet } from 'react-router-dom';
 
 function Layout() {
@@ -11,10 +9,10 @@ function Layout() {
             icon: faMap,
             href: "/"
         },
-        dashboard: {
-            display: "Dashboard",
-            icon: faDashboard,
-            href: "/dashboard"
+        vessels: {
+            display: "Vessels",
+            icon: faShip,
+            href: "/vessels"
         },
     }
 
@@ -25,7 +23,7 @@ function Layout() {
                     <ul className="space-y-2 font-medium">
                         {Object.values(routes).map(route => (
                             <li key={route.href}>
-                                <Link to={route.href} className="flex items-center p-2 text-white rounded-lg  hover:bg-zinc-700  group">
+                                <Link to={route.href} className="flex items-center p-2 text-white rounded-lg  hover:bg-zinc-700">
                                     <FontAwesomeIcon icon={route.icon} className="mr-2" />
                                     <span>{route.display}</span>
                                 </Link>
