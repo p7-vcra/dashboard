@@ -1,21 +1,12 @@
-import { faLocationArrow } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import L, { LatLng, MarkerCluster } from "leaflet";
+import { LatLng } from "leaflet";
 import 'leaflet-rotatedmarker';
-import { useEffect, useRef, useState } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
-import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
-import MarkerClusterGroup from 'react-leaflet-markercluster';
+import { useState } from "react";
+import { MapContainer, TileLayer } from "react-leaflet";
 import { default as MapContent } from "../components/MapContent";
-import { Vessel, revivier as vesselsJsonRevivier } from "../components/Vessel";
-import { useVessels } from "../contexts/VesselsContext";
-
-
 
 
 function Map() {
     const denmarkCoords = new LatLng(56.2639, 9.5018);
-
 
     const [mapOptions, setMapOptions] = useState({
         center: denmarkCoords,
