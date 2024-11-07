@@ -1,22 +1,23 @@
 import { faClose } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useEffect } from "react";
-import { Vessel } from "./Vessel";
+import { useEffect, useRef } from "react";
+import { useVessels } from "../contexts/VesselsContext";
 
 interface VesselModalProps {
-    vessel: Vessel;
+    mmsi: number;
     onClose: () => void;
 }
 
-function VesselModal({ vessel, onClose }: VesselModalProps) {
+function VesselModal({ mmsi, onClose }: VesselModalProps) {
+    const { vessels } = useVessels();
 
+    const selectedVesselRef = useRef(vessels[mmsi]);
     useEffect(() => {
-        console.log("Vessel Modal mounted");
+        selectedVesselRef.current = vessels[mmsi];
+
         return () => {
-            console.log("Vessel Modal unmounted");
-            console.log(vessel);
         };
-    }, [vessel]);
+    }, [mmsi, vessels]);
 
     return (
         <div >
@@ -40,21 +41,21 @@ function VesselModal({ vessel, onClose }: VesselModalProps) {
                 </div>
                 <div className="p-4">
                     <ul className="w-64 text-xl">
-                        {Object.entries(vessel).map(([key, value]) => (
-                            <li key={key} className="text-white py-4">
-                                <div className="font-bold text-zinc-300 text-xs">
-                                    {key.toUpperCase()}
-                                </div>
-                                <div>
-                                    {value}
-                                </div>
-                            </li>
-                        ))
-                        }
-
+                        {selectedVesselRef.current && Object.entries(selectedVesselRef.current).map(([key, value]) => (
+                            key !== "history" && (
+                                <li key={key} className="text-white py-4">
+                                    <div className="font-bold text-zinc-300 text-xs">
+                                        {key.toUpperCase()}
+                                    </div>
+                                    <div>
+                                        {value}
+                                    </div>
+                                </li>
+                            )
+                        ))}
                     </ul>
                 </div>
-            </div >
+            </div>
         </div >
     );
 }
