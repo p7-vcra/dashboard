@@ -1,4 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { ActiveVesselProvider } from "./contexts/ActiveVesselContext";
 import { VesselsProvider } from './contexts/VesselsContext'; // Import the VesselsProvider
 import './leaflet.css';
 import Layout from "./pages/Layout";
@@ -9,12 +10,14 @@ function App() {
   return (
     <BrowserRouter>
       <VesselsProvider>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Map />} />
-            <Route path="/vessels" element={<Vessels />} />
-          </Route>
-        </Routes>
+        <ActiveVesselProvider>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Map />} />
+              <Route path="/vessels" element={<Vessels />} />
+            </Route>
+          </Routes>
+        </ActiveVesselProvider>
       </VesselsProvider>
     </BrowserRouter>
   );
