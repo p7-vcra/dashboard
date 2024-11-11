@@ -2,22 +2,26 @@ import { faClose } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useRef } from "react";
 import { useVessels } from "../contexts/VesselsContext";
+import { Vessel } from "./Vessel";
 
 interface VesselModalProps {
-    mmsi: number;
+    vessel: Vessel;
     onClose: () => void;
 }
 
-function VesselModal({ mmsi, onClose }: VesselModalProps) {
-    const { vessels } = useVessels();
-
-    const selectedVesselRef = useRef(vessels[mmsi]);
+function VesselModal({ vessel, onClose }: VesselModalProps) {
     useEffect(() => {
-        selectedVesselRef.current = vessels[mmsi];
-
-        return () => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                onClose();
+            }
         };
-    }, [mmsi, vessels]);
+
+        document.addEventListener("keydown", handleKeyDown);
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [onClose]);
 
     return (
         <div >
@@ -41,7 +45,7 @@ function VesselModal({ mmsi, onClose }: VesselModalProps) {
                 </div>
                 <div className="p-4">
                     <ul className="w-64 text-xl">
-                        {selectedVesselRef.current && Object.entries(selectedVesselRef.current).map(([key, value]) => (
+                        {vessel && Object.entries(vessel).map(([key, value]) => (
                             key !== "history" && (
                                 <li key={key} className="text-white py-4">
                                     <div className="font-bold text-zinc-300 text-xs">
