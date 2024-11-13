@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
-import { Vessel } from '../types/Vessel';
+import { Vessel } from '../types/vessel';
 import { useVessels } from './VesselsContext';
 
 interface ActiveVesselContextType {
@@ -10,7 +10,7 @@ interface ActiveVesselContextType {
 const ActiveVesselContext = createContext<ActiveVesselContextType | undefined>(undefined);
 
 function ActiveVesselProvider({ children }: { children: React.ReactNode }) {
-  const { vessels } = useVessels(); // Access the vessels from VesselsContext
+  const { vessels } = useVessels();
   const [activeVesselMmsi, setActiveVesselMMSI] = useState<number | null>(null);
 
   const activeVessel = useMemo(() => {
