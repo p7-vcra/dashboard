@@ -1,7 +1,7 @@
 import { faClose } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect } from 'react';
-import { Vessel } from '../types/Vessel';
+import { Vessel } from '../types/vessel';
 
 interface VesselModalProps {
   vessel: Vessel;
