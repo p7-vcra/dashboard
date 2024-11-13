@@ -38,56 +38,62 @@ function VesselFilter() {
 
   return (
     <div className="">
-      <h2 className="text-white text-lg font-bold">Filters</h2>
-      <div className="space-y-4">
-        {Object.entries(filters).map(([key, value]) => (
-          <div key={key} className="space-y-2">
-            <label className="text-white" htmlFor={key}>
-              {value.label}
-            </label>
-            {value.type === 'number' ? (
-              <div className="space-y-2 flex-col text-white">
-                <div className="grid grid-cols-8 items-center space-x-2">
-                  <span className="uppercase text-zinc-400 font-bold col-span-1">Min</span>
-                  <input
-                    type="number"
-                    id={`${key}-range`}
-                    name={`${key}-range`}
-                    min={value.min}
-                    max={value.max}
-                    step={value.step}
-                    value={sogRange.min}
-                    onChange={(e) => setSogRange({ ...sogRange, min: Number(e.target.value) })}
-                    className="w-full bg-zinc-700 rounded-lg p-2 col-span-7"
-                  />
+      <h2 className="text-white text-md font-bold">Filters</h2>
+      <div className="">
+        <div className="flex space-x-8">
+          {Object.entries(filters).map(([key, value]) => (
+            <div key={key} className="space-y-2">
+              <label className="text-white" htmlFor={key}>
+                {value.label}
+              </label>
+              {value.type === 'number' ? (
+                <div className="space-x-2 flex text-white">
+                  <div className="flex items-center space-x-2 w-32">
+                    <span className="uppercase text-zinc-400 font-bold">Min</span>
+                    <input
+                      type="number"
+                      id={`${key}-range`}
+                      name={`${key}-range`}
+                      min={'min' in value ? value.min : undefined}
+                      max={'max' in value ? value.max : undefined}
+                      step={'step' in value ? value.step : undefined}
+                      value={sogRange.min}
+                      onChange={(e) => setSogRange({ ...sogRange, min: Number(e.target.value) })}
+                      className="w-full bg-zinc-700 rounded-lg p-2"
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2 w-32">
+                    <span className="uppercase text-zinc-400 font-bold">Max</span>
+                    <input
+                      type="number"
+                      id={`${key}-range`}
+                      name={`${key}-range`}
+                      min={'min' in value ? value.min : undefined}
+                      max={'max' in value ? value.max : undefined}
+                      step={'step' in value ? value.step : undefined}
+                      value={sogRange.max}
+                      onChange={(e) => setSogRange({ ...sogRange, max: Number(e.target.value) })}
+                      className="w-full bg-zinc-700 rounded-lg p-2"
+                    />
+                  </div>
                 </div>
-                <div className="grid grid-cols-8 items-center space-x-2">
-                  <span className="uppercase text-zinc-400 font-bold col-span-1">Max</span>
-                  <input
-                    type="number"
-                    id={`${key}-range`}
-                    name={`${key}-range`}
-                    min={value.min}
-                    max={value.max}
-                    step={value.step}
-                    value={sogRange.max}
-                    onChange={(e) => setSogRange({ ...sogRange, max: Number(e.target.value) })}
-                    className="w-full bg-zinc-700 rounded-lg p-2 col-span-7"
-                  />
-                </div>
-              </div>
-            ) : (
-              <input type={value.type} id={key} name={key} className="w-full bg-zinc-700 text-white p-2 rounded-lg" />
-            )}
+              ) : (
+                <input type={value.type} id={key} name={key} className="w-full bg-zinc-700 text-white p-2 rounded-lg" />
+              )}
+            </div>
+          ))}
+          <div className="flex items-center space-x-2 w-96">
+            <button
+              onClick={applyFilter}
+              className="bg-zinc-600 text-white p-2 rounded-lg hover:bg-zinc-500 active:bg-zinc-700 w-full h-min">
+              Apply filter
+            </button>
+            <button
+              onClick={clearFilter}
+              className="bg-zinc-600 text-white p-2 rounded-lg hover:bg-zinc-500 active:bg-zinc-700 w-full h-min">
+              Clear filter
+            </button>
           </div>
-        ))}
-        <div className="flex space-x-2">
-          <button onClick={applyFilter} className="bg-zinc-600 text-white p-2 rounded-lg">
-            Apply filter
-          </button>
-          <button onClick={clearFilter} className="bg-zinc-600 text-white p-2 rounded-lg">
-            Clear filter
-          </button>
         </div>
       </div>
     </div>

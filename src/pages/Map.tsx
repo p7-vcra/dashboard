@@ -24,7 +24,7 @@ function Map() {
   return (
     <div className="relative h-screen z-10">
       {activeVessel && <VesselModal vessel={activeVessel} onClose={onClose} />}
-      <div className="z-[2002] w-1/3 bg-zinc-800 p-4 fixed  rounded-2xl border">
+      <div className="z-[2002] w-2/5 bg-zinc-800 p-4 m-4 fixed bottom-0  rounded-2xl border">
         <VesselFilter />
       </div>
       <MapContainer

@@ -1,5 +1,4 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { useMap } from 'react-leaflet';
 import { Vessel } from '../types/vessel';
 
 interface VesselsContextType {
@@ -59,8 +58,6 @@ function useVesselData(bounds?: { north: number; south: number; east: number; we
   const baseUrl = 'http://130.225.37.58:8000';
 
   useEffect(() => {
-    console.log('Fetching vessels');
-    console.log(bounds);
     const url = bounds
       ? `${baseUrl}/slice?latitude_range=${bounds.south},${bounds.north}&longitude_range=${bounds.west},${bounds.east}`
       : `${baseUrl}/dummy-ais-data`;
@@ -72,9 +69,9 @@ function useVesselData(bounds?: { north: number; south: number; east: number; we
     eventSource.addEventListener('ais', (event) => {
       const eventData: Vessel[] = JSON.parse(event.data, vesselsRevivier);
       const parsedData = eventData.reduce((acc: { [mmsi: number]: Vessel }, vessel: Vessel) => {
-        const { mmsi, vesselType } = vessel;
+        const { mmsi } = vessel;
 
-        if (vesselType === 'Class A' && !isNaN(mmsi)) {
+        if (!isNaN(mmsi)) {
           acc[mmsi] = {
             ...vesselsRef.current[mmsi],
             ...vessel,

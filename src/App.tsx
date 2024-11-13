@@ -1,5 +1,4 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import VesselFilter from './components/VesselFilter';
 import { ActiveVesselProvider } from './contexts/ActiveVesselContext';
 import { VesselsProvider } from './contexts/VesselsContext';
 import './leaflet.css';
