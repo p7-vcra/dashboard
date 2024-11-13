@@ -2,9 +2,9 @@ import { faLocationArrow } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import L, { LatLng, MarkerCluster } from 'leaflet';
 import 'leaflet-rotatedmarker';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { Marker, MarkerProps } from 'react-leaflet';
+import { Marker, MarkerProps, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import { useActiveVessel } from '../contexts/ActiveVesselContext';
 import { useVesselData } from '../contexts/VesselsContext';
@@ -49,7 +49,17 @@ function createVesselIcon(isActive: boolean) {
 }
 
 function MapContent() {
-  const { filtered } = useVesselData();
+  const map = useMap();
+
+  const bounds = map.getBounds();
+
+  const { filtered } = useVesselData({
+    east: bounds.getEast(),
+    west: bounds.getWest(),
+    north: bounds.getNorth(),
+    south: bounds.getSouth(),
+  });
+
   const { activeVessel, setActiveVessel } = useActiveVessel();
 
   return (

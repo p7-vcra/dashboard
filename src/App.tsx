@@ -12,7 +12,6 @@ function App() {
     <BrowserRouter>
       <VesselsProvider>
         <ActiveVesselProvider>
-          <VesselFilter />
           <Routes>
             <Route path="/" element={<Layout />}>
               <Route index element={<Map />} />

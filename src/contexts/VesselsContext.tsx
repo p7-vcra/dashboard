@@ -32,7 +32,6 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
     setFilter(() => predicate);
   }, []);
 
-  // Recalculate `filtered` whenever `vessels` or `filter` changes
   useEffect(() => {
     setFiltered(Object.fromEntries(Object.entries(vessels).filter(([_, vessel]) => filter(vessel))));
   }, [vessels, filter]);
@@ -52,16 +51,20 @@ function useVessels() {
   return context;
 }
 
-function useVesselData() {
+function useVesselData(bounds?: { north: number; south: number; east: number; west: number }) {
   const { vessels, updateVessels, filtered } = useVessels();
-  const map = useMap();
   const vesselsRef = useRef(vessels);
   vesselsRef.current = vessels;
 
-  useEffect(() => {
-    const bounds = map.getBounds();
+  const baseUrl = 'http://130.225.37.58:8000';
 
-    const url = `http://130.225.37.58:8000/slice?latitude_range=${bounds.getSouth()},${bounds.getNorth()}&longitude_range=${bounds.getWest()},${bounds.getEast()}`;
+  useEffect(() => {
+    console.log('Fetching vessels');
+    console.log(bounds);
+    const url = bounds
+      ? `${baseUrl}/slice?latitude_range=${bounds.south},${bounds.north}&longitude_range=${bounds.west},${bounds.east}`
+      : `${baseUrl}/dummy-ais-data`;
+
     const eventSource = new EventSource(url);
 
     eventSource.onopen = () => console.log('EventSource connection opened');
@@ -86,7 +89,7 @@ function useVesselData() {
     return () => {
       eventSource.close();
     };
-  }, [map, updateVessels]);
+  }, [updateVessels, bounds]);
 
   return { vessels, filtered };
 }
