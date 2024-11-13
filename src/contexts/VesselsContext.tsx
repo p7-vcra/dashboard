@@ -1,25 +1,47 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useMap } from 'react-leaflet';
-import { Vessel } from '../types/Vessel';
+import { Vessel } from '../types/vessel';
 
 interface VesselsContextType {
   vessels: { [mmsi: number]: Vessel };
+  filtered: { [mmsi: number]: Vessel };
   updateVessels: (newVessels: { [mmsi: number]: Vessel }) => void;
+  filter: (vessel: Vessel) => boolean;
+  updateFilter: (predicate: (vessel: Vessel) => boolean) => void;
 }
 
 const VesselsContext = createContext<VesselsContextType | undefined>(undefined);
 
 function VesselsProvider({ children }: { children: React.ReactNode }) {
   const [vessels, setVessels] = useState<{ [mmsi: number]: Vessel }>({});
+  const [filter, setFilter] = useState<(vessel: Vessel) => boolean>(() => () => true);
+  const [filtered, setFiltered] = useState<{ [mmsi: number]: Vessel }>({});
 
-  const updateVessels = useCallback((newVessels: { [mmsi: number]: Vessel }) => {
-    setVessels((prevVessels) => ({
-      ...prevVessels,
-      ...newVessels,
-    }));
+  const updateVessels = useCallback(
+    (newVessels: { [mmsi: number]: Vessel }) => {
+      setVessels((prevVessels) => {
+        const updatedVessels = { ...prevVessels, ...newVessels };
+        setFiltered(Object.fromEntries(Object.entries(updatedVessels).filter(([_, vessel]) => filter(vessel))));
+        return updatedVessels;
+      });
+    },
+    [filter]
+  );
+
+  const updateFilter = useCallback((predicate: (vessel: Vessel) => boolean) => {
+    setFilter(() => predicate);
   }, []);
 
-  return <VesselsContext.Provider value={{ vessels, updateVessels }}>{children}</VesselsContext.Provider>;
+  // Recalculate `filtered` whenever `vessels` or `filter` changes
+  useEffect(() => {
+    setFiltered(Object.fromEntries(Object.entries(vessels).filter(([_, vessel]) => filter(vessel))));
+  }, [vessels, filter]);
+
+  return (
+    <VesselsContext.Provider value={{ vessels, filtered, updateVessels, filter, updateFilter }}>
+      {children}
+    </VesselsContext.Provider>
+  );
 }
 
 function useVessels() {
@@ -31,7 +53,7 @@ function useVessels() {
 }
 
 function useVesselData() {
-  const { vessels, updateVessels } = useVessels();
+  const { vessels, updateVessels, filtered } = useVessels();
   const map = useMap();
   const vesselsRef = useRef(vessels);
   vesselsRef.current = vessels;
@@ -66,7 +88,7 @@ function useVesselData() {
     };
   }, [map, updateVessels]);
 
-  return { vessels };
+  return { vessels, filtered };
 }
 
 function vesselsRevivier(_key: string, value: any): Vessel[] | never {
@@ -88,4 +110,5 @@ function vesselsRevivier(_key: string, value: any): Vessel[] | never {
   }
   return value;
 }
+
 export { useVesselData, useVessels, VesselsProvider };
