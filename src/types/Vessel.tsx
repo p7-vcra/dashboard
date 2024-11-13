@@ -6,6 +6,7 @@ interface Vessel {
   history: Array<{ latitude: number; longitude: number; timestamp: string; cog: number; sog: number }>;
   cog: number;
   sog: number;
+  futureLocation: [number, number][];
 }
 
 export { type Vessel };
