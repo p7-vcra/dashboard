@@ -5,9 +5,9 @@ interface VesselCardProps {
     vessel: Vessel;
 }
 
-const VesselCard: React.FC<VesselCardProps> = ({ vessel, onClick }) => {
+const VesselCard: React.FC<VesselCardProps> = ({ vessel }) => {
     return (
-        <div onClick={onClick} className="border border-gray-300 p-4 m-2 rounded-lg shadow-md cursor-pointer">
+        <div className="border border-gray-300 p-4 m-2 rounded-lg shadow-md cursor-pointer">
             <h3>MMSI: {vessel.mmsi}</h3>
             <p>Type: {vessel.vesselType}</p>
             <p>Latitude: {vessel.latitude}</p>
