@@ -57,41 +57,112 @@ function useVesselData(bounds?: { north: number; south: number; east: number; we
 
   const baseUrl = 'http://130.225.37.58:8000';
 
+  // Effect for vessel position updates
   useEffect(() => {
-    const url = bounds
-      ? `${baseUrl}/slice?latitude_range=${bounds.south},${bounds.north}&longitude_range=${bounds.west},${bounds.east}`
-      : `${baseUrl}/dummy-ais-data`;
+    let eventSource: EventSource | null = null;
 
-    const eventSource = new EventSource(url);
+    const updateEventSource = () => {
+      if (eventSource) {
+        eventSource.close();
+      }
 
-    eventSource.onopen = () => console.log('EventSource connection opened');
+      const url = bounds
+        ? `${baseUrl}/slice?latitude_range=${bounds.south},${bounds.north}&longitude_range=${bounds.west},${bounds.east}`
+        : `${baseUrl}/dummy-ais-data`;
 
-    eventSource.addEventListener('ais', (event) => {
-      const eventData: Vessel[] = JSON.parse(event.data, vesselsRevivier);
-      const parsedData = eventData.reduce((acc: { [mmsi: number]: Vessel }, vessel: Vessel) => {
-        const { mmsi } = vessel;
+      eventSource = new EventSource(url);
+      eventSource.onopen = () => console.log('EventSource connection opened');
 
-        if (!isNaN(mmsi)) {
-          acc[mmsi] = {
-            ...vesselsRef.current[mmsi],
-            ...vessel,
-          };
+      eventSource.addEventListener('ais', (event) => {
+        const eventData: Vessel[] = JSON.parse(event.data, vesselRetriever);
+        const parsedData = eventData.reduce((acc: { [mmsi: number]: Vessel }, vessel: Vessel) => {
+          const { mmsi, vesselType } = vessel;
+
+          if (vesselType === 'Class A' && !isNaN(mmsi)) {
+            acc[mmsi] = {
+              ...vesselsRef.current[mmsi],
+              ...vessel,
+            };
+          }
+          return acc;
+        }, {});
+
+        updateVessels(parsedData);
+      });
+    };
+
+    updateEventSource();
+
+    return () => {
+      if (eventSource) {
+        eventSource.close();
+      }
+    };
+  }, [bounds, updateVessels]);
+
+  // Effect for future predictions
+  useEffect(() => {
+    const futureVesselEventSource = new EventSource(`${baseUrl}/dummy-prediction`);
+    
+    futureVesselEventSource.onopen = () => console.log('Future Vessel course connection opened');
+    
+    futureVesselEventSource.onerror = (error) => {
+      console.error('Future vessel EventSource error:', error);
+    };
+
+    futureVesselEventSource.addEventListener('ais', (event) => {
+      try {
+        const eventData = JSON.parse(event.data);
+
+        if (!Array.isArray(eventData)) {
+          console.error('Expected array of predictions, got:', typeof eventData);
+          return;
         }
-        return acc;
-      }, {});
 
-      updateVessels(parsedData);
+        const vesselPredictions = eventData.reduce((acc: { [mmsi: number]: number[][] }, prediction: any) => {
+          if (!prediction.MMSI || !prediction.Latitude || !prediction.Longitude) {
+            return acc;
+          }
+
+          const mmsi = Number(prediction.MMSI);
+          if (!acc[mmsi]) {
+            acc[mmsi] = [];
+          }
+          acc[mmsi].push([prediction.Latitude, prediction.Longitude]);
+          return acc;
+        }, {});
+
+        const updatedVessels = Object.entries(vesselPredictions).reduce(
+          (acc: { [mmsi: number]: Vessel }, [mmsiStr, predictions]) => {
+            const mmsi = Number(mmsiStr);
+            if (vesselsRef.current[mmsi]) {
+              acc[mmsi] = {
+                ...vesselsRef.current[mmsi],
+                futureLocation: predictions.slice(1),
+              };
+            }
+            return acc;
+          },
+          {}
+        );
+
+        if (Object.keys(updatedVessels).length > 0) {
+          updateVessels(updatedVessels);
+        }
+      } catch (error) {
+        console.error('Error processing future predictions:', error);
+      }
     });
 
     return () => {
-      eventSource.close();
+      futureVesselEventSource.close();
     };
-  }, [updateVessels, bounds]);
+  }, [updateVessels]);
 
   return { vessels, filtered };
 }
 
-function vesselsRevivier(_key: string, value: any): Vessel[] | never {
+function vesselRetriever(_key: string, value: any): Vessel[] | never {
   if (Array.isArray(value)) {
     return value.map((item) => {
       if (typeof item === 'object' && item !== null) {
@@ -103,6 +174,7 @@ function vesselsRevivier(_key: string, value: any): Vessel[] | never {
           history: item['history'] || [],
           cog: item['COG'],
           sog: item['SOG'],
+          futureLocation: []
         } as Vessel;
       }
       return item;
