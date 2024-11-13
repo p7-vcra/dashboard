@@ -3,7 +3,6 @@ import { Vessel } from '../types/Vessel';
 
 interface VesselCardProps {
     vessel: Vessel;
-    onClick: () => void;
 }
 
 const VesselCard: React.FC<VesselCardProps> = ({ vessel, onClick }) => {
