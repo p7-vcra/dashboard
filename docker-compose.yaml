@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '5050:80'
+    restart: always
