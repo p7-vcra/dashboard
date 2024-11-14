@@ -1,10 +1,10 @@
 version: '3.8'
 
 services:
-  app:
-    build: .
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "5050:5050"
-    environment:
-      NODE_ENV: production
-    command: ["npm", "run", "preview"]
+      - '5050:80'
+    restart: always

@@ -1,5 +1,5 @@
 # Use the official Node.js image as the base image
-FROM node:20
+FROM node:20 as build
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -16,8 +16,8 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Expose the port the app runs on
-EXPOSE 5050
-
-# Start the application
-CMD ["npm", "run", "preview"]
+# Stage 2: Serve the app
+FROM nginx:alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
