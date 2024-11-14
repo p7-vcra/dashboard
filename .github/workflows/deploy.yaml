@@ -58,6 +58,7 @@ jobs:
         run: |
           ssh -v -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.SERVER_IP }} <<'ENDSSH'
             cd ${{ secrets.APP_PATH }}
+            git pull origin main
             docker-compose down
             docker-compose pull
             docker-compose up -d
