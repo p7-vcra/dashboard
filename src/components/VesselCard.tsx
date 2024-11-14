@@ -1,5 +1,5 @@
 import React from 'react';
-import { Vessel } from '../types/Vessel';
+import { Vessel } from '../types/vessel';
 
 interface VesselCardProps {
     vessel: Vessel;
