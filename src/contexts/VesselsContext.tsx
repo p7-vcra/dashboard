@@ -132,19 +132,21 @@ function useVesselData(bounds?: { north: number; south: number; east: number; we
           return acc;
         }, {});
 
-        const updatedVessels = Object.entries(vesselPredictions).reduce(
-          (acc: { [mmsi: number]: Vessel }, [mmsiStr, predictions]) => {
-            const mmsi = Number(mmsiStr);
-            if (vesselsRef.current[mmsi]) {
-              acc[mmsi] = {
-                ...vesselsRef.current[mmsi],
-                futureLocation: predictions.slice(1),
-              };
-            }
-            return acc;
-          },
-          {}
-        );
+      // Update the vessels with future predictions
+      const updatedVessels = Object.entries(vesselPredictions).reduce(
+        (acc: { [mmsi: number]: Vessel }, [mmsi, predictions]) => {
+          if (vesselsRef.current[Number(mmsi)]) {
+            acc[Number(mmsi)] = {
+              ...vesselsRef.current[Number(mmsi)],
+              //@ts-expect-error
+              futureLocation: predictions.slice(1), // Skip first point if necessary
+            };
+            console.log('Added future points to vessel', mmsi, predictions.slice(1));
+          }
+          return acc;
+        },
+        {}
+      );
 
         if (Object.keys(updatedVessels).length > 0) {
           updateVessels(updatedVessels);
@@ -174,7 +176,6 @@ function vesselRetriever(_key: string, value: any): Vessel[] | never {
           history: item['history'] || [],
           cog: item['COG'],
           sog: item['SOG'],
-          futureLocation: []
         } as Vessel;
       }
       return item;
