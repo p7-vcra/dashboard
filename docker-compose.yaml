@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: ghcr.io/p7-vcra/dashboard/dashboard:latest
     ports:
       - '5050:80'
     restart: always
