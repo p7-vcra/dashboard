@@ -1,17 +1,22 @@
+import { faClose } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
 import { useVessels } from '../contexts/VesselsContext';
 
-function VesselFilter() {
+interface VesselFilterProps {
+  onClose: () => void;
+}
+
+function VesselFilter({ onClose }: VesselFilterProps) {
   const { updateFilter } = useVessels();
   const [sogRange, setSogRange] = useState({ min: 0, max: 30 });
+  const [vesselType, setVesselType] = useState('');
 
   const applyFilter = () => {
     // log the filter values
     console.log(sogRange);
-    console.log((document.getElementById('vesselType') as HTMLInputElement).value);
-
+    console.log(vesselType);
     updateFilter((vessel) => {
-      const vesselType = (document.getElementById('vesselType') as HTMLInputElement).value;
       return vessel.sog >= sogRange.min && vessel.sog <= sogRange.max && vessel.vesselType.includes(vesselType);
     });
   };
@@ -19,7 +24,9 @@ function VesselFilter() {
   const clearFilter = () => {
     updateFilter(() => true);
     setSogRange({ min: 0, max: 30 });
-    (document.getElementById('vesselType') as HTMLInputElement).value = '';
+    setVesselType('');
+    document.querySelectorAll('input').forEach((input) => (input.value = ''));
+    document.querySelectorAll('select').forEach((select) => (select.value = ''));
   };
 
   const filters = {
@@ -32,53 +39,69 @@ function VesselFilter() {
     },
     vesselType: {
       label: 'Vessel type',
-      type: 'text',
+      options: ['Class A', 'Class B', 'Class C', 'Base Stations'],
+      type: 'select',
     },
   };
 
   return (
-    <div className="">
-      <h2 className="text-white text-md font-bold">Filters</h2>
-      <div className="">
+    <div className="z-[2002] w-4/5  bg-zinc-800 bg-opacity-85 backdrop-blur-lg p-4 m-4   rounded-xl border-2 border-zinc-600">
+      <div className="w-full flex items-center justify-between text-white">
+        <div className="font-bold">Filters</div>
+        <button className="text-sm p-2 text-white hover:bg-zinc-600 rounded-md w-8 h-8" onClick={onClose}>
+          <FontAwesomeIcon icon={faClose} />
+        </button>
+      </div>
+      <div className="text-white">
         <div className="flex space-x-8">
           {Object.entries(filters).map(([key, value]) => (
-            <div key={key} className="space-y-2">
+            <div key={key} className="space-y-2 flex flex-col">
               <label className="text-white" htmlFor={key}>
                 {value.label}
               </label>
               {value.type === 'number' ? (
                 <div className="space-x-2 flex text-white">
-                  <div className="flex items-center space-x-2 w-32">
-                    <span className="uppercase text-zinc-400 font-bold">Min</span>
-                    <input
-                      type="number"
-                      id={`${key}-range`}
-                      name={`${key}-range`}
-                      min={'min' in value ? value.min : undefined}
-                      max={'max' in value ? value.max : undefined}
-                      step={'step' in value ? value.step : undefined}
-                      value={sogRange.min}
-                      onChange={(e) => setSogRange({ ...sogRange, min: Number(e.target.value) })}
-                      className="w-full bg-zinc-700 rounded-lg p-2"
-                    />
-                  </div>
-                  <div className="flex items-center space-x-2 w-32">
-                    <span className="uppercase text-zinc-400 font-bold">Max</span>
-                    <input
-                      type="number"
-                      id={`${key}-range`}
-                      name={`${key}-range`}
-                      min={'min' in value ? value.min : undefined}
-                      max={'max' in value ? value.max : undefined}
-                      step={'step' in value ? value.step : undefined}
-                      value={sogRange.max}
-                      onChange={(e) => setSogRange({ ...sogRange, max: Number(e.target.value) })}
-                      className="w-full bg-zinc-700 rounded-lg p-2"
-                    />
-                  </div>
+                  <input
+                    type="number"
+                    id={`${key}-range`}
+                    name={`${key}-range`}
+                    min={'min' in value ? value.min : undefined}
+                    max={'max' in value ? value.max : undefined}
+                    step={'step' in value ? value.step : undefined}
+                    placeholder="Min"
+                    onChange={(e) => setSogRange({ ...sogRange, min: Number(e.target.value) })}
+                    className=" bg-zinc-700 border-zinc-600 border-2 rounded-lg p-2 w-24"
+                  />
+                  <input
+                    type="number"
+                    id={`${key}-range`}
+                    name={`${key}-range`}
+                    min={'min' in value ? value.min : undefined}
+                    max={'max' in value ? value.max : undefined}
+                    step={'step' in value ? value.step : undefined}
+                    placeholder="Max"
+                    onChange={(e) => setSogRange({ ...sogRange, max: Number(e.target.value) })}
+                    className=" bg-zinc-700 border-zinc-600 border-2 rounded-lg p-2 w-24"
+                  />
                 </div>
               ) : (
-                <input type={value.type} id={key} name={key} className="w-full bg-zinc-700 text-white p-2 rounded-lg" />
+                'options' in value && (
+                  <select
+                    id={key}
+                    name={key}
+                    className="bg-zinc-700 border-zinc-600 border-2 rounded-lg p-2"
+                    defaultValue=""
+                    onChange={(e) => setVesselType(e.target.value)}>
+                    <option value="" disabled>
+                      Select vessel type
+                    </option>
+                    {value.options.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                )
               )}
             </div>
           ))}

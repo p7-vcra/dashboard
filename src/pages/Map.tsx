@@ -3,7 +3,6 @@ import 'leaflet-rotatedmarker';
 import { useState } from 'react';
 import { MapContainer, TileLayer } from 'react-leaflet';
 import { default as MapContent } from '../components/MapContent';
-import VesselFilter from '../components/VesselFilter';
 import VesselModal from '../components/VesselModal';
 import { useActiveVessel } from '../contexts/ActiveVesselContext';
 
@@ -24,9 +23,6 @@ function Map() {
   return (
     <div className="relative h-screen z-10">
       {activeVessel && <VesselModal vessel={activeVessel} onClose={onClose} />}
-      <div className="z-[2002] w-2/5 bg-zinc-800 p-4 m-4 fixed bottom-0  rounded-2xl border">
-        <VesselFilter />
-      </div>
       <MapContainer
         minZoom={5}
         maxZoom={30}
