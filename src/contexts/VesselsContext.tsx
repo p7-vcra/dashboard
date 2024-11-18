@@ -1,5 +1,12 @@
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { Vessel } from '../types/vessel';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { Vessel } from "../types/vessel";
 
 interface VesselsContextType {
   vessels: { [mmsi: number]: Vessel };
@@ -13,18 +20,26 @@ const VesselsContext = createContext<VesselsContextType | undefined>(undefined);
 
 function VesselsProvider({ children }: { children: React.ReactNode }) {
   const [vessels, setVessels] = useState<{ [mmsi: number]: Vessel }>({});
-  const [filter, setFilter] = useState<(vessel: Vessel) => boolean>(() => () => true);
+  const [filter, setFilter] = useState<(vessel: Vessel) => boolean>(
+    () => () => true,
+  );
   const [filtered, setFiltered] = useState<{ [mmsi: number]: Vessel }>({});
 
   const updateVessels = useCallback(
     (newVessels: { [mmsi: number]: Vessel }) => {
       setVessels((prevVessels) => {
         const updatedVessels = { ...prevVessels, ...newVessels };
-        setFiltered(Object.fromEntries(Object.entries(updatedVessels).filter(([_, vessel]) => filter(vessel))));
+        setFiltered(
+          Object.fromEntries(
+            Object.entries(updatedVessels).filter(([_, vessel]) =>
+              filter(vessel),
+            ),
+          ),
+        );
         return updatedVessels;
       });
     },
-    [filter]
+    [filter],
   );
 
   const updateFilter = useCallback((predicate: (vessel: Vessel) => boolean) => {
@@ -32,11 +47,17 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    setFiltered(Object.fromEntries(Object.entries(vessels).filter(([_, vessel]) => filter(vessel))));
+    setFiltered(
+      Object.fromEntries(
+        Object.entries(vessels).filter(([_, vessel]) => filter(vessel)),
+      ),
+    );
   }, [vessels, filter]);
 
   return (
-    <VesselsContext.Provider value={{ vessels, filtered, updateVessels, filter, updateFilter }}>
+    <VesselsContext.Provider
+      value={{ vessels, filtered, updateVessels, filter, updateFilter }}
+    >
       {children}
     </VesselsContext.Provider>
   );
@@ -45,17 +66,22 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
 function useVessels() {
   const context = useContext(VesselsContext);
   if (!context) {
-    throw new Error('useVessels must be used within a VesselsProvider');
+    throw new Error("useVessels must be used within a VesselsProvider");
   }
   return context;
 }
 
-function useVesselData(bounds?: { north: number; south: number; east: number; west: number }) {
+function useVesselData(bounds?: {
+  north: number;
+  south: number;
+  east: number;
+  west: number;
+}) {
   const { vessels, updateVessels, filtered } = useVessels();
   const vesselsRef = useRef(vessels);
   vesselsRef.current = vessels;
 
-  const baseUrl = 'http://130.225.37.58:8000';
+  const baseUrl = "http://130.225.37.58:8000";
 
   useEffect(() => {
     const url = bounds
@@ -64,21 +90,24 @@ function useVesselData(bounds?: { north: number; south: number; east: number; we
 
     const eventSource = new EventSource(url);
 
-    eventSource.onopen = () => console.log('EventSource connection opened');
+    eventSource.onopen = () => console.log("EventSource connection opened");
 
-    eventSource.addEventListener('ais', (event) => {
+    eventSource.addEventListener("ais", (event) => {
       const eventData: Vessel[] = JSON.parse(event.data, vesselsRevivier);
-      const parsedData = eventData.reduce((acc: { [mmsi: number]: Vessel }, vessel: Vessel) => {
-        const { mmsi } = vessel;
+      const parsedData = eventData.reduce(
+        (acc: { [mmsi: number]: Vessel }, vessel: Vessel) => {
+          const { mmsi } = vessel;
 
-        if (!isNaN(mmsi)) {
-          acc[mmsi] = {
-            ...vesselsRef.current[mmsi],
-            ...vessel,
-          };
-        }
-        return acc;
-      }, {});
+          if (!isNaN(mmsi)) {
+            acc[mmsi] = {
+              ...vesselsRef.current[mmsi],
+              ...vessel,
+            };
+          }
+          return acc;
+        },
+        {},
+      );
 
       updateVessels(parsedData);
     });
@@ -94,15 +123,15 @@ function useVesselData(bounds?: { north: number; south: number; east: number; we
 function vesselsRevivier(_key: string, value: any): Vessel[] | never {
   if (Array.isArray(value)) {
     return value.map((item) => {
-      if (typeof item === 'object' && item !== null) {
+      if (typeof item === "object" && item !== null) {
         return {
-          mmsi: item['MMSI'],
-          vesselType: item['Type of mobile'],
-          latitude: item['Latitude'],
-          longitude: item['Longitude'],
-          history: item['history'] || [],
-          cog: item['COG'],
-          sog: item['SOG'],
+          mmsi: item["MMSI"],
+          vesselType: item["Type of mobile"],
+          latitude: item["Latitude"],
+          longitude: item["Longitude"],
+          history: item["history"] || [],
+          cog: item["COG"],
+          sog: item["SOG"],
         } as Vessel;
       }
       return item;
