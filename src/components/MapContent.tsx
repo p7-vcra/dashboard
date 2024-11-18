@@ -53,7 +53,7 @@ const MemoizedMarker = React.memo(
                 map.setView(
                     [originalCenter.lat + 0.0001, originalCenter.lng + 0.0001],
                     originalZoom,
-                    { animate: false },
+                    { animate: false }
                 );
                 map.setView(originalCenter, originalZoom, { animate: false });
 
@@ -63,11 +63,11 @@ const MemoizedMarker = React.memo(
             }
         }, [isActive, vessel.futureLocation, map]);
 
-        //@ts-expect-error rotationAngle is not a valid prop for Marker
         return (
             <Marker
                 position={position}
                 icon={createVesselIcon(isActive)}
+                //@ts-expect-error rotationAngle is imported from leaflet-rotatedmarker
                 rotationAngle={rotationAngle}
                 {...props}
             />
@@ -82,14 +82,14 @@ const MemoizedMarker = React.memo(
             prevProps.vessel.mmsi === nextProps.vessel.mmsi &&
             prevProps.isActive === nextProps.isActive
         );
-    },
+    }
 );
 
 const arrowMarkup = renderToStaticMarkup(
     <FontAwesomeIcon
         icon={faLocationArrow}
         transform={{ rotate: -45, size: 20 }}
-    />,
+    />
 ); // 45 degrees counter clockwise as the icon points NE by default
 
 function createClusterIcon(cluster: MarkerCluster) {
