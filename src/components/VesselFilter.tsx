@@ -11,13 +11,16 @@ function VesselFilter({ onClose }: VesselFilterProps) {
     const { updateFilter } = useVessels();
     const [sogRange, setSogRange] = useState({ min: 0, max: 30 });
     const [vesselType, setVesselType] = useState("");
+    const [hasFutureLocation, setHasFutureLocation] = useState(false);
 
     const applyFilter = () => {
         updateFilter((vessel) => {
             return (
                 vessel.sog >= sogRange.min &&
                 vessel.sog <= sogRange.max &&
-                vessel.vesselType.includes(vesselType)
+                vessel.vesselType.includes(vesselType) &&
+                (!hasFutureLocation ||
+                    (vessel.futureLocation && vessel.futureLocation.length > 0))
             );
         });
     };
@@ -26,9 +29,12 @@ function VesselFilter({ onClose }: VesselFilterProps) {
         updateFilter(() => true);
         setSogRange({ min: 0, max: 30 });
         setVesselType("");
-        document
-            .querySelectorAll("input")
-            .forEach((input) => (input.value = ""));
+        setHasFutureLocation(false);
+
+        document.querySelectorAll("input").forEach((input) => {
+            input.value = "";
+            input.checked = false;
+        });
         document
             .querySelectorAll("select")
             .forEach((select) => (select.value = ""));
@@ -46,6 +52,10 @@ function VesselFilter({ onClose }: VesselFilterProps) {
             label: "Vessel type",
             options: ["Class A", "Class B", "Base Station", "AtoN"],
             type: "select",
+        },
+        hasFutureLocation: {
+            label: "Has future location",
+            type: "checkbox",
         },
     };
 
@@ -147,6 +157,17 @@ function VesselFilter({ onClose }: VesselFilterProps) {
                                         ))}
                                     </select>
                                 )
+                            )}
+                            {value.type === "checkbox" && (
+                                <input
+                                    type="checkbox"
+                                    id={key}
+                                    name={key}
+                                    onChange={(e) =>
+                                        setHasFutureLocation(e.target.checked)
+                                    }
+                                    className="bg-zinc-700 border-zinc-600 border-2  rounded-lg p-2"
+                                />
                             )}
                         </div>
                     ))}

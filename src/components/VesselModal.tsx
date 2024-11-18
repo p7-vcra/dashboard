@@ -26,11 +26,11 @@ function VesselModal({ vessel, onClose }: VesselModalProps) {
             }
         };
         document.addEventListener("keydown", handleKeyDown);
-        document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener("mouseup", handleClickOutside);
 
         return () => {
             document.removeEventListener("keydown", handleKeyDown);
-            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("mouseup", handleClickOutside);
         };
     }, [onClose]);
 
@@ -76,13 +76,13 @@ function VesselModal({ vessel, onClose }: VesselModalProps) {
                                                 {key
                                                     .replace(
                                                         /([a-z])([A-Z])/g,
-                                                        "$1 $2",
+                                                        "$1 $2"
                                                     )
                                                     .toUpperCase()}
                                             </div>
                                             <div>{value || "-"}</div>
                                         </li>
-                                    ),
+                                    )
                             )}
                     </ul>
                 </div>

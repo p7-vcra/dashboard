@@ -14,6 +14,7 @@ const VesselCard: React.FC<VesselCardProps> = ({ vessel }) => {
             <p>Longitude: {vessel.longitude}</p>
             <p>COG: {vessel.cog}</p>
             <p>SOG: {vessel.sog}</p>
+            <p>Future: {vessel.futureLocation}</p>
         </div>
     );
 };
