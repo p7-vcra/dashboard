@@ -1,24 +1,16 @@
-import { LatLng } from "leaflet";
-import "leaflet-rotatedmarker";
-import { useState } from "react";
-import { MapContainer, TileLayer } from "react-leaflet";
-import { default as MapContent } from "../components/MapContent";
-import VesselModal from "../components/VesselModal";
-import { useActiveVessel } from "../contexts/ActiveVesselContext";
+import { MapContainer, TileLayer } from 'react-leaflet';
+import { default as MapContent } from '../components/MapContent';
+import VesselModal from '../components/VesselModal';
+import { useActiveVessel } from '../contexts/ActiveVesselContext';
+import { useMapOptions } from '../contexts/MapOptionsContext';
 
 function Map() {
-  const denmarkCoords = new LatLng(56.2639, 9.5018);
-
   const { activeVessel, setActiveVessel } = useActiveVessel();
+  const { mapOptions } = useMapOptions();
 
   function onClose() {
     setActiveVessel(null);
   }
-
-  const [mapOptions] = useState({
-    center: denmarkCoords,
-    zoom: 4,
-  });
 
   return (
     <div className="relative h-screen z-10">
@@ -29,8 +21,7 @@ function Map() {
         center={mapOptions.center}
         zoom={mapOptions.zoom}
         className="w-full h-full"
-        attributionControl={false}
-      >
+        attributionControl={false}>
         <MapContent />
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

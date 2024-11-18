@@ -2,7 +2,7 @@ import { faLocationArrow } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import L, { LatLng, MarkerCluster } from 'leaflet';
 import 'leaflet-rotatedmarker';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { Marker, MarkerProps, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
@@ -11,6 +11,7 @@ import { useVesselData } from '../contexts/VesselsContext';
 import { Vessel } from '../types/vessel';
 // prettier-ignore
 import "leaflet-rotatedmarker";
+import { useMapOptions } from '../contexts/MapOptionsContext';
 
 const MemoizedMarker = React.memo(
   function MarkerComponent({
@@ -56,13 +57,29 @@ function createVesselIcon(isActive: boolean) {
 
 function MapContent() {
   const map = useMap();
-  const bounds = map.getBounds();
+  const { setMapOptions } = useMapOptions();
+  const [bounds, setBounds] = useState(map.getBounds());
+
+  map.on('moveend', () => {
+    setMapOptions({
+      center: map.getCenter(),
+      zoom: map.getZoom(),
+    });
+    setBounds(map.getBounds());
+  });
 
   const { filtered } = useVesselData({
     east: bounds.getEast(),
     west: bounds.getWest(),
     north: bounds.getNorth(),
     south: bounds.getSouth(),
+  });
+
+  map.addEventListener('zoomend', () => {
+    setMapOptions({
+      center: map.getCenter(),
+      zoom: map.getZoom(),
+    });
   });
 
   const { activeVessel, setActiveVessel } = useActiveVessel();

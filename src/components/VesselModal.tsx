@@ -1,7 +1,7 @@
-import { faClose } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useEffect, useRef } from "react";
-import { Vessel } from "../types/vessel";
+import { faClose } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useEffect, useRef } from 'react';
+import { Vessel } from '../types/vessel';
 
 interface VesselModalProps {
   vessel: Vessel;
@@ -13,24 +13,21 @@ function VesselModal({ vessel, onClose }: VesselModalProps) {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
+      if (event.key === 'Escape') {
         onClose();
       }
     };
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        modalRef.current &&
-        !modalRef.current.contains(event.target as Node)
-      ) {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
         onClose();
       }
     };
-    document.addEventListener("keydown", handleKeyDown);
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('mousedown', handleClickOutside);
 
     return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [onClose]);
 
@@ -51,14 +48,10 @@ function VesselModal({ vessel, onClose }: VesselModalProps) {
             border-zinc-600
             rounded-lg
             m-2
-        "
-      >
+        ">
         <div className="w-full flex p-4 items-center justify-between text-white">
           <div className="font-bold">Vessel</div>
-          <button
-            className="text-sm p-2 text-white hover:bg-zinc-600 rounded-md w-8 h-8"
-            onClick={onClose}
-          >
+          <button className="text-sm p-2 text-white hover:bg-zinc-600 rounded-md w-8 h-8" onClick={onClose}>
             <FontAwesomeIcon icon={faClose} />
           </button>
         </div>
@@ -67,14 +60,14 @@ function VesselModal({ vessel, onClose }: VesselModalProps) {
             {vessel &&
               Object.entries(vessel).map(
                 ([key, value]) =>
-                  key !== "history" && (
+                  key !== 'history' && (
                     <li key={key} className="text-white py-4">
                       <div className="font-bold text-zinc-300 text-xs">
-                        {key.replace(/([a-z])([A-Z])/g, "$1 $2").toUpperCase()}
+                        {key.replace(/([a-z])([A-Z])/g, '$1 $2').toUpperCase()}
                       </div>
-                      <div>{value || "-"}</div>
+                      <div>{value || '-'}</div>
                     </li>
-                  ),
+                  )
               )}
           </ul>
         </div>

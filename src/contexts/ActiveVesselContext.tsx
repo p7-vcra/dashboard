@@ -1,21 +1,13 @@
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-} from "react";
-import { Vessel } from "../types/vessel";
-import { useVessels } from "./VesselsContext";
+import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { Vessel } from '../types/vessel';
+import { useVessels } from './VesselsContext';
 
 interface ActiveVesselContextType {
   activeVessel: Vessel | null;
   setActiveVessel: (vessel: Vessel | null) => void;
 }
 
-const ActiveVesselContext = createContext<ActiveVesselContextType | undefined>(
-  undefined,
-);
+const ActiveVesselContext = createContext<ActiveVesselContextType | undefined>(undefined);
 
 function ActiveVesselProvider({ children }: { children: React.ReactNode }) {
   const { vessels } = useVessels();
@@ -30,9 +22,7 @@ function ActiveVesselProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <ActiveVesselContext.Provider
-      value={{ activeVessel, setActiveVessel: updateActiveVessel }}
-    >
+    <ActiveVesselContext.Provider value={{ activeVessel, setActiveVessel: updateActiveVessel }}>
       {children}
     </ActiveVesselContext.Provider>
   );
@@ -41,9 +31,7 @@ function ActiveVesselProvider({ children }: { children: React.ReactNode }) {
 function useActiveVessel() {
   const context = useContext(ActiveVesselContext);
   if (!context) {
-    throw new Error(
-      "useActiveVessel must be used within an ActiveVesselProvider",
-    );
+    throw new Error('useActiveVessel must be used within an ActiveVesselProvider');
   }
   return context;
 }

@@ -13,9 +13,6 @@ function VesselFilter({ onClose }: VesselFilterProps) {
   const [vesselType, setVesselType] = useState('');
 
   const applyFilter = () => {
-    // log the filter values
-    console.log(sogRange);
-    console.log(vesselType);
     updateFilter((vessel) => {
       return vessel.sog >= sogRange.min && vessel.sog <= sogRange.max && vessel.vesselType.includes(vesselType);
     });
