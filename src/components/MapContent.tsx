@@ -1,7 +1,7 @@
 import { faLocationArrow } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import L, { LatLng, MarkerCluster } from "leaflet";
-import React, { useState } from "react";
+import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { Marker, MarkerProps, useMap } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
