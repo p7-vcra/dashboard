@@ -1,7 +1,7 @@
 import { faClose } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect } from 'react';
-import { Vessel } from '../types/Vessel';
+import { Vessel } from '../types/vessel';
 
 interface VesselModalProps {
   vessel: Vessel;
@@ -30,12 +30,18 @@ function VesselModal({ vessel, onClose }: VesselModalProps) {
             top-0
             right-0
             bg-zinc-800
+            bg-opacity-85
+            backdrop-blur-xl
             items-center
             justify-center
             z-[1000]
-            h-full
+            border-2
+            border-zinc-600
+            rounded-lg
+            m-2
         ">
-        <div className="w-full  flex justify-end p-2">
+        <div className="w-full flex p-4 items-center justify-between text-white">
+          <div className="font-bold">Vessel</div>
           <button className="text-sm p-2 text-white hover:bg-zinc-600 rounded-md w-8 h-8" onClick={onClose}>
             <FontAwesomeIcon icon={faClose} />
           </button>
@@ -47,8 +53,10 @@ function VesselModal({ vessel, onClose }: VesselModalProps) {
                 ([key, value]) =>
                   key !== 'history' && (
                     <li key={key} className="text-white py-4">
-                      <div className="font-bold text-zinc-300 text-xs">{key.toUpperCase()}</div>
-                      <div>{value}</div>
+                      <div className="font-bold text-zinc-300 text-xs">
+                        {key.replace(/([a-z])([A-Z])/g, '$1 $2').toUpperCase()}
+                      </div>
+                      <div>{value || '-'}</div>
                     </li>
                   )
               )}

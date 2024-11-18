@@ -9,7 +9,7 @@ import { Marker, MarkerProps, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import { useActiveVessel } from '../contexts/ActiveVesselContext';
 import { useVesselData } from '../contexts/VesselsContext';
-import { Vessel } from '../types/Vessel';
+import { Vessel } from '../types/vessel';
 
 const MemoizedMarker = React.memo(
   function MarkerComponent({
@@ -80,13 +80,22 @@ function createVesselIcon(isActive: boolean) {
 }
 
 function MapContent() {
-  const { vessels } = useVesselData();
+  const map = useMap();
+  const bounds = map.getBounds();
+
+  const { filtered } = useVesselData({
+    east: bounds.getEast(),
+    west: bounds.getWest(),
+    north: bounds.getNorth(),
+    south: bounds.getSouth(),
+  });
+
   const { activeVessel, setActiveVessel } = useActiveVessel();
 
   return (
     //@ts-expect-error MarkerClusterGroup does not have a type definition
     <MarkerClusterGroup iconCreateFunction={createClusterIcon} animate spiderfyOnMaxZoom>
-      {Object.values(vessels).map((vessel: Vessel) => (
+      {Object.values(filtered).map((vessel: Vessel) => (
         <MemoizedMarker
           key={vessel.mmsi}
           position={new LatLng(vessel.latitude, vessel.longitude)}

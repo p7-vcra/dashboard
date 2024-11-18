@@ -1,25 +1,45 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { useMap } from 'react-leaflet';
-import { Vessel } from '../types/Vessel';
+import { Vessel } from '../types/vessel';
 
 interface VesselsContextType {
   vessels: { [mmsi: number]: Vessel };
+  filtered: { [mmsi: number]: Vessel };
   updateVessels: (newVessels: { [mmsi: number]: Vessel }) => void;
+  filter: (vessel: Vessel) => boolean;
+  updateFilter: (predicate: (vessel: Vessel) => boolean) => void;
 }
 
 const VesselsContext = createContext<VesselsContextType | undefined>(undefined);
 
 function VesselsProvider({ children }: { children: React.ReactNode }) {
   const [vessels, setVessels] = useState<{ [mmsi: number]: Vessel }>({});
+  const [filter, setFilter] = useState<(vessel: Vessel) => boolean>(() => () => true);
+  const [filtered, setFiltered] = useState<{ [mmsi: number]: Vessel }>({});
 
-  const updateVessels = useCallback((newVessels: { [mmsi: number]: Vessel }) => {
-    setVessels((prevVessels) => ({
-      ...prevVessels,
-      ...newVessels,
-    }));
+  const updateVessels = useCallback(
+    (newVessels: { [mmsi: number]: Vessel }) => {
+      setVessels((prevVessels) => {
+        const updatedVessels = { ...prevVessels, ...newVessels };
+        setFiltered(Object.fromEntries(Object.entries(updatedVessels).filter(([_, vessel]) => filter(vessel))));
+        return updatedVessels;
+      });
+    },
+    [filter]
+  );
+
+  const updateFilter = useCallback((predicate: (vessel: Vessel) => boolean) => {
+    setFilter(() => predicate);
   }, []);
 
-  return <VesselsContext.Provider value={{ vessels, updateVessels }}>{children}</VesselsContext.Provider>;
+  useEffect(() => {
+    setFiltered(Object.fromEntries(Object.entries(vessels).filter(([_, vessel]) => filter(vessel))));
+  }, [vessels, filter]);
+
+  return (
+    <VesselsContext.Provider value={{ vessels, filtered, updateVessels, filter, updateFilter }}>
+      {children}
+    </VesselsContext.Provider>
+  );
 }
 
 function useVessels() {
@@ -30,11 +50,12 @@ function useVessels() {
   return context;
 }
 
-function useVesselData() {
-  const { vessels, updateVessels } = useVessels();
-  const map = useMap();
+function useVesselData(bounds?: { north: number; south: number; east: number; west: number }) {
+  const { vessels, updateVessels, filtered } = useVessels();
   const vesselsRef = useRef(vessels);
   vesselsRef.current = vessels;
+
+  const baseUrl = 'http://130.225.37.58:8000';
 
   useEffect(() => {
     let eventSource: EventSource | null = null;
@@ -44,10 +65,11 @@ function useVesselData() {
         eventSource.close();
       }
 
-      const bounds = map.getBounds();
-      const url = `http://130.225.37.58:8000/slice?latitude_range=${bounds.getSouth()},${bounds.getNorth()}&longitude_range=${bounds.getWest()},${bounds.getEast()}`;
-      eventSource = new EventSource(url);
+      const url = bounds
+        ? `${baseUrl}/slice?latitude_range=${bounds.south},${bounds.north}&longitude_range=${bounds.west},${bounds.east}`
+        : `${baseUrl}/dummy-ais-data`;
 
+      eventSource = new EventSource(url);
       eventSource.onopen = () => console.log('EventSource connection opened');
 
       eventSource.addEventListener('ais', (event) => {
@@ -69,25 +91,22 @@ function useVesselData() {
     };
 
     updateEventSource();
-    map.on('moveend', updateEventSource);
 
     return () => {
       if (eventSource) {
         eventSource.close();
       }
-      map.off('moveend', updateEventSource);
     };
-  }, [map, updateVessels]);
+  }, [bounds, updateVessels]);
 
   useEffect(() => {
-    const futureVesselEventSource = new EventSource('http://130.225.37.58:8000/dummy-prediction');
+    const futureVesselEventSource = new EventSource(`${baseUrl}/dummy-prediction`);
 
     futureVesselEventSource.onopen = () => console.log('Future Vessel course connection opened');
 
     futureVesselEventSource.addEventListener('ais', (event) => {
       const eventData = JSON.parse(event.data);
 
-      // Process the eventData to match the Vessel structure
       const vesselPredictions = eventData.reduce((acc: { [mmsi: number]: number[][] }, prediction: any) => {
         const { MMSI: mmsi, Latitude, Longitude } = prediction;
         if (!acc[mmsi]) {
@@ -97,32 +116,32 @@ function useVesselData() {
         return acc;
       }, {});
 
-      // Update the vessels with future predictions
       const updatedVessels = Object.entries(vesselPredictions).reduce(
         (acc: { [mmsi: number]: Vessel }, [mmsi, predictions]) => {
+          //@ts-expect-error
           if (vesselsRef.current[mmsi]) {
+            //@ts-expect-error
             acc[mmsi] = {
+              //@ts-expect-error
               ...vesselsRef.current[mmsi],
-              futureLocation: predictions.slice(1), // Skip first point if necessary
+              //@ts-expect-error
+              futureLocation: predictions.slice(1),
             };
-            console.log('Added future points to vessel', mmsi, predictions.slice(1));
           }
           return acc;
         },
         {}
       );
 
-      // Use updateVessels to merge the new data
       updateVessels(updatedVessels);
     });
 
     return () => {
       futureVesselEventSource.close();
     };
-  }, []); // Empty dependency array to ensure EventSource remains open
+  }, [updateVessels]);
 
-
-  return { vessels };
+  return { vessels, filtered };
 }
 
 function vesselRetriever(_key: string, value: any): Vessel[] | never {
@@ -144,4 +163,5 @@ function vesselRetriever(_key: string, value: any): Vessel[] | never {
   }
   return value;
 }
+
 export { useVesselData, useVessels, VesselsProvider };
