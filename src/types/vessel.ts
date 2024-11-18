@@ -12,6 +12,7 @@ interface Vessel {
   }>;
   cog: number;
   sog: number;
+  futureLocation: [number, number][];
 }
 
 export { type Vessel };
