@@ -1,18 +1,18 @@
 interface Vessel {
-  mmsi: number;
-  vesselType: string;
-  latitude: number;
-  longitude: number;
-  history: Array<{
+    mmsi: number;
+    vesselType: string;
     latitude: number;
     longitude: number;
-    timestamp: string;
+    history: Array<{
+        latitude: number;
+        longitude: number;
+        timestamp: string;
+        cog: number;
+        sog: number;
+    }>;
     cog: number;
     sog: number;
-  }>;
-  cog: number;
-  sog: number;
-  futureLocation: [number, number][];
+    futureLocation: [number, number][];
 }
 
 export { type Vessel };

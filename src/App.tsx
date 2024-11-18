@@ -8,22 +8,22 @@ import Map from "./pages/Map";
 import Vessels from "./pages/Vessels";
 
 function App() {
-  return (
-    <BrowserRouter>
-      <VesselsProvider>
-        <ActiveVesselProvider>
-          <MapOptionsProvider>
-            <Routes>
-              <Route path="/" element={<Layout />}>
-                <Route index element={<Map />} />
-                <Route path="/vessels" element={<Vessels />} />
-              </Route>
-            </Routes>
-          </MapOptionsProvider>
-        </ActiveVesselProvider>
-      </VesselsProvider>
-    </BrowserRouter>
-  );
+    return (
+        <BrowserRouter>
+            <VesselsProvider>
+                <ActiveVesselProvider>
+                    <MapOptionsProvider>
+                        <Routes>
+                            <Route path="/" element={<Layout />}>
+                                <Route index element={<Map />} />
+                                <Route path="/vessels" element={<Vessels />} />
+                            </Route>
+                        </Routes>
+                    </MapOptionsProvider>
+                </ActiveVesselProvider>
+            </VesselsProvider>
+        </BrowserRouter>
+    );
 }
 
 export default App;

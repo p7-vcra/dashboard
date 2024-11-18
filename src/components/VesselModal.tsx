@@ -4,40 +4,40 @@ import { useEffect, useRef } from "react";
 import { Vessel } from "../types/vessel";
 
 interface VesselModalProps {
-  vessel: Vessel;
-  onClose: () => void;
+    vessel: Vessel;
+    onClose: () => void;
 }
 
 function VesselModal({ vessel, onClose }: VesselModalProps) {
-  const modalRef = useRef<HTMLDivElement>(null);
+    const modalRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        modalRef.current &&
-        !modalRef.current.contains(event.target as Node)
-      ) {
-        onClose();
-      }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    document.addEventListener("mousedown", handleClickOutside);
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                onClose();
+            }
+        };
+        const handleClickOutside = (event: MouseEvent) => {
+            if (
+                modalRef.current &&
+                !modalRef.current.contains(event.target as Node)
+            ) {
+                onClose();
+            }
+        };
+        document.addEventListener("keydown", handleKeyDown);
+        document.addEventListener("mousedown", handleClickOutside);
 
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [onClose]);
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [onClose]);
 
-  return (
-    <div id="vessel-modal" ref={modalRef}>
-      <div
-        className="
+    return (
+        <div id="vessel-modal" ref={modalRef}>
+            <div
+                className="
             fixed
             top-0
             right-0
@@ -52,35 +52,43 @@ function VesselModal({ vessel, onClose }: VesselModalProps) {
             rounded-lg
             m-2
         "
-      >
-        <div className="w-full flex p-4 items-center justify-between text-white">
-          <div className="font-bold">Vessel</div>
-          <button
-            className="text-sm p-2 text-white hover:bg-zinc-600 rounded-md w-8 h-8"
-            onClick={onClose}
-          >
-            <FontAwesomeIcon icon={faClose} />
-          </button>
+            >
+                <div className="w-full flex p-4 items-center justify-between text-white">
+                    <div className="font-bold">Vessel</div>
+                    <button
+                        className="text-sm p-2 text-white hover:bg-zinc-600 rounded-md w-8 h-8"
+                        onClick={onClose}
+                    >
+                        <FontAwesomeIcon icon={faClose} />
+                    </button>
+                </div>
+                <div className="p-4">
+                    <ul className="w-64 text-xl">
+                        {vessel &&
+                            Object.entries(vessel).map(
+                                ([key, value]) =>
+                                    key !== "history" && (
+                                        <li
+                                            key={key}
+                                            className="text-white py-4"
+                                        >
+                                            <div className="font-bold text-zinc-300 text-xs">
+                                                {key
+                                                    .replace(
+                                                        /([a-z])([A-Z])/g,
+                                                        "$1 $2",
+                                                    )
+                                                    .toUpperCase()}
+                                            </div>
+                                            <div>{value || "-"}</div>
+                                        </li>
+                                    ),
+                            )}
+                    </ul>
+                </div>
+            </div>
         </div>
-        <div className="p-4">
-          <ul className="w-64 text-xl">
-            {vessel &&
-              Object.entries(vessel).map(
-                ([key, value]) =>
-                  key !== "history" && (
-                    <li key={key} className="text-white py-4">
-                      <div className="font-bold text-zinc-300 text-xs">
-                        {key.replace(/([a-z])([A-Z])/g, "$1 $2").toUpperCase()}
-                      </div>
-                      <div>{value || "-"}</div>
-                    </li>
-                  ),
-              )}
-          </ul>
-        </div>
-      </div>
-    </div>
-  );
+    );
 }
 
 export default VesselModal;
