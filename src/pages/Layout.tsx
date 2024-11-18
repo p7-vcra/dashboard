@@ -5,7 +5,7 @@ import { Link, Outlet } from 'react-router-dom';
 import VesselFilter from '../components/VesselFilter';
 
 function Layout() {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   const routes = {
     map: {
@@ -39,18 +39,16 @@ function Layout() {
           </ul>
         </div>
       </aside>
-      <div className="z-[3000] fixed right-0 bottom-0 ">
+      <div className="z-[3000] fixed bottom-0 right-0 p-4">
         {isOpen ? (
-          <div className="">
-            <VesselFilter onClose={() => setIsOpen(false)} />
-          </div>
+          <VesselFilter onClose={() => setIsOpen(false)} />
         ) : (
           <div>
             <button
               onClick={() => setIsOpen(true)}
-              className="fixed bottom-4 right-4 px-4 py-2  text-white bg-zinc-800 rounded-lg hover:bg-zinc-600 space-x-2">
+              className="px-4 py-2  text-white bg-zinc-800 bg-opacity-85 backdrop-blur-lg p-4  rounded-xl border-2 border-zinc-600 hover:bg-zinc-600 space-x-2">
               <FontAwesomeIcon icon={faFilter} />
-              <span>Filter</span>
+              <span>Filters</span>
             </button>
           </div>
         )}

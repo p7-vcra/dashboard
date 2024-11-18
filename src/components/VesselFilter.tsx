@@ -45,7 +45,7 @@ function VesselFilter({ onClose }: VesselFilterProps) {
   };
 
   return (
-    <div className="z-[2002] w-4/5  bg-zinc-800 bg-opacity-85 backdrop-blur-lg p-4 m-4   rounded-xl border-2 border-zinc-600">
+    <div className="  bg-zinc-800 bg-opacity-85 backdrop-blur-lg p-4  rounded-xl border-2 border-zinc-600">
       <div className="w-full flex items-center justify-between text-white">
         <div className="font-bold">Filters</div>
         <button className="text-sm p-2 text-white hover:bg-zinc-600 rounded-md w-8 h-8" onClick={onClose}>
@@ -53,7 +53,7 @@ function VesselFilter({ onClose }: VesselFilterProps) {
         </button>
       </div>
       <div className="text-white">
-        <div className="flex space-x-8">
+        <div className="flex space-x-8 pt-2">
           {Object.entries(filters).map(([key, value]) => (
             <div key={key} className="space-y-2 flex flex-col">
               <label className="text-white" htmlFor={key}>
@@ -105,7 +105,7 @@ function VesselFilter({ onClose }: VesselFilterProps) {
               )}
             </div>
           ))}
-          <div className="flex items-center space-x-2 w-96">
+          <div className="flex items-center flex-col space-y-2 w-44">
             <button
               onClick={applyFilter}
               className="bg-zinc-600 text-white p-2 rounded-lg hover:bg-zinc-500 active:bg-zinc-700 w-full h-min">
