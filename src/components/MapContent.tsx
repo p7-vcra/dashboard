@@ -10,6 +10,8 @@ import MarkerClusterGroup from 'react-leaflet-markercluster';
 import { useActiveVessel } from '../contexts/ActiveVesselContext';
 import { useVesselData } from '../contexts/VesselsContext';
 import { Vessel } from '../types/vessel';
+// prettier-ignore
+import "leaflet-rotatedmarker";
 
 const MemoizedMarker = React.memo(
   function MarkerComponent({

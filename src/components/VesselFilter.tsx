@@ -39,7 +39,7 @@ function VesselFilter({ onClose }: VesselFilterProps) {
     },
     vesselType: {
       label: 'Vessel type',
-      options: ['Class A', 'Class B', 'Class C', 'Base Stations'],
+      options: ['Class A', 'Class B', 'Base Station', 'AtoN'],
       type: 'select',
     },
   };
