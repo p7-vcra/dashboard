@@ -1,5 +1,5 @@
-import { LatLng } from 'leaflet';
-import React, { createContext, useCallback, useContext, useState } from 'react';
+import { LatLng } from "leaflet";
+import React, { createContext, useCallback, useContext, useState } from "react";
 
 interface MapOptions {
   zoom: number;
@@ -11,7 +11,9 @@ interface MapOptionsContextType {
   setMapOptions: (mapOptions: MapOptions) => void;
 }
 
-const MapOptionsContext = createContext<MapOptionsContextType | undefined>(undefined);
+const MapOptionsContext = createContext<MapOptionsContextType | undefined>(
+  undefined,
+);
 
 function MapOptionsProvider({ children }: { children: React.ReactNode }) {
   const denmarkCoords = new LatLng(56.2639, 9.5018);
@@ -28,7 +30,9 @@ function MapOptionsProvider({ children }: { children: React.ReactNode }) {
   console.log(mapOptions);
 
   return (
-    <MapOptionsContext.Provider value={{ mapOptions, setMapOptions: updateMapOptions }}>
+    <MapOptionsContext.Provider
+      value={{ mapOptions, setMapOptions: updateMapOptions }}
+    >
       {children}
     </MapOptionsContext.Provider>
   );
@@ -37,7 +41,7 @@ function MapOptionsProvider({ children }: { children: React.ReactNode }) {
 function useMapOptions() {
   const context = useContext(MapOptionsContext);
   if (!context) {
-    throw new Error('useMapOptions must be used within an MapOptionsProvider');
+    throw new Error("useMapOptions must be used within an MapOptionsProvider");
   }
   return context;
 }
