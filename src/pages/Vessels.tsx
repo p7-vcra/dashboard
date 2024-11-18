@@ -1,10 +1,9 @@
-import React from 'react';
-import VesselCard from '../components/VesselCard';
-import { useVesselData } from '../contexts/VesselsContext';
-//import { Vessel } from '../types/vessel';
+import React from "react";
+import VesselCard from "../components/VesselCard";
+import { useVesselData } from "../contexts/VesselsContext";
 
 const Vessels: React.FC = () => {
-  const { filtered } = useVesselData(); // Access vessels from VesselsContext
+  const { filtered } = useVesselData();
   return (
     <div>
       {Object.values(filtered).map((vessel) => (
