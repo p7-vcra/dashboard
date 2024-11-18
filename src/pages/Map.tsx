@@ -1,8 +1,8 @@
-import { MapContainer, TileLayer } from 'react-leaflet';
-import { default as MapContent } from '../components/MapContent';
-import VesselModal from '../components/VesselModal';
-import { useActiveVessel } from '../contexts/ActiveVesselContext';
-import { useMapOptions } from '../contexts/MapOptionsContext';
+import { MapContainer, TileLayer } from "react-leaflet";
+import { default as MapContent } from "../components/MapContent";
+import VesselModal from "../components/VesselModal";
+import { useActiveVessel } from "../contexts/ActiveVesselContext";
+import { useMapOptions } from "../contexts/MapOptionsContext";
 
 function Map() {
   const { activeVessel, setActiveVessel } = useActiveVessel();
@@ -21,7 +21,8 @@ function Map() {
         center={mapOptions.center}
         zoom={mapOptions.zoom}
         className="w-full h-full"
-        attributionControl={false}>
+        attributionControl={false}
+      >
         <MapContent />
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
