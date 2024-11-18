@@ -12,6 +12,8 @@ import { useVesselData } from "../contexts/VesselsContext";
 import { Vessel } from "../types/vessel";
 // prettier-ignore
 import "leaflet-rotatedmarker";
+// prettier-ignore
+import "leaflet-arrowheads";
 
 const MemoizedMarker = React.memo(
   function MarkerComponent({
