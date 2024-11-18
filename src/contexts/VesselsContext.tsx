@@ -126,60 +126,41 @@ function useVesselData(bounds?: {
     };
   }, [bounds, updateVessels]);
 
-  // Effect for future predictions
   useEffect(() => {
     const futureVesselEventSource = new EventSource(`${baseUrl}/dummy-prediction`);
-    
+
     futureVesselEventSource.onopen = () => console.log('Future Vessel course connection opened');
-    
-    futureVesselEventSource.onerror = (error) => {
-      console.error('Future vessel EventSource error:', error);
-    };
 
     futureVesselEventSource.addEventListener('ais', (event) => {
-      try {
-        const eventData = JSON.parse(event.data);
+      const eventData = JSON.parse(event.data);
 
-        if (!Array.isArray(eventData)) {
-          console.error('Expected array of predictions, got:', typeof eventData);
-          return;
+      const vesselPredictions = eventData.reduce((acc: { [mmsi: number]: number[][] }, prediction: any) => {
+        const { MMSI: mmsi, Latitude, Longitude } = prediction;
+        if (!acc[mmsi]) {
+          acc[mmsi] = [];
         }
+        acc[mmsi].push([Latitude, Longitude]);
+        return acc;
+      }, {});
 
-        const vesselPredictions = eventData.reduce((acc: { [mmsi: number]: number[][] }, prediction: any) => {
-          if (!prediction.MMSI || !prediction.Latitude || !prediction.Longitude) {
-            return acc;
-          }
-
-          const mmsi = Number(prediction.MMSI);
-          if (!acc[mmsi]) {
-            acc[mmsi] = [];
-          }
-          acc[mmsi].push([prediction.Latitude, prediction.Longitude]);
-          return acc;
-        }, {});
-
-      // Update the vessels with future predictions
       const updatedVessels = Object.entries(vesselPredictions).reduce(
         (acc: { [mmsi: number]: Vessel }, [mmsi, predictions]) => {
-          if (vesselsRef.current[Number(mmsi)]) {
-            acc[Number(mmsi)] = {
-              ...vesselsRef.current[Number(mmsi)],
+          //@ts-expect-error
+          if (vesselsRef.current[mmsi]) {
+            //@ts-expect-error
+            acc[mmsi] = {
               //@ts-expect-error
-              futureLocation: predictions.slice(1), // Skip first point if necessary
+              ...vesselsRef.current[mmsi],
+              //@ts-expect-error
+              futureLocation: predictions.slice(1),
             };
-            console.log('Added future points to vessel', mmsi, predictions.slice(1));
           }
           return acc;
         },
         {}
       );
 
-        if (Object.keys(updatedVessels).length > 0) {
-          updateVessels(updatedVessels);
-        }
-      } catch (error) {
-        console.error('Error processing future predictions:', error);
-      }
+      updateVessels(updatedVessels);
     });
 
     return () => {
