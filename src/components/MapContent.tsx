@@ -1,9 +1,7 @@
 import { faLocationArrow } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import L, { LatLng, MarkerCluster } from "leaflet";
-import "leaflet-arrowheads";
-import "leaflet-rotatedmarker";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { Marker, MarkerProps, useMap } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
@@ -12,8 +10,7 @@ import { useVesselData } from "../contexts/VesselsContext";
 import { Vessel } from "../types/vessel";
 // prettier-ignore
 import "leaflet-rotatedmarker";
-// prettier-ignore
-import "leaflet-arrowheads";
+import { Polyline } from "react-leaflet";
 import { useMapOptions } from "../contexts/MapOptionsContext";
 
 const MemoizedMarker = React.memo(
@@ -21,54 +18,19 @@ const MemoizedMarker = React.memo(
         position,
         isActive,
         rotationAngle,
-        vessel,
         ...props
     }: MarkerProps & {
         vessel: Vessel;
         isActive: boolean;
         rotationAngle: number;
     }) {
-        const map = useMap();
-
-        useEffect(() => {
-            if (isActive && vessel.futureLocation) {
-                const polyline = L.polyline(vessel.futureLocation, {
-                    color: "red",
-                    weight: 2,
-                    opacity: 0,
-                }).addTo(map);
-
-                polyline
-                    .arrowheads({
-                        size: "8px",
-                        frequency: "100m",
-                        fill: true,
-                        color: "darkred",
-                    })
-                    .addTo(map);
-
-                // Force redraw
-                const originalCenter = map.getCenter();
-                const originalZoom = map.getZoom();
-                map.setView(
-                    [originalCenter.lat + 0.0001, originalCenter.lng + 0.0001],
-                    originalZoom,
-                    { animate: false }
-                );
-                map.setView(originalCenter, originalZoom, { animate: false });
-
-                return () => {
-                    map.removeLayer(polyline);
-                };
-            }
-        }, [isActive, vessel.futureLocation, map]);
-
         return (
             <Marker
                 position={position}
                 icon={createVesselIcon(isActive)}
                 //@ts-expect-error rotationAngle is imported from leaflet-rotatedmarker
                 rotationAngle={rotationAngle}
+                rotationOrigin="center center"
                 {...props}
             />
         );
@@ -104,7 +66,7 @@ function createVesselIcon(isActive: boolean) {
         ? "border-blue-600 border-opacity-100"
         : "border-opacity-0 border-red-600";
     return L.divIcon({
-        html: `<div class="border-2 h-7 w-7 flex justify-center items-center hover:border-opacity-100 rounded-full ${borderClass}">${arrowMarkup}</div>`,
+        html: `<div class="border-2 m-[-8px] h-7 w-7 flex justify-center items-center hover:border-opacity-100 rounded-full ${borderClass}">${arrowMarkup}</div>`,
     });
 }
 
@@ -144,6 +106,13 @@ function MapContent() {
             animate
             spiderfyOnMaxZoom
         >
+            {activeVessel && activeVessel.futureLocation && (
+                <Polyline
+                    positions={activeVessel.futureLocation}
+                    color="red"
+                    weight={2}
+                />
+            )}
             {Object.values(filtered).map((vessel: Vessel) => (
                 <MemoizedMarker
                     key={vessel.mmsi}
