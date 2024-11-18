@@ -1,11 +1,11 @@
 version: "3.8"
 
 services:
-  dashboard:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: ghcr.io/p7-vcra/dashboard/dashboard:latest
-    ports:
-      - "5050:80"
-    restart: always
+    dashboard:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: ghcr.io/p7-vcra/dashboard/dashboard:latest
+        ports:
+            - "5050:80"
+        restart: always
