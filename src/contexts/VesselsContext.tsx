@@ -7,6 +7,7 @@ import React, {
     useState,
 } from "react";
 import { Vessel } from "../types/vessel";
+import { useMapOptions } from "./MapOptionsContext";
 
 interface VesselsContextType {
     vessels: { [mmsi: number]: Vessel };
@@ -21,7 +22,7 @@ const VesselsContext = createContext<VesselsContextType | undefined>(undefined);
 function VesselsProvider({ children }: { children: React.ReactNode }) {
     const [vessels, setVessels] = useState<{ [mmsi: number]: Vessel }>({});
     const [filter, setFilter] = useState<(vessel: Vessel) => boolean>(
-        () => () => true,
+        () => () => true
     );
     const [filtered, setFiltered] = useState<{ [mmsi: number]: Vessel }>({});
 
@@ -32,28 +33,28 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
                 setFiltered(
                     Object.fromEntries(
                         Object.entries(updatedVessels).filter(([_, vessel]) =>
-                            filter(vessel),
-                        ),
-                    ),
+                            filter(vessel)
+                        )
+                    )
                 );
                 return updatedVessels;
             });
         },
-        [filter],
+        [filter]
     );
 
     const updateFilter = useCallback(
         (predicate: (vessel: Vessel) => boolean) => {
             setFilter(() => predicate);
         },
-        [],
+        []
     );
 
     useEffect(() => {
         setFiltered(
             Object.fromEntries(
-                Object.entries(vessels).filter(([_, vessel]) => filter(vessel)),
-            ),
+                Object.entries(vessels).filter(([_, vessel]) => filter(vessel))
+            )
         );
     }, [vessels, filter]);
 
@@ -74,13 +75,9 @@ function useVessels() {
     return context;
 }
 
-function useVesselData(bounds?: {
-    north: number;
-    south: number;
-    east: number;
-    west: number;
-}) {
+function useVesselData() {
     const { vessels, updateVessels, filtered } = useVessels();
+    const { mapOptions } = useMapOptions();
     const vesselsRef = useRef(vessels);
     vesselsRef.current = vessels;
 
@@ -88,57 +85,41 @@ function useVesselData(bounds?: {
 
     // Effect for vessel position updates
     useEffect(() => {
-        let eventSource: EventSource | null = null;
+        const { bounds } = mapOptions;
+        const url = bounds
+            ? `${baseUrl}/slice?latitude_range=${bounds.south},${bounds.north}&longitude_range=${bounds.west},${bounds.east}`
+            : `${baseUrl}/dummy-ais-data`;
 
-        const updateEventSource = () => {
-            if (eventSource) {
-                eventSource.close();
-            }
+        const eventSource = new EventSource(url);
+        eventSource.onopen = () => console.log("EventSource connection opened");
 
-            const url = bounds
-                ? `${baseUrl}/slice?latitude_range=${bounds.south},${bounds.north}&longitude_range=${bounds.west},${bounds.east}`
-                : `${baseUrl}/dummy-ais-data`;
+        eventSource.addEventListener("ais", (event) => {
+            const eventData: Vessel[] = JSON.parse(event.data, vesselRetriever);
+            const parsedData = eventData.reduce(
+                (acc: { [mmsi: number]: Vessel }, vessel: Vessel) => {
+                    const { mmsi, vesselType } = vessel;
 
-            eventSource = new EventSource(url);
-            eventSource.onopen = () =>
-                console.log("EventSource connection opened");
+                    if (vesselType === "Class A" && !isNaN(mmsi)) {
+                        acc[mmsi] = {
+                            ...vesselsRef.current[mmsi],
+                            ...vessel,
+                        };
+                    }
+                    return acc;
+                },
+                {}
+            );
 
-            eventSource.addEventListener("ais", (event) => {
-                const eventData: Vessel[] = JSON.parse(
-                    event.data,
-                    vesselRetriever,
-                );
-                const parsedData = eventData.reduce(
-                    (acc: { [mmsi: number]: Vessel }, vessel: Vessel) => {
-                        const { mmsi, vesselType } = vessel;
-
-                        if (vesselType === "Class A" && !isNaN(mmsi)) {
-                            acc[mmsi] = {
-                                ...vesselsRef.current[mmsi],
-                                ...vessel,
-                            };
-                        }
-                        return acc;
-                    },
-                    {},
-                );
-
-                updateVessels(parsedData);
-            });
-        };
-
-        updateEventSource();
-
+            updateVessels(parsedData);
+        });
         return () => {
-            if (eventSource) {
-                eventSource.close();
-            }
+            eventSource.close();
         };
-    }, [bounds, updateVessels]);
+    }, [mapOptions, updateVessels]);
 
     useEffect(() => {
         const futureVesselEventSource = new EventSource(
-            `${baseUrl}/dummy-prediction`,
+            `${baseUrl}/dummy-prediction`
         );
 
         futureVesselEventSource.onopen = () =>
@@ -156,7 +137,7 @@ function useVesselData(bounds?: {
                     acc[mmsi].push([Latitude, Longitude]);
                     return acc;
                 },
-                {},
+                {}
             );
 
             const updatedVessels = Object.entries(vesselPredictions).reduce(
@@ -173,7 +154,7 @@ function useVesselData(bounds?: {
                     }
                     return acc;
                 },
-                {},
+                {}
             );
 
             updateVessels(updatedVessels);

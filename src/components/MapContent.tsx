@@ -1,7 +1,7 @@
 import { faLocationArrow } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import L, { LatLng, MarkerCluster } from "leaflet";
-import React, { useState } from "react";
+import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { Marker, MarkerProps, useMap } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
@@ -73,14 +73,19 @@ function createVesselIcon(isActive: boolean) {
 function MapContent() {
     const map = useMap();
     const { setMapOptions } = useMapOptions();
-    const [bounds, setBounds] = useState(map.getBounds());
 
     map.on("moveend", () => {
+        const bounds = map.getBounds();
         setMapOptions({
             center: map.getCenter(),
             zoom: map.getZoom(),
+            bounds: {
+                north: bounds.getNorth(),
+                east: bounds.getEast(),
+                south: bounds.getSouth(),
+                west: bounds.getWest(),
+            },
         });
-        setBounds(map.getBounds());
     });
 
     map.addEventListener("zoomend", () => {
@@ -90,12 +95,7 @@ function MapContent() {
         });
     });
 
-    const { filtered } = useVesselData({
-        east: bounds.getEast(),
-        west: bounds.getWest(),
-        north: bounds.getNorth(),
-        south: bounds.getSouth(),
-    });
+    const { filtered } = useVesselData();
 
     const { activeVessel, setActiveVessel } = useActiveVessel();
 
