@@ -10,7 +10,6 @@ function Map() {
     const { activeVessel, setActiveVessel } = useActiveVessel();
     const { mapOptions } = useMapOptions();
     const { mousePosition } = useMousePosition();
-    console.log(mousePosition);
 
     function onClose() {
         setActiveVessel(null);
