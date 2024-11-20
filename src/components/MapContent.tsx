@@ -8,6 +8,7 @@ import { Vessel } from "../types/vessel";
 import "leaflet-rotatedmarker";
 import { Polyline } from "react-leaflet";
 import { useMapOptions } from "../contexts/MapOptionsContext";
+import { useMousePosition } from "../contexts/MousePositionContext";
 import { VesselMarker } from "./VesselMarker";
 
 function createClusterIcon(cluster: MarkerCluster) {
@@ -20,6 +21,7 @@ function createClusterIcon(cluster: MarkerCluster) {
 function MapContent() {
     const map = useMap();
     const { setMapOptions } = useMapOptions();
+    const { setMousePosition } = useMousePosition();
 
     map.on("moveend", () => {
         const bounds = map.getBounds();
@@ -33,6 +35,11 @@ function MapContent() {
                 west: bounds.getWest(),
             },
         });
+    });
+
+    // Get cursor position from map (lat lon)
+    map.on("mousemove", (e) => {
+        setMousePosition(e.latlng);
     });
 
     map.addEventListener("zoomend", () => {

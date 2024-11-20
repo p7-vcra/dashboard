@@ -1,19 +1,24 @@
 import { MapContainer, TileLayer } from "react-leaflet";
 import { default as MapContent } from "../components/MapContent";
+import MousePositionOverlay from "../components/MousePositionOverlay";
 import VesselModal from "../components/VesselModal";
 import { useActiveVessel } from "../contexts/ActiveVesselContext";
 import { useMapOptions } from "../contexts/MapOptionsContext";
+import { useMousePosition } from "../contexts/MousePositionContext";
 
 function Map() {
     const { activeVessel, setActiveVessel } = useActiveVessel();
     const { mapOptions } = useMapOptions();
+    const { mousePosition } = useMousePosition();
+    console.log(mousePosition);
 
     function onClose() {
         setActiveVessel(null);
     }
 
     return (
-        <div className="relative h-screen z-10">
+        <div className="relative h-screen z-10 w-full">
+            <MousePositionOverlay position={mousePosition} />
             {activeVessel && (
                 <VesselModal vessel={activeVessel} onClose={onClose} />
             )}
