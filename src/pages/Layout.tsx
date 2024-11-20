@@ -5,7 +5,7 @@ import { Link, Outlet } from "react-router-dom";
 import VesselFilter from "../components/VesselFilter";
 
 function Layout() {
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(true);
 
     const routes = {
         map: {

@@ -1,6 +1,8 @@
 import { faClose } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
+// @ts-expect-error No types available
+import RangeSlider from "react-range-slider-input";
 import { useVessels } from "../contexts/VesselsContext";
 
 interface VesselFilterProps {
@@ -9,15 +11,18 @@ interface VesselFilterProps {
 
 function VesselFilter({ onClose }: VesselFilterProps) {
     const { updateFilter } = useVessels();
-    const [sogRange, setSogRange] = useState({ min: 0, max: 30 });
+    const [sogRange, setSogRange] = useState([0, 30]);
+    const [criRange, setCriRange] = useState([0, 10]);
     const [vesselType, setVesselType] = useState("");
     const [hasFutureLocation, setHasFutureLocation] = useState(false);
 
     const applyFilter = () => {
         updateFilter((vessel) => {
             return (
-                vessel.sog >= sogRange.min &&
-                vessel.sog <= sogRange.max &&
+                vessel.sog >= sogRange[0] &&
+                vessel.sog <= sogRange[1] &&
+                (vessel.cri ?? 0) * 10 >= criRange[0] &&
+                (vessel.cri ?? 0) * 10 <= criRange[1] &&
                 vessel.vesselType.includes(vesselType) &&
                 (!hasFutureLocation ||
                     (vessel.futureLocation && vessel.futureLocation.length > 0))
@@ -27,7 +32,7 @@ function VesselFilter({ onClose }: VesselFilterProps) {
 
     const clearFilter = () => {
         updateFilter(() => true);
-        setSogRange({ min: 0, max: 30 });
+        setSogRange([0, 30]);
         setVesselType("");
         setHasFutureLocation(false);
 
@@ -45,8 +50,19 @@ function VesselFilter({ onClose }: VesselFilterProps) {
             display: "Speed over ground",
             min: 0,
             max: 30,
-            type: "number",
+            type: "range",
             step: 1,
+            value: sogRange,
+            onInput: setSogRange,
+        },
+        cri: {
+            display: "Collision risk index",
+            min: 0,
+            max: 10,
+            type: "range",
+            step: 1,
+            value: criRange,
+            onInput: setCriRange,
         },
         vesselType: {
             display: "Vessel type",
@@ -61,7 +77,7 @@ function VesselFilter({ onClose }: VesselFilterProps) {
     };
 
     return (
-        <div className="  bg-zinc-800 bg-opacity-85 backdrop-blur-lg p-4  rounded-xl border-2 border-zinc-600 text-sm">
+        <div className="bg-zinc-800 bg-opacity-85 backdrop-blur-lg p-4  rounded-xl border-2 border-zinc-600 text-sm">
             <div className="w-full flex items-center justify-between text-white">
                 <div className="font-bold">Filters</div>
                 <button
@@ -72,71 +88,54 @@ function VesselFilter({ onClose }: VesselFilterProps) {
                 </button>
             </div>
             <div className="text-white">
-                <div className="flex space-x-8 pt-2">
+                <div className="flex flex-col space-y-4 pt-2">
                     {Object.entries(filters).map(([key, value]) => (
                         <div key={key} className="space-y-2 flex flex-col">
-                            <div className="text-white">{value.display}</div>
-                            {value.type === "number" ? (
-                                <div className="space-x-2 flex text-white h-full">
-                                    <input
-                                        type="number"
-                                        id={`${key}-range`}
-                                        name={`${key}-range`}
-                                        min={
-                                            "min" in value
-                                                ? value.min
-                                                : undefined
-                                        }
-                                        max={
-                                            "max" in value
-                                                ? value.max
-                                                : undefined
-                                        }
-                                        step={
-                                            "step" in value
-                                                ? value.step
-                                                : undefined
-                                        }
-                                        placeholder="Min"
-                                        onChange={(e) =>
-                                            setSogRange({
-                                                ...sogRange,
-                                                min: Number(e.target.value),
-                                            })
-                                        }
-                                        className=" bg-zinc-700 border-zinc-600 border-2 rounded-lg p-2  w-full"
-                                    />
-                                    <input
-                                        type="number"
-                                        id={`${key}-range`}
-                                        name={`${key}-range`}
-                                        min={
-                                            "min" in value
-                                                ? value.min
-                                                : undefined
-                                        }
-                                        max={
-                                            "max" in value
-                                                ? value.max
-                                                : undefined
-                                        }
-                                        step={
-                                            "step" in value
-                                                ? value.step
-                                                : undefined
-                                        }
-                                        placeholder="Max"
-                                        onChange={(e) =>
-                                            setSogRange({
-                                                ...sogRange,
-                                                max: Number(e.target.value),
-                                            })
-                                        }
-                                        className=" bg-zinc-700 border-zinc-600 border-2 rounded-lg p-2  w-full"
-                                    />
+                            <div className=" font-bold text-zinc-300 text-xs">
+                                {value.display.toLocaleUpperCase()}
+                            </div>
+                            {value.type === "range" ? (
+                                <div className="space-x-2 flex-col text-white h-full">
+                                    <div className="flex items-center space-x-2">
+                                        <div>
+                                            {key === "cri" && "value" in value
+                                                ? `${value.value[0] / 10}`
+                                                : "value" in value
+                                                ? `${value.value[0]}`
+                                                : ""}
+                                        </div>
+                                        <RangeSlider
+                                            max={"max" in value ? value.max : 0}
+                                            min={"min" in value ? value.min : 0}
+                                            defaultValue={
+                                                "min" in value && "max" in value
+                                                    ? [value.min, value.max]
+                                                    : [0, 0]
+                                            }
+                                            className="w-full bg-zinc-500"
+                                            onInput={
+                                                "onInput" in value
+                                                    ? value.onInput
+                                                    : undefined
+                                            }
+                                            value={
+                                                "value" in value
+                                                    ? value.value
+                                                    : undefined
+                                            }
+                                        />
+                                        <div>
+                                            {key === "cri" && "value" in value
+                                                ? `${value.value[1] / 10}`
+                                                : "value" in value
+                                                ? `${value.value[1]}`
+                                                : ""}
+                                        </div>
+                                    </div>
                                 </div>
                             ) : (
-                                "options" in value && (
+                                "options" in value &&
+                                value.type == "select" && (
                                     <select
                                         id={key}
                                         name={key}
@@ -171,7 +170,7 @@ function VesselFilter({ onClose }: VesselFilterProps) {
                                     <div className=" bg-zinc-700 border-2 cursor-pointer border-zinc-600 rounded-lg flex peer-checked:bg-zinc-500 peer-checked:border-zinc-300">
                                         <label
                                             htmlFor={key}
-                                            className="text-white p-4 cursor-pointer select-none"
+                                            className="text-white p-2 cursor-pointer select-none"
                                         >
                                             {"label" in value && value.label}
                                         </label>
@@ -180,7 +179,7 @@ function VesselFilter({ onClose }: VesselFilterProps) {
                             )}
                         </div>
                     ))}
-                    <div className="flex items-center justify-between flex-col space-y-2 w-44 text-sm">
+                    <div className="flex items-center justify-between flex-col space-y-2  text-sm border-t border-zinc-500 border-opacity-50 pt-4">
                         <button
                             onClick={applyFilter}
                             className="bg-zinc-700 text-white p-2 rounded-lg hover:bg-zinc-600 active:bg-zinc-700 w-full border-2 border-zinc-600"
