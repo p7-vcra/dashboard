@@ -124,38 +124,27 @@ function useVesselData() {
 
         futureVesselEventSource.onopen = () =>
             console.log("Future Vessel course connection opened");
-
         futureVesselEventSource.addEventListener("ais", (event) => {
             const eventData = JSON.parse(event.data);
 
-            const vesselPredictions = eventData.reduce(
-                (acc: { [mmsi: number]: number[][] }, prediction: any) => {
-                    const { MMSI: mmsi, Latitude, Longitude } = prediction;
-                    if (!acc[mmsi]) {
-                        acc[mmsi] = [];
-                    }
-                    acc[mmsi].push([Latitude, Longitude]);
-                    return acc;
-                },
-                {}
-            );
+            const vesselPredictions = new Map<number, number[][]>();
+            for (const prediction of eventData) {
+                const { MMSI: mmsi, Latitude, Longitude } = prediction;
+                if (!vesselPredictions.has(mmsi)) {
+                    vesselPredictions.set(mmsi, []);
+                }
+                vesselPredictions.get(mmsi)!.push([Latitude, Longitude]);
+            }
 
-            const updatedVessels = Object.entries(vesselPredictions).reduce(
-                (acc: { [mmsi: number]: Vessel }, [mmsi, predictions]) => {
-                    //@ts-expect-error
-                    if (vesselsRef.current[mmsi]) {
-                        //@ts-expect-error
-                        acc[mmsi] = {
-                            //@ts-expect-error
-                            ...vesselsRef.current[mmsi],
-                            //@ts-expect-error
-                            futureLocation: predictions.slice(1),
-                        };
-                    }
-                    return acc;
-                },
-                {}
-            );
+            const updatedVessels: { [mmsi: number]: Vessel } = {};
+            vesselPredictions.forEach((predictions, mmsi) => {
+                if (vesselsRef.current[mmsi]) {
+                    updatedVessels[mmsi] = {
+                        ...vesselsRef.current[mmsi],
+                        futureLocation: predictions.slice(1),
+                    };
+                }
+            });
 
             updateVessels(updatedVessels);
         });
