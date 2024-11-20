@@ -94,7 +94,7 @@ function useVesselData() {
         eventSource.onopen = () => console.log("EventSource connection opened");
 
         eventSource.addEventListener("ais", (event) => {
-            const eventData: Vessel[] = JSON.parse(event.data, vesselRetriever);
+            const eventData: Vessel[] = JSON.parse(event.data, vesselReviver);
             const parsedData = eventData.reduce(
                 (acc: { [mmsi: number]: Vessel }, vessel: Vessel) => {
                     const { mmsi, vesselType } = vessel;
@@ -168,7 +168,8 @@ function useVesselData() {
     return { vessels, filtered };
 }
 
-function vesselRetriever(_key: string, value: any): Vessel[] | never {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function vesselReviver(_key: string, value: any): Vessel[] | never {
     if (Array.isArray(value)) {
         return value.map((item) => {
             if (typeof item === "object" && item !== null) {
