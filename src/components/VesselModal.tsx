@@ -61,10 +61,11 @@ function VesselModal({ vessel, onClose }: VesselModalProps) {
             border-zinc-600
             rounded-lg
             m-2
+            p-4
         "
             >
-                <div className="w-full flex p-4 items-center justify-between text-white">
-                    <div className="font-bold">Vessel</div>
+                <div className="w-full flex items-center justify-between text-white">
+                    <div className="font-bold text-sm">Vessel</div>
                     <button
                         className="text-sm p-2 text-white hover:bg-zinc-600 rounded-md w-8 h-8"
                         onClick={onClose}
@@ -72,7 +73,7 @@ function VesselModal({ vessel, onClose }: VesselModalProps) {
                         <FontAwesomeIcon icon={faClose} />
                     </button>
                 </div>
-                <div className="p-4">
+                <div className="">
                     <ul className="min-w-44 text-md">
                         {vessel &&
                             Object.entries(vessel)

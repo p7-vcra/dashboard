@@ -100,6 +100,7 @@ function useVesselData() {
 
                     if (vesselType === "Class A" && !isNaN(mmsi)) {
                         acc[mmsi] = {
+                            cri: parseFloat(Math.random().toFixed(2)),
                             ...vesselsRef.current[mmsi],
                             ...vessel,
                         };
@@ -180,7 +181,6 @@ function vesselReviver(_key: string, value: any): Vessel[] | never {
                     history: item["history"] || [],
                     cog: item["COG"],
                     sog: item["SOG"],
-                    cri: parseFloat(Math.random().toFixed(2)),
                 } as Vessel;
             }
             return item;
