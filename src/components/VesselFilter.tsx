@@ -146,9 +146,7 @@ function VesselFilter({ onClose }: VesselFilterProps) {
                                             setVesselType(e.target.value)
                                         }
                                     >
-                                        <option value="" disabled>
-                                            Select vessel type
-                                        </option>
+                                        <option value="">Any</option>
                                         {value.options.map((option) => (
                                             <option key={option} value={option}>
                                                 {option}
@@ -158,7 +156,7 @@ function VesselFilter({ onClose }: VesselFilterProps) {
                                 )
                             )}
                             {value.type === "checkbox" && (
-                                <div className="peer-container">
+                                <div className="peer-container cursor-pointer">
                                     <input
                                         type="checkbox"
                                         id={key}
@@ -168,12 +166,12 @@ function VesselFilter({ onClose }: VesselFilterProps) {
                                                 e.target.checked
                                             )
                                         }
-                                        className="peer hidden"
+                                        className="peer hidden cursor-pointer"
                                     />
-                                    <div className=" bg-zinc-700 border-2 border-zinc-600 rounded-lg flex peer-checked:bg-zinc-500 peer-checked:border-zinc-300">
+                                    <div className=" bg-zinc-700 border-2 cursor-pointer border-zinc-600 rounded-lg flex peer-checked:bg-zinc-500 peer-checked:border-zinc-300">
                                         <label
                                             htmlFor={key}
-                                            className="text-white p-4 "
+                                            className="text-white p-4 cursor-pointer select-none"
                                         >
                                             {"label" in value && value.label}
                                         </label>

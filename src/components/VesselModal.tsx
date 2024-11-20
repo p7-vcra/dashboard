@@ -34,6 +34,15 @@ function VesselModal({ vessel, onClose }: VesselModalProps) {
         };
     }, [onClose]);
 
+    const shownAttributes = [
+        "mmsi",
+        "vesselType",
+        "latitude",
+        "longitude",
+        "sog",
+        "cog",
+    ];
+
     return (
         <div id="vessel-modal" ref={modalRef}>
             <div
@@ -65,25 +74,23 @@ function VesselModal({ vessel, onClose }: VesselModalProps) {
                 <div className="p-4">
                     <ul className="w-64 text-xl">
                         {vessel &&
-                            Object.entries(vessel).map(
-                                ([key, value]) =>
-                                    key !== "history" && (
-                                        <li
-                                            key={key}
-                                            className="text-white py-4"
-                                        >
-                                            <div className="font-bold text-zinc-300 text-xs">
-                                                {key
-                                                    .replace(
-                                                        /([a-z])([A-Z])/g,
-                                                        "$1 $2"
-                                                    )
-                                                    .toUpperCase()}
-                                            </div>
-                                            <div>{value || "-"}</div>
-                                        </li>
-                                    )
-                            )}
+                            Object.entries(vessel)
+                                .filter(([key]) =>
+                                    shownAttributes.includes(key)
+                                )
+                                .map(([key, value]) => (
+                                    <li key={key} className="text-white py-4">
+                                        <div className="font-bold text-zinc-300 text-xs">
+                                            {key
+                                                .replace(
+                                                    /([a-z])([A-Z])/g,
+                                                    "$1 $2"
+                                                )
+                                                .toUpperCase()}
+                                        </div>
+                                        <div>{value || "-"}</div>
+                                    </li>
+                                ))}
                     </ul>
                 </div>
             </div>
