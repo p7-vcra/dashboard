@@ -83,7 +83,6 @@ function useVesselData() {
 
     const baseUrl = "http://130.225.37.58:8000";
 
-    // Effect for vessel position updates
     useEffect(() => {
         const { bounds } = mapOptions;
         const url = bounds
@@ -181,6 +180,7 @@ function vesselReviver(_key: string, value: any): Vessel[] | never {
                     history: item["history"] || [],
                     cog: item["COG"],
                     sog: item["SOG"],
+                    cri: parseFloat(Math.random().toFixed(2)),
                 } as Vessel;
             }
             return item;

@@ -33,8 +33,6 @@ function MapOptionsProvider({ children }: { children: React.ReactNode }) {
         return setMapOptions(mapOptions);
     }, []);
 
-    console.log(mapOptions);
-
     return (
         <MapOptionsContext.Provider
             value={{ mapOptions, setMapOptions: updateMapOptions }}

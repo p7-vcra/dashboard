@@ -61,7 +61,7 @@ function VesselFilter({ onClose }: VesselFilterProps) {
     };
 
     return (
-        <div className="  bg-zinc-800 bg-opacity-85 backdrop-blur-lg p-4  rounded-xl border-2 border-zinc-600">
+        <div className="  bg-zinc-800 bg-opacity-85 backdrop-blur-lg p-4  rounded-xl border-2 border-zinc-600 text-sm">
             <div className="w-full flex items-center justify-between text-white">
                 <div className="font-bold">Filters</div>
                 <button

@@ -41,6 +41,7 @@ function VesselModal({ vessel, onClose }: VesselModalProps) {
         "longitude",
         "sog",
         "cog",
+        "cri",
     ];
 
     return (
@@ -72,14 +73,14 @@ function VesselModal({ vessel, onClose }: VesselModalProps) {
                     </button>
                 </div>
                 <div className="p-4">
-                    <ul className="w-64 text-xl">
+                    <ul className="min-w-44 text-md">
                         {vessel &&
                             Object.entries(vessel)
                                 .filter(([key]) =>
                                     shownAttributes.includes(key)
                                 )
                                 .map(([key, value]) => (
-                                    <li key={key} className="text-white py-4">
+                                    <li key={key} className="text-white py-2">
                                         <div className="font-bold text-zinc-300 text-xs">
                                             {key
                                                 .replace(
