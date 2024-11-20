@@ -77,7 +77,7 @@ function VesselFilter({ onClose }: VesselFilterProps) {
     };
 
     return (
-        <div className="bg-zinc-800 bg-opacity-85 backdrop-blur-lg p-4  rounded-xl border-2 border-zinc-600 text-sm">
+        <div className="bg-zinc-800 bg-opacity-85 backdrop-blur-lg p-4  rounded-xl border-2 border-zinc-600 text-sm min-w-72">
             <div className="w-full flex items-center justify-between text-white">
                 <div className="font-bold">Filters</div>
                 <button
@@ -97,7 +97,7 @@ function VesselFilter({ onClose }: VesselFilterProps) {
                             {value.type === "range" ? (
                                 <div className="space-x-2 flex-col text-white h-full">
                                     <div className="flex items-center space-x-2">
-                                        <div>
+                                        <div className="min-w-5">
                                             {key === "cri" && "value" in value
                                                 ? `${value.value[0] / 10}`
                                                 : "value" in value
@@ -124,7 +124,7 @@ function VesselFilter({ onClose }: VesselFilterProps) {
                                                     : undefined
                                             }
                                         />
-                                        <div>
+                                        <div className="min-w-5">
                                             {key === "cri" && "value" in value
                                                 ? `${value.value[1] / 10}`
                                                 : "value" in value
@@ -155,7 +155,7 @@ function VesselFilter({ onClose }: VesselFilterProps) {
                                 )
                             )}
                             {value.type === "checkbox" && (
-                                <div className="peer-container cursor-pointer">
+                                <div className="peer-container cursor-pointer w-full">
                                     <input
                                         type="checkbox"
                                         id={key}
@@ -167,10 +167,10 @@ function VesselFilter({ onClose }: VesselFilterProps) {
                                         }
                                         className="peer hidden cursor-pointer"
                                     />
-                                    <div className=" bg-zinc-700 border-2 cursor-pointer border-zinc-600 rounded-lg flex peer-checked:bg-zinc-500 peer-checked:border-zinc-300">
+                                    <div className=" bg-zinc-700 border-2 cursor-pointer border-zinc-600 rounded-lg flex peer-checked:bg-zinc-500 peer-checked:border-zinc-300 w-full">
                                         <label
                                             htmlFor={key}
-                                            className="text-white p-2 cursor-pointer select-none"
+                                            className="text-white p-2 cursor-pointer select-none w-full"
                                         >
                                             {"label" in value && value.label}
                                         </label>

@@ -11,9 +11,8 @@
     display: block;
     position: relative;
     width: 100%;
-    height: 8px;
-    background: #ddd;
     border-radius: 4px;
+    @apply bg-zinc-400 bg-opacity-50 h-1.5;
 }
 .range-slider[data-vertical] {
     height: 100%;
@@ -27,11 +26,9 @@
     position: absolute;
     z-index: 3;
     top: 50%;
-    width: 24px;
-    height: 24px;
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    @apply bg-blue-700;
+    @apply bg-blue-700 h-5 w-5;
 }
 .range-slider .range-slider__thumb:focus-visible {
     outline: 0;
