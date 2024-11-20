@@ -6,7 +6,6 @@ import { useVesselData } from "../contexts/VesselsContext";
 import { Vessel } from "../types/vessel";
 // prettier-ignore
 import "leaflet-rotatedmarker";
-import { useState } from "react";
 import { Polyline } from "react-leaflet";
 import { useMapOptions } from "../contexts/MapOptionsContext";
 import { useMousePosition } from "../contexts/MousePositionContext";
