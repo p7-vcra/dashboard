@@ -17,20 +17,20 @@ function VesselModal({ vessel, onClose }: VesselModalProps) {
                 onClose();
             }
         };
-        const handleClickOutside = (event: MouseEvent) => {
-            if (
-                modalRef.current &&
-                !modalRef.current.contains(event.target as Node)
-            ) {
-                onClose();
-            }
-        };
+        // const handleClickOutside = (event: MouseEvent) => {
+        //     if (
+        //         modalRef.current &&
+        //         !modalRef.current.contains(event.target as Node)
+        //     ) {
+        //         onClose();
+        //     }
+        // };
         document.addEventListener("keydown", handleKeyDown);
-        document.addEventListener("mouseup", handleClickOutside);
+        // document.addEventListener("mouseup", handleClickOutside);
 
         return () => {
             document.removeEventListener("keydown", handleKeyDown);
-            document.removeEventListener("mouseup", handleClickOutside);
+            // document.removeEventListener("mouseup", handleClickOutside);
         };
     }, [onClose]);
 

@@ -12,7 +12,7 @@ interface VesselFilterProps {
 function VesselFilter({ onClose }: VesselFilterProps) {
     const { updateFilter } = useVessels();
     const [sogRange, setSogRange] = useState([0, 30]);
-    const [criRange, setCriRange] = useState([0, 10]);
+    const [criRange, setCriRange] = useState([0, 1]);
     const [vesselType, setVesselType] = useState("");
     const [hasFutureLocation, setHasFutureLocation] = useState(false);
 
@@ -21,8 +21,8 @@ function VesselFilter({ onClose }: VesselFilterProps) {
             return (
                 vessel.sog >= sogRange[0] &&
                 vessel.sog <= sogRange[1] &&
-                (vessel.cri ?? 0) * 10 >= criRange[0] &&
-                (vessel.cri ?? 0) * 10 <= criRange[1] &&
+                (vessel.cri ?? 0) * 1 >= criRange[0] &&
+                (vessel.cri ?? 0) * 1 <= criRange[1] &&
                 vessel.vesselType.includes(vesselType) &&
                 (!hasFutureLocation ||
                     (vessel.futureLocation && vessel.futureLocation.length > 0))
@@ -48,31 +48,31 @@ function VesselFilter({ onClose }: VesselFilterProps) {
     const filters = {
         sog: {
             display: "Speed over ground",
+            type: "range",
             min: 0,
             max: 30,
-            type: "range",
             step: 1,
             value: sogRange,
             onInput: setSogRange,
         },
         cri: {
             display: "Collision risk index",
-            min: 0,
-            max: 10,
             type: "range",
-            step: 1,
+            min: 0,
+            max: 1,
+            step: 0.1,
             value: criRange,
             onInput: setCriRange,
         },
         vesselType: {
             display: "Vessel type",
-            options: ["Class A", "Class B", "Base Station", "AtoN"],
             type: "select",
+            options: ["Class A", "Class B", "Base Station", "AtoN"],
         },
         hasFutureLocation: {
             display: "Trajectory prediction",
-            label: "Only forecasted location",
             type: "checkbox",
+            label: "Only forecasted location",
         },
     };
 
@@ -98,9 +98,7 @@ function VesselFilter({ onClose }: VesselFilterProps) {
                                 <div className="space-x-2 flex-col text-white h-full">
                                     <div className="flex items-center space-x-2">
                                         <div className="min-w-5">
-                                            {key === "cri" && "value" in value
-                                                ? `${value.value[0] / 10}`
-                                                : "value" in value
+                                            {"value" in value
                                                 ? `${value.value[0]}`
                                                 : ""}
                                         </div>
@@ -123,11 +121,12 @@ function VesselFilter({ onClose }: VesselFilterProps) {
                                                     ? value.value
                                                     : undefined
                                             }
+                                            step={
+                                                "step" in value ? value.step : 1
+                                            }
                                         />
                                         <div className="min-w-5">
-                                            {key === "cri" && "value" in value
-                                                ? `${value.value[1] / 10}`
-                                                : "value" in value
+                                            {"value" in value
                                                 ? `${value.value[1]}`
                                                 : ""}
                                         </div>
@@ -179,18 +178,18 @@ function VesselFilter({ onClose }: VesselFilterProps) {
                             )}
                         </div>
                     ))}
-                    <div className="flex items-center justify-between flex-col space-y-2  text-sm border-t border-zinc-500 border-opacity-50 pt-4">
-                        <button
-                            onClick={applyFilter}
-                            className="bg-zinc-700 text-white p-2 rounded-lg hover:bg-zinc-600 active:bg-zinc-700 w-full border-2 border-zinc-600"
-                        >
-                            Apply filter
-                        </button>
+                    <div className="flex items-center justify-between space-x-2  text-sm border-t border-zinc-500 border-opacity-50 pt-4">
                         <button
                             onClick={clearFilter}
                             className="bg-zinc-700 text-white p-2 rounded-lg hover:bg-zinc-600 active:bg-zinc-700 w-full border-2 border-zinc-600"
                         >
-                            Clear filter
+                            Clear
+                        </button>
+                        <button
+                            onClick={applyFilter}
+                            className="bg-blue-700 text-white p-2 rounded-lg hover:bg-blue-600 active:bg-blue-700 w-full border-2 border-blue-600"
+                        >
+                            Apply
                         </button>
                     </div>
                 </div>

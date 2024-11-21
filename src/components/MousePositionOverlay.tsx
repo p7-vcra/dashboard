@@ -25,7 +25,7 @@ const VesselCard: React.FC<MousePositionProps> = ({ position }) => {
             p-4
         "
         >
-            <div className="text-white min-w-48 text-center">
+            <div className="text-white min-w-48 text-center tabular-nums">
                 {position.lat.toFixed(6) || "-"},{" "}
                 {position.lng.toFixed(6) || "-"}
             </div>
