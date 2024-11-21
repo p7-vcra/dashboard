@@ -23,7 +23,7 @@ function Map() {
             )}
             <MapContainer
                 minZoom={5}
-                maxZoom={30}
+                maxZoom={18}
                 center={mapOptions.center}
                 zoom={mapOptions.zoom}
                 className="w-full h-full"

@@ -6,6 +6,7 @@ import { useVesselData } from "../contexts/VesselsContext";
 import { Vessel } from "../types/vessel";
 // prettier-ignore
 import "leaflet-rotatedmarker";
+import { useEffect } from "react";
 import { Polyline } from "react-leaflet";
 import { useMapOptions } from "../contexts/MapOptionsContext";
 import { useMousePosition } from "../contexts/MousePositionContext";
@@ -22,41 +23,48 @@ function MapContent() {
     const map = useMap();
     const { setMapOptions } = useMapOptions();
     const { setMousePosition } = useMousePosition();
-
-    map.on("moveend", () => {
-        const bounds = map.getBounds();
-        setMapOptions({
-            center: map.getCenter(),
-            zoom: map.getZoom(),
-            bounds: {
-                north: bounds.getNorth(),
-                east: bounds.getEast(),
-                south: bounds.getSouth(),
-                west: bounds.getWest(),
-            },
-        });
-    });
-
-    // Get cursor position from map (lat lon)
-    map.on("mousemove", (e) => {
-        setMousePosition(e.latlng);
-    });
-
-    map.addEventListener("zoomend", () => {
-        setMapOptions({
-            center: map.getCenter(),
-            zoom: map.getZoom(),
-        });
-    });
-
     const { filtered } = useVesselData();
     const { activeVessel, setActiveVessel } = useActiveVessel();
+
+    useEffect(() => {
+        map.on("moveend", () => {
+            const bounds = map.getBounds();
+            setMapOptions({
+                center: map.getCenter(),
+                zoom: map.getZoom(),
+                bounds: {
+                    north: bounds.getNorth(),
+                    east: bounds.getEast(),
+                    south: bounds.getSouth(),
+                    west: bounds.getWest(),
+                },
+            });
+        });
+
+        map.on("mousemove", (e) => {
+            setMousePosition(e.latlng);
+        });
+
+        map.addEventListener("zoomend", () => {
+            setMapOptions({
+                center: map.getCenter(),
+                zoom: map.getZoom(),
+            });
+        });
+
+        return () => {
+            map.off("moveend");
+            map.off("mousemove");
+            map.off("zoomend");
+        };
+    }, [map, setMapOptions, setMousePosition]);
 
     return (
         //@ts-expect-error MarkerClusterGroup does not have a type definition
         <MarkerClusterGroup
             iconCreateFunction={createClusterIcon}
             animate
+            spiderfyOnMaxZoom
             chunkedLoading
         >
             {activeVessel && activeVessel.futureLocation && (

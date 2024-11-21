@@ -24,7 +24,7 @@ function Layout() {
         <div className="">
             <aside
                 id="default-sidebar"
-                className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform border-r-2 border-zinc-600"
+                className="fixed top-0 left-0 z-40 w-56 h-screen transition-transform border-r-2 border-zinc-600"
                 aria-label="Sidebar"
             >
                 <div className="h-full px-3 py-4 overflow-y-auto bg-zinc-800 ">
@@ -62,7 +62,7 @@ function Layout() {
                 )}
             </div>
 
-            <main className="flex-1 ml-64 -z-10">
+            <main className="flex-1 ml-56 -z-10">
                 <Outlet />
             </main>
         </div>
