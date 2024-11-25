@@ -1,7 +1,10 @@
-import { MapContainer, TileLayer } from "react-leaflet";
+import { LatLng, LatLngBounds } from "leaflet";
+import { useEffect } from "react";
+import { MapContainer, TileLayer, ZoomControl } from "react-leaflet";
 import { default as MapContent } from "../components/MapContent";
 import MousePositionOverlay from "../components/MousePositionOverlay";
 import VesselModal from "../components/VesselModal";
+import VesselSearch from "../components/VesselSearch";
 import { useActiveVessel } from "../contexts/ActiveVesselContext";
 import { useMapOptions } from "../contexts/MapOptionsContext";
 import { useMousePosition } from "../contexts/MousePositionContext";
@@ -28,13 +31,17 @@ function Map() {
                 zoom={mapOptions.zoom}
                 className="w-full h-full"
                 attributionControl={false}
+                zoomControl={false}
+                preferCanvas={true}
             >
+                <VesselSearch />
                 <MapContent />
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     noWrap={true}
                 />
+                <ZoomControl position="bottomleft" />
             </MapContainer>
         </div>
     );

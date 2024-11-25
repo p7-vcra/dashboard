@@ -3,13 +3,7 @@ interface Vessel {
     vesselType: string;
     latitude: number;
     longitude: number;
-    history: Array<{
-        latitude: number;
-        longitude: number;
-        timestamp: string;
-        cog: number;
-        sog: number;
-    }>;
+    name?: string
     cog: number;
     sog: number;
     cri?: number;
