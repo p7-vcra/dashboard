@@ -14,7 +14,7 @@ function MousePositionProvider({ children }: { children: React.ReactNode }) {
     const denmarkCoords = new LatLng(56.2639, 9.5018);
 
     const [mousePosition, setMousePosition] = useState<LatLng>(
-        new LatLng(denmarkCoords.lat, denmarkCoords.lng)
+        new LatLng(denmarkCoords.lat, denmarkCoords.lng),
     );
 
     const updateMousePosition = useCallback((MousePosition: LatLng) => {
@@ -34,7 +34,7 @@ function useMousePosition() {
     const context = useContext(MousePositionContext);
     if (!context) {
         throw new Error(
-            "useMousePosition must be used within an MousePositionProvider"
+            "useMousePosition must be used within an MousePositionProvider",
         );
     }
     return context;

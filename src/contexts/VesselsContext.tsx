@@ -22,7 +22,7 @@ const VesselsContext = createContext<VesselsContextType | undefined>(undefined);
 function VesselsProvider({ children }: { children: React.ReactNode }) {
     const [vessels, setVessels] = useState<{ [mmsi: string]: Vessel }>({});
     const [filter, setFilter] = useState<(vessel: Vessel) => boolean>(
-        () => () => true
+        () => () => true,
     );
     const [filtered, setFiltered] = useState<{ [mmsi: string]: Vessel }>({});
 
@@ -33,28 +33,28 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
                 setFiltered(
                     Object.fromEntries(
                         Object.entries(updatedVessels).filter(([, vessel]) =>
-                            filter(vessel)
-                        )
-                    )
+                            filter(vessel),
+                        ),
+                    ),
                 );
                 return updatedVessels;
             });
         },
-        [filter]
+        [filter],
     );
 
     const updateFilter = useCallback(
         (predicate: (vessel: Vessel) => boolean) => {
             setFilter(() => predicate);
         },
-        []
+        [],
     );
 
     useEffect(() => {
         setFiltered(
             Object.fromEntries(
-                Object.entries(vessels).filter(([, vessel]) => filter(vessel))
-            )
+                Object.entries(vessels).filter(([, vessel]) => filter(vessel)),
+            ),
         );
     }, [vessels, filter]);
 
@@ -97,7 +97,7 @@ function useVesselData() {
             eventSource.addEventListener("ais", (event) => {
                 const eventData: Vessel[] = JSON.parse(
                     event.data,
-                    vesselReviver
+                    vesselReviver,
                 );
                 const parsedData = eventData.reduce(
                     (acc: { [mmsi: string]: Vessel }, vessel: Vessel) => {
@@ -112,7 +112,7 @@ function useVesselData() {
                         }
                         return acc;
                     },
-                    {}
+                    {},
                 );
                 console.log("Received AIS data");
                 updateVessels(parsedData);
@@ -130,7 +130,7 @@ function useVesselData() {
 
     useEffect(() => {
         const futureVesselEventSource = new EventSource(
-            `${baseUrl}/dummy-prediction`
+            `${baseUrl}/dummy-prediction`,
         );
 
         futureVesselEventSource.onopen = () =>
@@ -142,7 +142,7 @@ function useVesselData() {
             const vesselPredictions = eventData.reduce(
                 (
                     acc: { [mmsi: string]: number[][] },
-                    prediction: Pick<Vessel, "mmsi" | "latitude" | "longitude">
+                    prediction: Pick<Vessel, "mmsi" | "latitude" | "longitude">,
                 ) => {
                     const { mmsi, latitude, longitude } = prediction;
                     if (!acc[mmsi]) {
@@ -151,7 +151,7 @@ function useVesselData() {
                     acc[mmsi].push([latitude, longitude]);
                     return acc;
                 },
-                {}
+                {},
             );
             const updatedVessels = Object.entries(vesselPredictions).reduce(
                 (acc: { [mmsi: string]: Vessel }, [mmsi, predictions]) => {
@@ -165,7 +165,7 @@ function useVesselData() {
                     }
                     return acc;
                 },
-                {}
+                {},
             );
 
             updateVessels(updatedVessels);
@@ -202,7 +202,7 @@ function vesselReviver(_key: string, value: any): Vessel[] | never {
 function predictionReviver(
     _key: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    value: any
+    value: any,
 ): Pick<Vessel, "mmsi" | "latitude" | "longitude">[] {
     if (Array.isArray(value)) {
         return value.map((item) => {

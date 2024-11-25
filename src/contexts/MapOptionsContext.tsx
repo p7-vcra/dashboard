@@ -18,7 +18,7 @@ interface MapOptionsContextType {
 }
 
 const MapOptionsContext = createContext<MapOptionsContextType | undefined>(
-    undefined
+    undefined,
 );
 
 function MapOptionsProvider({ children }: { children: React.ReactNode }) {
@@ -46,7 +46,7 @@ function useMapOptions() {
     const context = useContext(MapOptionsContext);
     if (!context) {
         throw new Error(
-            "useMapOptions must be used within an MapOptionsProvider"
+            "useMapOptions must be used within an MapOptionsProvider",
         );
     }
     return context;

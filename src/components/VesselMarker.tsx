@@ -33,14 +33,14 @@ const VesselMarker = React.memo(
             prevProps.vessel.mmsi === nextProps.vessel.mmsi &&
             prevProps.isActive === nextProps.isActive
         );
-    }
+    },
 );
 
 const arrowMarkup = renderToStaticMarkup(
     <FontAwesomeIcon
         icon={faLocationArrow}
         transform={{ rotate: -45, size: 20, y: 2 }}
-    />
+    />,
 ); // 45 degrees counter clockwise as the icon points NE by default
 
 function createVesselIcon(isActive: boolean, cri?: number) {
@@ -52,10 +52,10 @@ function createVesselIcon(isActive: boolean, cri?: number) {
         cri && cri >= 0.9
             ? "text-red-600 bg-red-100 bg-opacity-50"
             : cri && cri >= 0.75
-            ? "text-orange-600 bg-orange-100 bg-opacity-50"
-            : cri && cri >= 0.5
-            ? "text-yellow-600 bg-yellow-100 bg-opacity-50"
-            : "text-zinc-900";
+              ? "text-orange-600 bg-orange-100 bg-opacity-50"
+              : cri && cri >= 0.5
+                ? "text-yellow-600 bg-yellow-100 bg-opacity-50"
+                : "text-zinc-900";
 
     return L.divIcon({
         html: `<div class="border-2 m-[-8px] h-7 w-7 flex justify-center items-center hover:border-opacity-100 rounded-full ${borderClass} ${colorClass}">${arrowMarkup}</div>`,

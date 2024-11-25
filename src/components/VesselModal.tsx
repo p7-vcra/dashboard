@@ -79,7 +79,7 @@ function VesselModal({ vessel, onClose }: VesselModalProps) {
                         {vessel &&
                             Object.entries(vessel)
                                 .filter(([key]) =>
-                                    shownAttributes.includes(key)
+                                    shownAttributes.includes(key),
                                 )
                                 .map(([key, value]) => (
                                     <li key={key} className="text-white py-2">
@@ -87,7 +87,7 @@ function VesselModal({ vessel, onClose }: VesselModalProps) {
                                             {key
                                                 .replace(
                                                     /([a-z])([A-Z])/g,
-                                                    "$1 $2"
+                                                    "$1 $2",
                                                 )
                                                 .toUpperCase()}
                                         </div>

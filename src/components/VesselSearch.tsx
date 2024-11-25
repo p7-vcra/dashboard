@@ -32,13 +32,13 @@ const VesselSearch: React.FC = () => {
         if (filteredVessels.length > 0) {
             if (e.key === "ArrowDown") {
                 setSelectedIndex(
-                    (prevIndex) => (prevIndex + 1) % filteredVessels.length
+                    (prevIndex) => (prevIndex + 1) % filteredVessels.length,
                 );
             } else if (e.key === "ArrowUp") {
                 setSelectedIndex(
                     (prevIndex) =>
                         (prevIndex - 1 + filteredVessels.length) %
-                        filteredVessels.length
+                        filteredVessels.length,
                 );
             } else if (e.key === "Enter" && selectedIndex >= 0) {
                 handleVesselClick(filteredVessels[selectedIndex]);
@@ -49,7 +49,7 @@ const VesselSearch: React.FC = () => {
     const filteredVessels = Object.values(vessels).filter(
         (vessel) =>
             vessel.mmsi.toString().includes(searchTerm) ||
-            vessel.name?.toLocaleLowerCase().includes(searchTerm.toLowerCase())
+            vessel.name?.toLocaleLowerCase().includes(searchTerm.toLowerCase()),
     );
 
     return (
