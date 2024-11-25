@@ -22,7 +22,7 @@ const VesselsContext = createContext<VesselsContextType | undefined>(undefined);
 function VesselsProvider({ children }: { children: React.ReactNode }) {
     const [vessels, setVessels] = useState<{ [mmsi: string]: Vessel }>({});
     const [filter, setFilter] = useState<(vessel: Vessel) => boolean>(
-        () => () => true,
+        () => () => true
     );
     const [filtered, setFiltered] = useState<{ [mmsi: string]: Vessel }>({});
 
@@ -33,28 +33,28 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
                 setFiltered(
                     Object.fromEntries(
                         Object.entries(updatedVessels).filter(([, vessel]) =>
-                            filter(vessel),
-                        ),
-                    ),
+                            filter(vessel)
+                        )
+                    )
                 );
                 return updatedVessels;
             });
         },
-        [filter],
+        [filter]
     );
 
     const updateFilter = useCallback(
         (predicate: (vessel: Vessel) => boolean) => {
             setFilter(() => predicate);
         },
-        [],
+        []
     );
 
     useEffect(() => {
         setFiltered(
             Object.fromEntries(
-                Object.entries(vessels).filter(([, vessel]) => filter(vessel)),
-            ),
+                Object.entries(vessels).filter(([, vessel]) => filter(vessel))
+            )
         );
     }, [vessels, filter]);
 
@@ -84,65 +84,53 @@ function useVesselData() {
     const baseUrl = "http://130.225.37.58:8000";
 
     useEffect(() => {
-        const timeoutId = setTimeout(() => {
-            const { bounds } = mapOptions;
-            const url = bounds
-                ? `${baseUrl}/slice?latitude_range=${bounds.south},${bounds.north}&longitude_range=${bounds.west},${bounds.east}`
-                : `${baseUrl}/dummy-ais-data`;
+        const { bounds } = mapOptions;
+        const url = bounds
+            ? `${baseUrl}/slice?latitude_range=${bounds.south},${bounds.north}&longitude_range=${bounds.west},${bounds.east}`
+            : `${baseUrl}/dummy-ais-data`;
 
-            const eventSource = new EventSource(url);
-            eventSource.onopen = () =>
-                console.log(`Opened connection to ${url}`);
+        const eventSource = new EventSource(url);
+        eventSource.onopen = () => console.log(`Opened connection to ${url}`);
 
-            eventSource.addEventListener("ais", (event) => {
-                const eventData: Vessel[] = JSON.parse(
-                    event.data,
-                    vesselReviver,
-                );
-                const parsedData = eventData.reduce(
-                    (acc: { [mmsi: string]: Vessel }, vessel: Vessel) => {
-                        const { mmsi, vesselType } = vessel;
+        eventSource.addEventListener("ais", (event) => {
+            const eventData: Vessel[] = JSON.parse(event.data, vesselReviver);
+            const parsedData = eventData.reduce(
+                (acc: { [mmsi: string]: Vessel }, vessel: Vessel) => {
+                    const { mmsi, vesselType } = vessel;
 
-                        if (vesselType === "Class A") {
-                            acc[mmsi] = {
-                                cri: parseFloat(Math.random().toFixed(2)),
-                                ...vesselsRef.current[mmsi],
-                                ...vessel,
-                            };
-                        }
-                        return acc;
-                    },
-                    {},
-                );
-                console.log("Received AIS data");
-                updateVessels(parsedData);
-            });
-
-            return () => {
-                eventSource.close();
-            };
-        }, 1000);
+                    if (vesselType === "Class A") {
+                        acc[mmsi] = {
+                            cri: parseFloat(Math.random().toFixed(2)),
+                            ...vesselsRef.current[mmsi],
+                            ...vessel,
+                        };
+                    }
+                    return acc;
+                },
+                {}
+            );
+            updateVessels(parsedData);
+        });
 
         return () => {
-            clearTimeout(timeoutId);
+            console.log(`Closing connection to ${url}`);
+            eventSource.close();
         };
     }, [mapOptions, updateVessels]);
 
     useEffect(() => {
-        const futureVesselEventSource = new EventSource(
-            `${baseUrl}/dummy-prediction`,
-        );
+        const url = `${baseUrl}/dummy-prediction`;
+        const eventSource = new EventSource(url);
 
-        futureVesselEventSource.onopen = () =>
-            console.log("Future Vessel course connection opened");
+        eventSource.onopen = () => console.log(`Opened connection to ${url}`);
 
-        futureVesselEventSource.addEventListener("ais", (event) => {
+        eventSource.addEventListener("ais", (event) => {
             const eventData = JSON.parse(event.data, predictionReviver);
 
             const vesselPredictions = eventData.reduce(
                 (
                     acc: { [mmsi: string]: number[][] },
-                    prediction: Pick<Vessel, "mmsi" | "latitude" | "longitude">,
+                    prediction: Pick<Vessel, "mmsi" | "latitude" | "longitude">
                 ) => {
                     const { mmsi, latitude, longitude } = prediction;
                     if (!acc[mmsi]) {
@@ -151,7 +139,7 @@ function useVesselData() {
                     acc[mmsi].push([latitude, longitude]);
                     return acc;
                 },
-                {},
+                {}
             );
             const updatedVessels = Object.entries(vesselPredictions).reduce(
                 (acc: { [mmsi: string]: Vessel }, [mmsi, predictions]) => {
@@ -165,14 +153,15 @@ function useVesselData() {
                     }
                     return acc;
                 },
-                {},
+                {}
             );
 
             updateVessels(updatedVessels);
         });
 
         return () => {
-            futureVesselEventSource.close();
+            console.log(`Closing connection to ${url}`);
+            eventSource.close();
         };
     }, [updateVessels]);
 
@@ -202,7 +191,7 @@ function vesselReviver(_key: string, value: any): Vessel[] | never {
 function predictionReviver(
     _key: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    value: any,
+    value: any
 ): Pick<Vessel, "mmsi" | "latitude" | "longitude">[] {
     if (Array.isArray(value)) {
         return value.map((item) => {
