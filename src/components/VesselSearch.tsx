@@ -1,7 +1,7 @@
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { LatLng } from "leaflet";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useMap } from "react-leaflet";
 import { useActiveVessel } from "../contexts/ActiveVesselContext";
 import { useVesselData } from "../contexts/VesselsContext";

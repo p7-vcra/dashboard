@@ -21,7 +21,7 @@ function createClusterIcon(cluster: MarkerCluster) {
 
 function MapContent() {
     const map = useMap();
-    const { mapOptions, setMapOptions } = useMapOptions();
+    const { setMapOptions } = useMapOptions();
     const { setMousePosition } = useMousePosition();
     const { filtered } = useVesselData();
     const { activeVessel, setActiveVessel } = useActiveVessel();

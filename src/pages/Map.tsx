@@ -1,5 +1,3 @@
-import { LatLng, LatLngBounds } from "leaflet";
-import { useEffect } from "react";
 import { MapContainer, TileLayer, ZoomControl } from "react-leaflet";
 import { default as MapContent } from "../components/MapContent";
 import MousePositionOverlay from "../components/MousePositionOverlay";
