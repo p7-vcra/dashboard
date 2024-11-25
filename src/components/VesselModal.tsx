@@ -42,6 +42,7 @@ function VesselModal({ vessel, onClose }: VesselModalProps) {
         "sog",
         "cog",
         "cri",
+        "name",
     ];
 
     return (

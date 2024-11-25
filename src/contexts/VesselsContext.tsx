@@ -130,11 +130,11 @@ function useVesselData() {
 
             const vesselPredictions = eventData.reduce(
                 (acc: { [mmsi: number]: number[][] }, prediction: any) => {
-                    const { MMSI: mmsi, Latitude, Longitude } = prediction;
+                    const { mmsi, latitude, longitude } = prediction;
                     if (!acc[mmsi]) {
                         acc[mmsi] = [];
                     }
-                    acc[mmsi].push([Latitude, Longitude]);
+                    acc[mmsi].push([latitude, longitude]);
                     return acc;
                 },
                 {}
@@ -174,13 +174,13 @@ function vesselReviver(_key: string, value: any): Vessel[] | never {
         return value.map((item) => {
             if (typeof item === "object" && item !== null) {
                 return {
-                    mmsi: item["MMSI"],
-                    vesselType: item["Type of mobile"],
-                    latitude: item["Latitude"],
-                    longitude: item["Longitude"],
-                    history: item["history"] || [],
-                    cog: item["COG"],
-                    sog: item["SOG"],
+                    mmsi: item["mmsi"],
+                    vesselType: item["type of mobile"],
+                    latitude: item["latitude"],
+                    longitude: item["longitude"],
+                    cog: item["cog"],
+                    sog: item["sog"],
+                    name: item["name"] || "",
                 } as Vessel;
             }
             return item;

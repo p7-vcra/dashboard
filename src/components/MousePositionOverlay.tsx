@@ -5,13 +5,13 @@ interface MousePositionProps {
     position: LatLng;
 }
 
-const VesselCard: React.FC<MousePositionProps> = ({ position }) => {
+const MousePositionOverlay: React.FC<MousePositionProps> = ({ position }) => {
     return (
         <div
             className="
             absolute
-            bottom-0
-            left-0
+            bottom-1
+            left-12
             bg-zinc-800
             bg-opacity-85
             backdrop-blur-xl
@@ -33,4 +33,4 @@ const VesselCard: React.FC<MousePositionProps> = ({ position }) => {
     );
 };
 
-export default VesselCard;
+export default MousePositionOverlay;
