@@ -19,7 +19,7 @@ const ActiveVesselContext = createContext<ActiveVesselContextType | undefined>(
 
 function ActiveVesselProvider({ children }: { children: React.ReactNode }) {
     const { vessels } = useVessels();
-    const [activeVesselMmsi, setActiveVesselMMSI] = useState<number | null>(
+    const [activeVesselMmsi, setActiveVesselMmsi] = useState<string | null>(
         null,
     );
 
@@ -28,7 +28,7 @@ function ActiveVesselProvider({ children }: { children: React.ReactNode }) {
     }, [vessels, activeVesselMmsi]);
 
     const updateActiveVessel = useCallback((vessel: Vessel | null) => {
-        setActiveVesselMMSI(vessel ? vessel.mmsi : null);
+        setActiveVesselMmsi(vessel ? vessel.mmsi : null);
     }, []);
 
     return (

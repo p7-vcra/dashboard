@@ -161,7 +161,7 @@ function VesselFilter({ onClose }: VesselFilterProps) {
                                         name={key}
                                         onChange={(e) =>
                                             setHasFutureLocation(
-                                                e.target.checked
+                                                e.target.checked,
                                             )
                                         }
                                         className="peer hidden cursor-pointer"
