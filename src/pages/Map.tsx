@@ -6,11 +6,13 @@ import VesselSearch from "../components/VesselSearch";
 import { useActiveVessel } from "../contexts/ActiveVesselContext";
 import { useMapOptions } from "../contexts/MapOptionsContext";
 import { useMousePosition } from "../contexts/MousePositionContext";
+import { useVesselData } from "../contexts/VesselsContext";
 
 function Map() {
     const { activeVessel, setActiveVessel } = useActiveVessel();
     const { mapOptions } = useMapOptions();
     const { mousePosition } = useMousePosition();
+    const { vessels, filtered } = useVesselData();
 
     function onClose() {
         setActiveVessel(null);
@@ -32,8 +34,8 @@ function Map() {
                 zoomControl={false}
                 preferCanvas={true}
             >
-                <VesselSearch />
-                <MapContent />
+                <VesselSearch vessels={vessels} />
+                <MapContent filtered={filtered} />
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

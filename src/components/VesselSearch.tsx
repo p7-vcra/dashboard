@@ -4,12 +4,14 @@ import { LatLng } from "leaflet";
 import React, { useState } from "react";
 import { useMap } from "react-leaflet";
 import { useActiveVessel } from "../contexts/ActiveVesselContext";
-import { useVesselData } from "../contexts/VesselsContext";
 import { Vessel } from "../types/vessel";
 
-const VesselSearch: React.FC = () => {
+interface VesselSearchProps {
+    vessels: { [mmsi: string]: Vessel };
+}
+
+function VesselSearch({ vessels }: VesselSearchProps) {
     const { setActiveVessel } = useActiveVessel();
-    const { vessels } = useVesselData();
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedIndex, setSelectedIndex] = useState(-1);
 
@@ -32,13 +34,14 @@ const VesselSearch: React.FC = () => {
         if (filteredVessels.length > 0) {
             if (e.key === "ArrowDown") {
                 setSelectedIndex(
-                    (prevIndex) => (prevIndex + 1) % filteredVessels.length,
+                    (prevIndex) =>
+                        (prevIndex + 1) % filteredVessels.slice(0, 10).length
                 );
             } else if (e.key === "ArrowUp") {
                 setSelectedIndex(
                     (prevIndex) =>
-                        (prevIndex - 1 + filteredVessels.length) %
-                        filteredVessels.length,
+                        (prevIndex - 1 + filteredVessels.slice(0, 10).length) %
+                        filteredVessels.slice(0, 10).length
                 );
             } else if (e.key === "Enter" && selectedIndex >= 0) {
                 handleVesselClick(filteredVessels[selectedIndex]);
@@ -49,7 +52,7 @@ const VesselSearch: React.FC = () => {
     const filteredVessels = Object.values(vessels).filter(
         (vessel) =>
             vessel.mmsi.toString().includes(searchTerm) ||
-            vessel.name?.toLocaleLowerCase().includes(searchTerm.toLowerCase()),
+            vessel.name?.toLocaleLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -117,6 +120,6 @@ const VesselSearch: React.FC = () => {
             </div>
         </div>
     );
-};
+}
 
 export default VesselSearch;

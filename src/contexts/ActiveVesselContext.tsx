@@ -14,13 +14,13 @@ interface ActiveVesselContextType {
 }
 
 const ActiveVesselContext = createContext<ActiveVesselContextType | undefined>(
-    undefined,
+    undefined
 );
 
 function ActiveVesselProvider({ children }: { children: React.ReactNode }) {
     const { vessels } = useVessels();
     const [activeVesselMmsi, setActiveVesselMmsi] = useState<string | null>(
-        null,
+        null
     );
 
     const activeVessel = useMemo(() => {
@@ -44,7 +44,7 @@ function useActiveVessel() {
     const context = useContext(ActiveVesselContext);
     if (!context) {
         throw new Error(
-            "useActiveVessel must be used within an ActiveVesselProvider",
+            "useActiveVessel must be used within an ActiveVesselProvider"
         );
     }
     return context;

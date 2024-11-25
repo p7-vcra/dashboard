@@ -1,15 +1,12 @@
 import L, { MarkerCluster } from "leaflet";
-import { useMap } from "react-leaflet";
-import MarkerClusterGroup from "react-leaflet-markercluster";
-import { useActiveVessel } from "../contexts/ActiveVesselContext";
-import { useVesselData } from "../contexts/VesselsContext";
-import { Vessel } from "../types/vessel";
-// prettier-ignore
 import "leaflet-rotatedmarker";
 import { useEffect } from "react";
-import { Polyline } from "react-leaflet";
+import { Polyline, useMap } from "react-leaflet";
+import MarkerClusterGroup from "react-leaflet-markercluster";
+import { useActiveVessel } from "../contexts/ActiveVesselContext";
 import { useMapOptions } from "../contexts/MapOptionsContext";
 import { useMousePosition } from "../contexts/MousePositionContext";
+import { Vessel } from "../types/vessel";
 import { VesselMarker } from "./VesselMarker";
 
 function createClusterIcon(cluster: MarkerCluster) {
@@ -19,11 +16,14 @@ function createClusterIcon(cluster: MarkerCluster) {
     });
 }
 
-function MapContent() {
+interface MapContentProps {
+    filtered: { [mmsi: string]: Vessel };
+}
+
+function MapContent({ filtered }: MapContentProps) {
     const map = useMap();
     const { setMapOptions } = useMapOptions();
     const { setMousePosition } = useMousePosition();
-    const { filtered } = useVesselData();
     const { activeVessel, setActiveVessel } = useActiveVessel();
 
     useEffect(() => {
