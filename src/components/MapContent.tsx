@@ -78,7 +78,7 @@ const MapContent = ({ filtered, maxZoom }: MapContentProps) => {
             mapOptions.bounds?.east || map.getBounds().getEast(),
             mapOptions.bounds?.north || map.getBounds().getNorth(),
         ],
-        options: { radius: 60, maxZoom: 16 },
+        options: { radius: 180, minPoints: 3, maxZoom: 16 },
     });
 
     return (
@@ -105,7 +105,9 @@ const MapContent = ({ filtered, maxZoom }: MapContentProps) => {
                                     map.setView(
                                         [latitude, longitude],
                                         expansionZoom,
-                                        { animate: true }
+                                        {
+                                            animate: true,
+                                        }
                                     );
                                 },
                             }}
