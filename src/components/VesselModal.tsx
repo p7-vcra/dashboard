@@ -75,11 +75,11 @@ function VesselModal({ vessel, onClose }: VesselModalProps) {
                     </button>
                 </div>
                 <div className="">
-                    <ul className="min-w-44 text-md">
+                    <ul className="w-44 text-md">
                         {vessel &&
                             Object.entries(vessel)
                                 .filter(([key]) =>
-                                    shownAttributes.includes(key),
+                                    shownAttributes.includes(key)
                                 )
                                 .map(([key, value]) => (
                                     <li key={key} className="text-white py-2">
@@ -87,11 +87,13 @@ function VesselModal({ vessel, onClose }: VesselModalProps) {
                                             {key
                                                 .replace(
                                                     /([a-z])([A-Z])/g,
-                                                    "$1 $2",
+                                                    "$1 $2"
                                                 )
                                                 .toUpperCase()}
                                         </div>
-                                        <div>{value || "-"}</div>
+                                        <div className="truncate">
+                                            {value || "-"}
+                                        </div>
                                     </li>
                                 ))}
                     </ul>
