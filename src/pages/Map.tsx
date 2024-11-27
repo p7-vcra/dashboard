@@ -14,6 +14,9 @@ function Map() {
     const { mousePosition } = useMousePosition();
     const { vessels, filtered } = useVesselData();
 
+    const minZoom = 5;
+    const maxZoom = 18;
+
     function onClose() {
         setActiveVessel(null);
     }
@@ -25,8 +28,8 @@ function Map() {
                 <VesselModal vessel={activeVessel} onClose={onClose} />
             )}
             <MapContainer
-                minZoom={5}
-                maxZoom={18}
+                minZoom={minZoom}
+                maxZoom={maxZoom}
                 center={mapOptions.center}
                 zoom={mapOptions.zoom}
                 className="w-full h-full"
@@ -35,7 +38,7 @@ function Map() {
                 preferCanvas={true}
             >
                 <VesselSearch vessels={vessels} />
-                <MapContent filtered={filtered} />
+                <MapContent filtered={filtered} maxZoom={maxZoom} />
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
