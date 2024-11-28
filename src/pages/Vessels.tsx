@@ -21,10 +21,13 @@ const Vessels: React.FC = () => {
     return (
         <div className="xl:grid-cols-4 grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 bg-zinc-700">
             {Object.values(filtered).map((vessel) => (
-                <Container className="m-2">
+                <Container className="m-2" key={`card-${vessel.mmsi}`}>
                     <div className="grid grid-cols-2 gap-y-4">
                         {shownAttributes.map((key) => (
-                            <ContainerSegment title={key.toUpperCase()}>
+                            <ContainerSegment
+                                title={key.toUpperCase()}
+                                key={`attr-${key}-${vessel.mmsi}`}
+                            >
                                 <div className="truncate">
                                     {vessel[key] || "-"}
                                 </div>
