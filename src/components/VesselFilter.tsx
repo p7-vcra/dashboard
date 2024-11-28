@@ -142,7 +142,7 @@ function VesselFilter({ onClose }: VesselFilterProps) {
                                         <select
                                             id={key}
                                             name={key}
-                                            className="bg-zinc-700 border-zinc-600 border-2 rounded-lg p-2 h-full"
+                                            className="bg-zinc-700 border-zinc-600 border-2 rounded-lg p-2 h-full w-full"
                                             defaultValue=""
                                             onChange={(e) =>
                                                 setVesselType(e.target.value)
@@ -203,7 +203,6 @@ function VesselFilter({ onClose }: VesselFilterProps) {
                     </div>
                 </div>
             </div>
-            {/* </div> */}
         </Container>
     );
 }

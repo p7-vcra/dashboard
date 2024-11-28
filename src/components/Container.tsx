@@ -1,4 +1,5 @@
 import React from "react";
+import { twMerge } from "tailwind-merge";
 
 interface ContainerProps {
     children: React.ReactNode;
@@ -13,7 +14,8 @@ const Container: React.FC<ContainerProps> = ({
 }) => {
     return (
         <div
-            className={`            
+            className={twMerge(
+                `
             bg-zinc-800
             bg-opacity-85
             backdrop-blur-xl
@@ -23,8 +25,9 @@ const Container: React.FC<ContainerProps> = ({
             border-zinc-600
             rounded-lg
             text-white
-            p-4 
-            ${className}`}
+            p-4`,
+                className
+            )}
             style={style}
         >
             {children}
