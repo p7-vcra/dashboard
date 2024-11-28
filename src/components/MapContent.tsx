@@ -42,7 +42,7 @@ const MapContent = ({ filtered, maxZoom }: MapContentProps) => {
         });
     }, [map, setMapOptions]);
 
-    const onMouseMove = useCallback(
+    const updateMousePosition = useCallback(
         (event: L.LeafletMouseEvent) => {
             setMousePosition(event.latlng);
         },
@@ -52,13 +52,13 @@ const MapContent = ({ filtered, maxZoom }: MapContentProps) => {
     useEffect(() => {
         map.on("move", updateMapOptions);
         map.on("zoom", updateMapOptions);
-        map.on("mousemove", onMouseMove);
+        map.on("mousemove", updateMousePosition);
         return () => {
             map.off("move", updateMapOptions);
             map.off("zoom", updateMapOptions);
-            map.off("mousemove", onMouseMove);
+            map.off("mousemove", updateMousePosition);
         };
-    }, [map, updateMapOptions, onMouseMove]);
+    }, [map, updateMapOptions, updateMousePosition]);
 
     const points = Object.values(filtered).map((vessel) => ({
         type: "Feature",
@@ -78,7 +78,7 @@ const MapContent = ({ filtered, maxZoom }: MapContentProps) => {
             mapOptions.bounds?.east || map.getBounds().getEast(),
             mapOptions.bounds?.north || map.getBounds().getNorth(),
         ],
-        options: { radius: 180, minPoints: 3, maxZoom: 16 },
+        options: { radius: 180, minPoints: 2, maxZoom: 16 },
     });
 
     return (
@@ -95,18 +95,19 @@ const MapContent = ({ filtered, maxZoom }: MapContentProps) => {
                             position={[latitude, longitude]}
                             icon={createClusterIcon(pointCount)}
                             eventHandlers={{
-                                click: () => {
+                                mousedown: () => {
                                     const expansionZoom = Math.min(
                                         supercluster.getClusterExpansionZoom(
                                             cluster.id
                                         ),
                                         maxZoom
                                     );
-                                    map.setView(
+                                    map.flyTo(
                                         [latitude, longitude],
                                         expansionZoom,
                                         {
                                             animate: true,
+                                            duration: 0.25,
                                         }
                                     );
                                 },

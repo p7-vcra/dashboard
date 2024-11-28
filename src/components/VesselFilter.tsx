@@ -1,9 +1,10 @@
-import { faClose } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 // @ts-expect-error No types available
 import RangeSlider from "react-range-slider-input";
 import { useVessels } from "../contexts/VesselsContext";
+import Container from "./Container";
+import ContainerSegment from "./ContainerSegment";
+import ContainerTitle from "./ContainerTitle";
 
 interface VesselFilterProps {
     onClose: () => void;
@@ -77,105 +78,113 @@ function VesselFilter({ onClose }: VesselFilterProps) {
     };
 
     return (
-        <div className="bg-zinc-800 bg-opacity-85 backdrop-blur-lg p-4  rounded-xl border-2 border-zinc-600 text-sm min-w-72">
-            <div className="w-full flex items-center justify-between text-white">
-                <div className="font-bold">Filters</div>
-                <button
-                    className="text-sm p-2 text-white hover:bg-zinc-600 rounded-md w-8 h-8"
-                    onClick={onClose}
-                >
-                    <FontAwesomeIcon icon={faClose} />
-                </button>
-            </div>
+        <Container className="min-w-72">
+            <ContainerTitle onClose={onClose}>Filters</ContainerTitle>
             <div className="text-white">
                 <div className="flex flex-col space-y-4 pt-2">
                     {Object.entries(filters).map(([key, value]) => (
-                        <div key={key} className="space-y-2 flex flex-col">
-                            <div className=" font-bold text-zinc-300 text-xs">
-                                {value.display.toLocaleUpperCase()}
-                            </div>
-                            {value.type === "range" ? (
-                                <div className="space-x-2 flex-col text-white h-full">
-                                    <div className="flex items-center space-x-2">
-                                        <div className="min-w-5">
-                                            {"value" in value
-                                                ? `${value.value[0]}`
-                                                : ""}
-                                        </div>
-                                        <RangeSlider
-                                            max={"max" in value ? value.max : 0}
-                                            min={"min" in value ? value.min : 0}
-                                            defaultValue={
-                                                "min" in value && "max" in value
-                                                    ? [value.min, value.max]
-                                                    : [0, 0]
-                                            }
-                                            className="w-full bg-zinc-500"
-                                            onInput={
-                                                "onInput" in value
-                                                    ? value.onInput
-                                                    : undefined
-                                            }
-                                            value={
-                                                "value" in value
-                                                    ? value.value
-                                                    : undefined
-                                            }
-                                            step={
-                                                "step" in value ? value.step : 1
-                                            }
-                                        />
-                                        <div className="min-w-5">
-                                            {"value" in value
-                                                ? `${value.value[1]}`
-                                                : ""}
+                        <div key={key} className="text-sm">
+                            <ContainerSegment
+                                title={value.display.toLocaleUpperCase()}
+                            >
+                                {value.type === "range" ? (
+                                    <div className="space-x-2 flex-col text-white h-full">
+                                        <div className="flex items-center space-x-2">
+                                            <div className="min-w-5">
+                                                {"value" in value
+                                                    ? `${value.value[0]}`
+                                                    : ""}
+                                            </div>
+                                            <RangeSlider
+                                                max={
+                                                    "max" in value
+                                                        ? value.max
+                                                        : 0
+                                                }
+                                                min={
+                                                    "min" in value
+                                                        ? value.min
+                                                        : 0
+                                                }
+                                                defaultValue={
+                                                    "min" in value &&
+                                                    "max" in value
+                                                        ? [value.min, value.max]
+                                                        : [0, 0]
+                                                }
+                                                className="w-full bg-zinc-500"
+                                                onInput={
+                                                    "onInput" in value
+                                                        ? value.onInput
+                                                        : undefined
+                                                }
+                                                value={
+                                                    "value" in value
+                                                        ? value.value
+                                                        : undefined
+                                                }
+                                                step={
+                                                    "step" in value
+                                                        ? value.step
+                                                        : 1
+                                                }
+                                            />
+                                            <div className="min-w-5">
+                                                {"value" in value
+                                                    ? `${value.value[1]}`
+                                                    : ""}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ) : (
-                                "options" in value &&
-                                value.type == "select" && (
-                                    <select
-                                        id={key}
-                                        name={key}
-                                        className="bg-zinc-700 border-zinc-600 border-2 rounded-lg p-2 h-full"
-                                        defaultValue=""
-                                        onChange={(e) =>
-                                            setVesselType(e.target.value)
-                                        }
-                                    >
-                                        <option value="">Any</option>
-                                        {value.options.map((option) => (
-                                            <option key={option} value={option}>
-                                                {option}
-                                            </option>
-                                        ))}
-                                    </select>
-                                )
-                            )}
-                            {value.type === "checkbox" && (
-                                <div className="peer-container cursor-pointer w-full">
-                                    <input
-                                        type="checkbox"
-                                        id={key}
-                                        name={key}
-                                        onChange={(e) =>
-                                            setHasFutureLocation(
-                                                e.target.checked
-                                            )
-                                        }
-                                        className="peer hidden cursor-pointer"
-                                    />
-                                    <div className=" bg-zinc-700 border-2 cursor-pointer border-zinc-600 rounded-lg flex peer-checked:bg-zinc-500 peer-checked:border-zinc-300 w-full">
-                                        <label
-                                            htmlFor={key}
-                                            className="text-white p-2 cursor-pointer select-none w-full"
+                                ) : (
+                                    "options" in value &&
+                                    value.type == "select" && (
+                                        <select
+                                            id={key}
+                                            name={key}
+                                            className="bg-zinc-700 border-zinc-600 border-2 rounded-lg p-2 h-full"
+                                            defaultValue=""
+                                            onChange={(e) =>
+                                                setVesselType(e.target.value)
+                                            }
                                         >
-                                            {"label" in value && value.label}
-                                        </label>
+                                            <option value="">Any</option>
+                                            {value.options.map((option) => (
+                                                <option
+                                                    key={option}
+                                                    value={option}
+                                                >
+                                                    {option}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    )
+                                )}
+                                {value.type === "checkbox" && (
+                                    <div className="peer-container cursor-pointer w-full">
+                                        <input
+                                            type="checkbox"
+                                            id={key}
+                                            name={key}
+                                            onChange={(e) =>
+                                                setHasFutureLocation(
+                                                    e.target.checked
+                                                )
+                                            }
+                                            className="peer hidden cursor-pointer"
+                                        />
+                                        <div className=" bg-zinc-700 border-2 cursor-pointer border-zinc-600 rounded-lg flex peer-checked:bg-zinc-500 peer-checked:border-zinc-300 w-full">
+                                            <label
+                                                htmlFor={key}
+                                                className="text-white p-2 cursor-pointer select-none w-full"
+                                            >
+                                                {"label" in value &&
+                                                    value.label}
+                                            </label>
+                                        </div>
                                     </div>
-                                </div>
-                            )}
+                                )}
+                            </ContainerSegment>
                         </div>
                     ))}
                     <div className="flex items-center justify-between space-x-2  text-sm border-t border-zinc-500 border-opacity-50 pt-4">
@@ -194,7 +203,8 @@ function VesselFilter({ onClose }: VesselFilterProps) {
                     </div>
                 </div>
             </div>
-        </div>
+            {/* </div> */}
+        </Container>
     );
 }
 

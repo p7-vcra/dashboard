@@ -13,6 +13,7 @@
     position: absolute;
     left: 0;
     top: 0;
+    outline: none !important;
 }
 .leaflet-container {
     overflow: hidden;

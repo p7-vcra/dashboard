@@ -1,13 +1,37 @@
 import React from "react";
-import VesselCard from "../components/VesselCard";
+import Container from "../components/Container";
+import ContainerSegment from "../components/ContainerSegment";
 import { useVesselData } from "../contexts/VesselsContext";
+import { Vessel } from "../types/vessel";
 
 const Vessels: React.FC = () => {
     const { filtered } = useVesselData();
+
+    const shownAttributes: Array<keyof Vessel> = [
+        "mmsi",
+        "name",
+        "cri",
+        "vesselType",
+        "latitude",
+        "longitude",
+        "sog",
+        "cog",
+    ];
+
     return (
-        <div className="xl:grid-cols-4 grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1">
+        <div className="xl:grid-cols-4 grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 bg-zinc-700">
             {Object.values(filtered).map((vessel) => (
-                <VesselCard key={vessel.mmsi} vessel={vessel} />
+                <Container className="m-2">
+                    <div className="grid grid-cols-2 gap-y-4">
+                        {shownAttributes.map((key) => (
+                            <ContainerSegment title={key.toUpperCase()}>
+                                <div className="truncate">
+                                    {vessel[key] || "-"}
+                                </div>
+                            </ContainerSegment>
+                        ))}
+                    </div>
+                </Container>
             ))}
         </div>
     );
