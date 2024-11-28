@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import { useMap } from "react-leaflet";
 import { useActiveVessel } from "../contexts/ActiveVesselContext";
 import { Vessel } from "../types/vessel";
+import Container from "./Container";
 
 interface VesselSearchProps {
     vessels: { [mmsi: string]: Vessel };
@@ -56,26 +57,9 @@ function VesselSearch({ vessels }: VesselSearchProps) {
     );
 
     return (
-        <div
-            className="
-            absolute
-            top-0
-            left-0
-                        items-center
-            justify-center
-            z-[1000]
-            
-            m-2
-            text-base
-        "
-        >
-            <div className="text-white min-w-48 ">
-                <div
-                    className="rounded-lg  bg-zinc-800
-            bg-opacity-85
-            backdrop-blur-xl border-2
-            border-zinc-600"
-                >
+        <div className="m-2 absolute top-0 left-0 z-[1000] text-base text-white min-w-48 ">
+            <Container className="p-0">
+                <div className="">
                     <FontAwesomeIcon icon={faSearch} className="mr-2 pl-4" />
                     <input
                         type="text"
@@ -86,38 +70,29 @@ function VesselSearch({ vessels }: VesselSearchProps) {
                         className="bg-transparent py-4 pr-4 !outline-none"
                     />
                 </div>
-                {searchTerm.length > 2 && filteredVessels.length > 0 && (
-                    <div className="z-[5001] -mt-2 rounded-b-lg bg-zinc-800 bg-opacity-85 backdrop-blur-xl border-2 border-zinc-600">
-                        <ul className="pt-2 pb-1 px-1">
-                            {filteredVessels
-                                .slice(0, 10)
-                                .map((vessel, index) => (
-                                    <li
-                                        key={vessel.mmsi}
-                                        onClick={() =>
-                                            handleVesselClick(vessel)
-                                        }
-                                        className={`cursor-pointer hover:bg-zinc-800 p-2 rounded-lg ${
-                                            index === selectedIndex
-                                                ? "bg-zinc-800"
-                                                : ""
-                                        }`}
-                                    >
-                                        <div className="space-y-2 text-left">
-                                            <div className="font-bold text-zinc-300 text-sm">
-                                                {vessel.name !== "" &&
-                                                    vessel.name}
-                                            </div>
-                                            <div className="">
-                                                {vessel.mmsi}
-                                            </div>
-                                        </div>
-                                    </li>
-                                ))}
-                        </ul>
-                    </div>
-                )}
-            </div>
+            </Container>
+            {searchTerm.length > 2 && filteredVessels.length > 0 && (
+                <div className="z-[5001] -mt-2 rounded-b-lg bg-zinc-800 bg-opacity-85 backdrop-blur-xl border-2 border-zinc-600">
+                    <ul className="pt-2 pb-1 px-1">
+                        {filteredVessels.slice(0, 10).map((vessel, index) => (
+                            <li
+                                key={vessel.mmsi}
+                                onClick={() => handleVesselClick(vessel)}
+                                className={`cursor-pointer hover:bg-zinc-800 p-2 rounded-md ${
+                                    index === selectedIndex ? "bg-zinc-800" : ""
+                                }`}
+                            >
+                                <div className="space-y-2 text-left">
+                                    <div className="font-bold text-zinc-300 text-sm">
+                                        {vessel.name !== "" && vessel.name}
+                                    </div>
+                                    <div className="">{vessel.mmsi}</div>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
         </div>
     );
 }
