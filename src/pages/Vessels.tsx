@@ -19,23 +19,36 @@ const Vessels: React.FC = () => {
     ];
 
     return (
-        <div className="xl:grid-cols-4 grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 bg-zinc-700">
-            {Object.values(filtered).map((vessel) => (
-                <Container className="m-2" key={`card-${vessel.mmsi}`}>
-                    <div className="grid grid-cols-2 gap-y-4">
-                        {shownAttributes.map((key) => (
-                            <ContainerSegment
-                                title={key.toUpperCase()}
-                                key={`attr-${key}-${vessel.mmsi}`}
-                            >
-                                <div className="truncate">
-                                    {vessel[key] || "-"}
+        <div className="bg-zinc-700 p-2 h-full min-h-screen">
+            {Object.entries(filtered).length > 0 ? (
+                <div>
+                    <div className="text-zinc-300 p-2">
+                        Showing {Object.entries(filtered).length} results
+                    </div>
+                    <div className="xl:grid-cols-4 grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4">
+                        {Object.values(filtered).map((vessel) => (
+                            <Container key={`card-${vessel.mmsi}`}>
+                                <div className="grid grid-cols-2 gap-y-4">
+                                    {shownAttributes.map((key) => (
+                                        <ContainerSegment
+                                            title={key.toUpperCase()}
+                                            key={`attr-${key}-${vessel.mmsi}`}
+                                        >
+                                            <div className="truncate">
+                                                {vessel[key] || "-"}
+                                            </div>
+                                        </ContainerSegment>
+                                    ))}
                                 </div>
-                            </ContainerSegment>
+                            </Container>
                         ))}
                     </div>
-                </Container>
-            ))}
+                </div>
+            ) : (
+                <div className="text-center w-full h-screen flex justify-center items-center text-zinc-300">
+                    No vessels found
+                </div>
+            )}
         </div>
     );
 };

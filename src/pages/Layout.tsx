@@ -2,6 +2,7 @@ import { faFilter, faMap, faShip } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import { Link, Outlet } from "react-router-dom";
+import Button from "../components/Button";
 import VesselFilter from "../components/VesselFilter";
 
 function Layout() {
@@ -28,7 +29,7 @@ function Layout() {
                 aria-label="Sidebar"
             >
                 <div className="h-full px-3 py-4 overflow-y-auto bg-zinc-800 ">
-                    <ul className="space-y-2 font-medium">
+                    <ul className="space-y-2 font-medium text-sm">
                         {Object.values(routes).map((route) => (
                             <li key={route.href}>
                                 <Link
@@ -51,13 +52,13 @@ function Layout() {
                     <VesselFilter onClose={() => setIsOpen(false)} />
                 ) : (
                     <div>
-                        <button
+                        <Button
                             onClick={() => setIsOpen(true)}
-                            className="px-4 py-2  text-white bg-zinc-800 bg-opacity-85 backdrop-blur-lg p-4  rounded-xl border-2 border-zinc-600 hover:bg-zinc-600 space-x-2"
+                            className="px-4 space-x-2"
                         >
                             <FontAwesomeIcon icon={faFilter} />
                             <span>Filters</span>
-                        </button>
+                        </Button>
                     </div>
                 )}
             </div>

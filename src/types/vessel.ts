@@ -7,7 +7,7 @@ interface Vessel {
     cog: number;
     sog: number;
     cri?: number;
-    futureLocation: [number, number][];
+    forecast?: [number, number][];
 }
 
 export { type Vessel };

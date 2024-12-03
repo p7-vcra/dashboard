@@ -15,19 +15,20 @@ const VesselMarker = React.memo(
         vessel: Vessel;
         isActive: boolean;
     }) {
+        const rotation = vessel.cog || 0;
         return (
             <>
                 <Marker
                     position={new LatLng(vessel.latitude, vessel.longitude)}
                     icon={createVesselIcon(isActive, vessel.cri)}
                     //@ts-expect-error rotationAngle is imported from leaflet-rotatedmarker
-                    rotationAngle={vessel.cog}
+                    rotationAngle={rotation}
                     rotationOrigin="center center"
                     {...props}
                 />
-                {isActive && vessel.futureLocation && (
+                {isActive && vessel.forecast && vessel.forecast.length > 0 && (
                     <Polyline
-                        positions={vessel.futureLocation}
+                        positions={vessel.forecast}
                         color="#1d4ed8"
                         weight={2}
                     />
@@ -54,7 +55,7 @@ const arrowMarkup = renderToStaticMarkup(
 
 function createVesselIcon(isActive: boolean, cri?: number) {
     const borderClass = isActive
-        ? "border-blue-700 border-opacity-100"
+        ? "border-blue-700 border-opacity-100 z-[9999]"
         : "border-opacity-0 border-zinc-500";
 
     const colorClass =

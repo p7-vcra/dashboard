@@ -10,7 +10,7 @@ import { useVessels } from "./VesselsContext";
 
 interface ActiveVesselContextType {
     activeVessel: Vessel | null;
-    setActiveVessel: (vessel: Vessel | null) => void;
+    setActiveVessel: (mmsi: string | null) => void;
 }
 
 const ActiveVesselContext = createContext<ActiveVesselContextType | undefined>(
@@ -27,14 +27,12 @@ function ActiveVesselProvider({ children }: { children: React.ReactNode }) {
         return activeVesselMmsi ? vessels[activeVesselMmsi] || null : null;
     }, [vessels, activeVesselMmsi]);
 
-    const updateActiveVessel = useCallback((vessel: Vessel | null) => {
-        setActiveVesselMmsi(vessel ? vessel.mmsi : null);
+    const setActiveVessel = useCallback((mmsi: string | null) => {
+        setActiveVesselMmsi(mmsi);
     }, []);
 
     return (
-        <ActiveVesselContext.Provider
-            value={{ activeVessel, setActiveVessel: updateActiveVessel }}
-        >
+        <ActiveVesselContext.Provider value={{ activeVessel, setActiveVessel }}>
             {children}
         </ActiveVesselContext.Provider>
     );

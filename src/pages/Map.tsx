@@ -4,18 +4,15 @@ import MousePositionOverlay from "../components/MousePositionOverlay";
 import VesselModal from "../components/VesselModal";
 import VesselSearch from "../components/VesselSearch";
 import { useActiveVessel } from "../contexts/ActiveVesselContext";
-import { useMapOptions } from "../contexts/MapOptionsContext";
+import { useMap } from "../contexts/MapContext";
 import { useMousePosition } from "../contexts/MousePositionContext";
 import { useVesselData } from "../contexts/VesselsContext";
 
 function Map() {
     const { activeVessel, setActiveVessel } = useActiveVessel();
-    const { mapOptions } = useMapOptions();
     const { mousePosition } = useMousePosition();
     const { vessels, filtered } = useVesselData();
-
-    const minZoom = 5;
-    const maxZoom = 18;
+    const { mapOptions, setMap } = useMap();
 
     function onClose() {
         setActiveVessel(null);
@@ -28,17 +25,18 @@ function Map() {
                 <VesselModal vessel={activeVessel} onClose={onClose} />
             )}
             <MapContainer
-                minZoom={minZoom}
-                maxZoom={maxZoom}
+                minZoom={mapOptions.minZoom}
+                maxZoom={mapOptions.maxZoom}
                 center={mapOptions.center}
                 zoom={mapOptions.zoom}
                 className="w-full h-full"
                 attributionControl={false}
                 zoomControl={false}
                 preferCanvas={true}
+                ref={setMap}
             >
                 <VesselSearch vessels={vessels} />
-                <MapContent filtered={filtered} maxZoom={maxZoom} />
+                <MapContent vessels={filtered} maxZoom={mapOptions.maxZoom} />
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

@@ -24,7 +24,7 @@ function VesselSearch({ vessels }: VesselSearchProps) {
     const map = useMap();
     const handleVesselClick = (vessel: Vessel) => {
         if (vessel) {
-            setActiveVessel(vessel);
+            setActiveVessel(vessel.mmsi);
         }
         map.setView(new LatLng(vessel.latitude, vessel.longitude), 16);
         setSearchTerm("");
