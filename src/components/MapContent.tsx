@@ -1,10 +1,10 @@
 import L from "leaflet";
 import "leaflet-rotatedmarker";
 import { useCallback, useEffect } from "react";
-import { Marker, useMap } from "react-leaflet";
+import { Marker } from "react-leaflet";
 import useSupercluster from "use-supercluster";
 import { useActiveVessel } from "../contexts/ActiveVesselContext";
-import { useMapOptions } from "../contexts/MapOptionsContext";
+import { useMap } from "../contexts/MapContext";
 import { useMousePosition } from "../contexts/MousePositionContext";
 import { Vessel } from "../types/vessel";
 import { VesselMarker } from "./VesselMarker";
@@ -18,29 +18,15 @@ function createClusterIcon(pointCount: number) {
 }
 
 interface MapContentProps {
-    filtered: { [mmsi: string]: Vessel };
+    vessels: { [mmsi: string]: Vessel };
     maxZoom: number;
 }
 
-const MapContent = ({ filtered, maxZoom }: MapContentProps) => {
-    const map = useMap();
-    const { mapOptions, setMapOptions } = useMapOptions();
+const MapContent = ({ vessels, maxZoom }: MapContentProps) => {
+    const { map, mapOptions, setMapOptions } = useMap();
+
     const { setMousePosition } = useMousePosition();
     const { activeVessel, setActiveVessel } = useActiveVessel();
-
-    const updateMapOptions = useCallback(() => {
-        const bounds = map.getBounds();
-        setMapOptions({
-            center: map.getCenter(),
-            zoom: map.getZoom(),
-            bounds: {
-                north: bounds.getNorth(),
-                east: bounds.getEast(),
-                south: bounds.getSouth(),
-                west: bounds.getWest(),
-            },
-        });
-    }, [map, setMapOptions]);
 
     const updateMousePosition = useCallback(
         (event: L.LeafletMouseEvent) => {
@@ -49,40 +35,74 @@ const MapContent = ({ filtered, maxZoom }: MapContentProps) => {
         [setMousePosition]
     );
 
-    useEffect(() => {
-        map.on("move", updateMapOptions);
-        map.on("zoom", updateMapOptions);
-        map.on("mousemove", updateMousePosition);
-        return () => {
-            map.off("move", updateMapOptions);
-            map.off("zoom", updateMapOptions);
-            map.off("mousemove", updateMousePosition);
-        };
-    }, [map, updateMapOptions, updateMousePosition]);
+    const updateMapOptions = useCallback(() => {
+        if (map) {
+            setMapOptions({
+                center: map.getCenter(),
+                zoom: map.getZoom(),
+                minZoom: map.getMinZoom(),
+                maxZoom: map.getMaxZoom(),
+                bounds: {
+                    west: map.getBounds().getWest(),
+                    south: map.getBounds().getSouth(),
+                    east: map.getBounds().getEast(),
+                    north: map.getBounds().getNorth(),
+                },
+            });
+        }
+    }, [map, setMapOptions]);
 
-    const points = Object.values(filtered).map((vessel) => ({
-        type: "Feature",
-        properties: { cluster: false, vessel },
-        geometry: {
-            type: "Point",
-            coordinates: [vessel.longitude, vessel.latitude],
-        },
-    }));
+    useEffect(() => {
+        map?.on("mousemove", updateMousePosition);
+        map?.on("moveend", updateMapOptions);
+        map?.on("zoomend", updateMapOptions);
+        return () => {
+            map?.off("mousemove", updateMousePosition);
+            map?.off("moveend", updateMapOptions);
+            map?.off("zoomend", updateMapOptions);
+        };
+    }, [map, mapOptions, updateMousePosition]);
+
+    const points = Object.values(vessels)
+        .filter(
+            (vessel) => !(activeVessel && vessel.mmsi === activeVessel.mmsi)
+        )
+        .map((vessel) => ({
+            type: "Feature",
+            properties: { cluster: false, vessel },
+            geometry: {
+                type: "Point",
+                coordinates: [vessel.longitude, vessel.latitude],
+            },
+        }));
 
     const { clusters, supercluster } = useSupercluster({
         points,
         zoom: mapOptions.zoom,
         bounds: [
-            mapOptions.bounds?.west || map.getBounds().getWest(),
-            mapOptions.bounds?.south || map.getBounds().getSouth(),
-            mapOptions.bounds?.east || map.getBounds().getEast(),
-            mapOptions.bounds?.north || map.getBounds().getNorth(),
+            mapOptions.bounds?.west || -9999,
+            mapOptions.bounds?.south || -9999,
+            mapOptions.bounds?.east || 9999,
+            mapOptions.bounds?.north || 9999,
         ],
         options: { radius: 180, minPoints: 2, maxZoom: 16 },
     });
 
     return (
         <>
+            {activeVessel && vessels[activeVessel.mmsi] && (
+                <VesselMarker
+                    key={`active-vessel-${activeVessel.mmsi}`}
+                    vessel={vessels[activeVessel.mmsi]}
+                    isActive={true}
+                    eventHandlers={{
+                        click: () => {
+                            setActiveVessel(activeVessel.mmsi);
+                        },
+                    }}
+                />
+            )}
+
             {clusters.map((cluster) => {
                 const [longitude, latitude] = cluster.geometry.coordinates;
                 const { cluster: isCluster, point_count: pointCount } =
@@ -102,7 +122,7 @@ const MapContent = ({ filtered, maxZoom }: MapContentProps) => {
                                         ),
                                         maxZoom
                                     );
-                                    map.flyTo(
+                                    map?.flyTo(
                                         [latitude, longitude],
                                         expansionZoom,
                                         {
@@ -126,7 +146,7 @@ const MapContent = ({ filtered, maxZoom }: MapContentProps) => {
                         }
                         eventHandlers={{
                             click: () => {
-                                setActiveVessel(cluster.properties.vessel);
+                                setActiveVessel(cluster.properties.vessel.mmsi);
                             },
                         }}
                     />

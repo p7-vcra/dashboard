@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ActiveVesselProvider } from "./contexts/ActiveVesselContext";
-import { MapOptionsProvider } from "./contexts/MapOptionsContext";
+import { MapProvider } from "./contexts/MapContext";
 import { MousePositionProvider } from "./contexts/MousePositionContext";
 import { VesselsProvider } from "./contexts/VesselsContext";
 import "./leaflet.css";
@@ -13,8 +13,8 @@ function App() {
         <BrowserRouter>
             <VesselsProvider>
                 <ActiveVesselProvider>
-                    <MapOptionsProvider>
-                        <MousePositionProvider>
+                    <MousePositionProvider>
+                        <MapProvider>
                             <Routes>
                                 <Route path="/" element={<Layout />}>
                                     <Route index element={<Map />} />
@@ -24,8 +24,8 @@ function App() {
                                     />
                                 </Route>
                             </Routes>
-                        </MousePositionProvider>
-                    </MapOptionsProvider>
+                        </MapProvider>
+                    </MousePositionProvider>
                 </ActiveVesselProvider>
             </VesselsProvider>
         </BrowserRouter>

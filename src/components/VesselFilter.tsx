@@ -2,40 +2,37 @@ import { useState } from "react";
 // @ts-expect-error No types available
 import RangeSlider from "react-range-slider-input";
 import { useVessels } from "../contexts/VesselsContext";
-import Container from "./Container";
+import Button from "./Button";
 import ContainerSegment from "./ContainerSegment";
-import ContainerTitle from "./ContainerTitle";
 
-interface VesselFilterProps {
-    onClose: () => void;
-}
-
-function VesselFilter({ onClose }: VesselFilterProps) {
-    const { updateFilter } = useVessels();
+function VesselFilter() {
+    const { setFilter } = useVessels();
     const [sogRange, setSogRange] = useState([0, 30]);
     const [criRange, setCriRange] = useState([0, 1]);
     const [vesselType, setVesselType] = useState("");
-    const [hasFutureLocation, setHasFutureLocation] = useState(false);
+    const [hasForecast, setHasForecast] = useState(false);
 
     const applyFilter = () => {
-        updateFilter((vessel) => {
+        setFilter((vessel) => {
             return (
-                vessel.sog >= sogRange[0] &&
-                vessel.sog <= sogRange[1] &&
-                (vessel.cri ?? 0) * 1 >= criRange[0] &&
-                (vessel.cri ?? 0) * 1 <= criRange[1] &&
-                vessel.vesselType.includes(vesselType) &&
-                (!hasFutureLocation ||
-                    (vessel.futureLocation && vessel.futureLocation.length > 0))
+                (vessel.sog >= sogRange[0] &&
+                    vessel.sog <= sogRange[1] &&
+                    (vessel.cri ?? 0) * 1 >= criRange[0] &&
+                    (vessel.cri ?? 0) * 1 <= criRange[1] &&
+                    vessel.vesselType.includes(vesselType) &&
+                    (!hasForecast ||
+                        (vessel.forecast && vessel.forecast.length > 0))) ||
+                false
             );
         });
     };
 
     const clearFilter = () => {
-        updateFilter(() => true);
+        setFilter(() => true);
         setSogRange([0, 30]);
+        setCriRange([0, 1]);
         setVesselType("");
-        setHasFutureLocation(false);
+        setHasForecast(false);
 
         document.querySelectorAll("input").forEach((input) => {
             input.value = "";
@@ -70,7 +67,7 @@ function VesselFilter({ onClose }: VesselFilterProps) {
             type: "select",
             options: ["Class A", "Class B", "Base Station", "AtoN"],
         },
-        hasFutureLocation: {
+        hasForecast: {
             display: "Trajectory prediction",
             type: "checkbox",
             label: "Only forecasted location",
@@ -78,8 +75,7 @@ function VesselFilter({ onClose }: VesselFilterProps) {
     };
 
     return (
-        <Container className="min-w-72">
-            <ContainerTitle onClose={onClose}>Filters</ContainerTitle>
+        <div className="w-full">
             <div className="text-white">
                 <div className="flex flex-col space-y-4 pt-2">
                     {Object.entries(filters).map(([key, value]) => (
@@ -167,9 +163,7 @@ function VesselFilter({ onClose }: VesselFilterProps) {
                                             id={key}
                                             name={key}
                                             onChange={(e) =>
-                                                setHasFutureLocation(
-                                                    e.target.checked
-                                                )
+                                                setHasForecast(e.target.checked)
                                             }
                                             className="peer hidden cursor-pointer"
                                         />
@@ -188,22 +182,19 @@ function VesselFilter({ onClose }: VesselFilterProps) {
                         </div>
                     ))}
                     <div className="flex items-center justify-between space-x-2  text-sm border-t border-zinc-500 border-opacity-50 pt-4">
-                        <button
-                            onClick={clearFilter}
-                            className="bg-zinc-700 text-white p-2 rounded-lg hover:bg-zinc-600 active:bg-zinc-700 w-full border-2 border-zinc-600"
-                        >
+                        <Button onClick={clearFilter} className="w-full">
                             Clear
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             onClick={applyFilter}
-                            className="bg-blue-700 text-white p-2 rounded-lg hover:bg-blue-600 active:bg-blue-700 w-full border-2 border-blue-600"
+                            className="bg-blue-700 border-blue-600 hover:bg-blue-600 active:bg-blue-700 w-full"
                         >
                             Apply
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>
-        </Container>
+        </div>
     );
 }
 

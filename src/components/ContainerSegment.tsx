@@ -15,7 +15,7 @@ const ContainerSegment: React.FC<ContainerSegmentProps> = ({
 }) => {
     return (
         <div
-            className={`space-y-2 flex flex-col w-full ${className}`}
+            className={`space-y-1 flex flex-col w-full ${className}`}
             style={style}
         >
             <div className="font-bold text-zinc-300 text-xs ">{title}</div>
