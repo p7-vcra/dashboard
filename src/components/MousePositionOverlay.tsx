@@ -8,8 +8,8 @@ interface MousePositionProps {
 
 const MousePositionOverlay: React.FC<MousePositionProps> = ({ position }) => {
     return (
-        <Container className="flex items-center justify-center absolute bottom-1 left-12 m-2 z-[1000]">
-            <div className="text-white min-w-48 text-center tabular-nums">
+        <Container className="flex items-center justify-center absolute bottom-1 left-12 p-2 text-xs  m-2 z-[1000]">
+            <div className="text-white min-w-36 text-center tabular-nums">
                 {position.lat.toFixed(6) || "-"},{" "}
                 {position.lng.toFixed(6) || "-"}
             </div>

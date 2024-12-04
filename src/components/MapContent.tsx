@@ -61,7 +61,7 @@ const MapContent = ({ vessels, maxZoom }: MapContentProps) => {
             map?.off("moveend", updateMapOptions);
             map?.off("zoomend", updateMapOptions);
         };
-    }, [map, updateMousePosition]);
+    }, [map, mapOptions, updateMousePosition]);
 
     const points = Object.values(vessels)
         .filter(
@@ -80,16 +80,29 @@ const MapContent = ({ vessels, maxZoom }: MapContentProps) => {
         points,
         zoom: mapOptions.zoom,
         bounds: [
-            mapOptions.bounds?.west || 0,
-            mapOptions.bounds?.south || 0,
-            mapOptions.bounds?.east || 0,
-            mapOptions.bounds?.north || 0,
+            mapOptions.bounds?.west || -9999,
+            mapOptions.bounds?.south || -9999,
+            mapOptions.bounds?.east || 9999,
+            mapOptions.bounds?.north || 9999,
         ],
         options: { radius: 180, minPoints: 2, maxZoom: 16 },
     });
 
     return (
         <>
+            {activeVessel && vessels[activeVessel.mmsi] && (
+                <VesselMarker
+                    key={`active-vessel-${activeVessel.mmsi}`}
+                    vessel={vessels[activeVessel.mmsi]}
+                    isActive={true}
+                    eventHandlers={{
+                        click: () => {
+                            setActiveVessel(activeVessel.mmsi);
+                        },
+                    }}
+                />
+            )}
+
             {clusters.map((cluster) => {
                 const [longitude, latitude] = cluster.geometry.coordinates;
                 const { cluster: isCluster, point_count: pointCount } =
@@ -139,9 +152,6 @@ const MapContent = ({ vessels, maxZoom }: MapContentProps) => {
                     />
                 );
             })}
-            {activeVessel && (
-                <VesselMarker vessel={activeVessel} isActive={true} />
-            )}
         </>
     );
 };

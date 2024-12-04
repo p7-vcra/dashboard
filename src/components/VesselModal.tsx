@@ -1,4 +1,5 @@
 import {
+    faExpand,
     faLocation,
     faMagnifyingGlassPlus,
 } from "@fortawesome/free-solid-svg-icons";
@@ -60,7 +61,7 @@ function VesselModal({ vessel, onClose }: VesselModalProps) {
                     <ul className="flex space-x-2 text-md border-b pb-2 border-zinc-600 border-opacity-50">
                         <li>
                             <Button className="px-3">
-                                <FontAwesomeIcon icon={faLocation} />
+                                <FontAwesomeIcon icon={faExpand} />
                             </Button>
                         </li>
                         <li>

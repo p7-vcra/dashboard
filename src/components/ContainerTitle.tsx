@@ -20,12 +20,14 @@ const ContainerTitle: React.FC<ContainerTitleProps> = ({
             <div className={`font-bold text-sm ${className}`} style={style}>
                 {children}
             </div>
-            <button
-                className="text-sm p-2 text-white hover:bg-zinc-600 rounded-md w-8 h-8"
-                onClick={onClose}
-            >
-                <FontAwesomeIcon icon={faClose} />
-            </button>
+            {onClose && (
+                <button
+                    className="text-sm p-2 text-white hover:bg-zinc-600 rounded-md w-8 h-8"
+                    onClick={onClose}
+                >
+                    <FontAwesomeIcon icon={faClose} />
+                </button>
+            )}
         </div>
     );
 };

@@ -169,8 +169,8 @@ function vesselReviver(_key: string, value: any): Vessel[] | never {
                     vesselType: item["type of mobile"],
                     latitude: item["latitude"],
                     longitude: item["longitude"],
-                    cog: item["cog"],
-                    sog: item["sog"],
+                    cog: item["cog"] || 0,
+                    sog: item["sog"] || 0,
                     name: item["name"] || "",
                 } as Vessel;
             }

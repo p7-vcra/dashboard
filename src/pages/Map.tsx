@@ -2,16 +2,15 @@ import { MapContainer, TileLayer, ZoomControl } from "react-leaflet";
 import { default as MapContent } from "../components/MapContent";
 import MousePositionOverlay from "../components/MousePositionOverlay";
 import VesselModal from "../components/VesselModal";
-import VesselSearch from "../components/VesselSearch";
 import { useActiveVessel } from "../contexts/ActiveVesselContext";
 import { useMap } from "../contexts/MapContext";
 import { useMousePosition } from "../contexts/MousePositionContext";
-import { useVesselData } from "../contexts/VesselsContext";
+import { useVessels } from "../contexts/VesselsContext";
 
 function Map() {
     const { activeVessel, setActiveVessel } = useActiveVessel();
     const { mousePosition } = useMousePosition();
-    const { vessels, filtered } = useVesselData();
+    const { filtered } = useVessels();
     const { mapOptions, setMap } = useMap();
 
     function onClose() {
@@ -35,7 +34,6 @@ function Map() {
                 preferCanvas={true}
                 ref={setMap}
             >
-                <VesselSearch vessels={vessels} />
                 <MapContent vessels={filtered} maxZoom={mapOptions.maxZoom} />
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

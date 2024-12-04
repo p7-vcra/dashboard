@@ -8,6 +8,7 @@ interface Vessel {
     sog: number;
     cri?: number;
     forecast?: [number, number][];
+    encounteringVessels?: string[];
 }
 
 export { type Vessel };

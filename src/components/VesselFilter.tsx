@@ -3,15 +3,9 @@ import { useState } from "react";
 import RangeSlider from "react-range-slider-input";
 import { useVessels } from "../contexts/VesselsContext";
 import Button from "./Button";
-import Container from "./Container";
 import ContainerSegment from "./ContainerSegment";
-import ContainerTitle from "./ContainerTitle";
 
-interface VesselFilterProps {
-    onClose: () => void;
-}
-
-function VesselFilter({ onClose }: VesselFilterProps) {
+function VesselFilter() {
     const { setFilter } = useVessels();
     const [sogRange, setSogRange] = useState([0, 30]);
     const [criRange, setCriRange] = useState([0, 1]);
@@ -81,8 +75,7 @@ function VesselFilter({ onClose }: VesselFilterProps) {
     };
 
     return (
-        <Container className="min-w-72">
-            <ContainerTitle onClose={onClose}>Filters</ContainerTitle>
+        <div className="w-full">
             <div className="text-white">
                 <div className="flex flex-col space-y-4 pt-2">
                     {Object.entries(filters).map(([key, value]) => (
@@ -201,7 +194,7 @@ function VesselFilter({ onClose }: VesselFilterProps) {
                     </div>
                 </div>
             </div>
-        </Container>
+        </div>
     );
 }
 

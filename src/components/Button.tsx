@@ -6,6 +6,7 @@ interface ButtonProps {
     onClick?: () => void;
     className?: string;
     style?: React.CSSProperties;
+    disabled?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -13,14 +14,18 @@ const Button: React.FC<ButtonProps> = ({
     onClick,
     className = "",
     style = {},
+    disabled,
 }) => {
+    disabled = disabled || false;
     return (
         <button
             onClick={onClick}
             className={twMerge(
                 "bg-zinc-700 text-white p-2 rounded-lg hover:bg-zinc-600 active:bg-zinc-700  border-2 border-zinc-600",
-                className
+                className,
+                disabled && "opacity-50 cursor-not-allowed hover:bg-zinc-700"
             )}
+            disabled={disabled}
             style={style}
         >
             {children}
