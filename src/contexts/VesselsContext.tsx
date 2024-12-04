@@ -138,6 +138,7 @@ function useVesselData() {
                     const { mmsi, forecast } = vessel;
                     if (vesselsRef.current[mmsi]) {
                         acc[mmsi] = {
+                            encounteringVessels: ["209535000", "211249810"],
                             ...vesselsRef.current[mmsi],
                             forecast,
                         };
