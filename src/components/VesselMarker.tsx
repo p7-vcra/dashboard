@@ -20,8 +20,8 @@ const VesselMarker = React.memo(
     }) {
         isEncountering = isEncountering || false;
         const icon = React.useMemo(
-            () => createVesselIcon(isActive, isEncountering, vessel.cri),
-            [isActive, vessel.cri]
+            () => createVesselIcon(isActive, isEncountering, vessel),
+            [isActive, vessel]
         );
 
         return (
@@ -35,14 +35,19 @@ const VesselMarker = React.memo(
                     zIndexOffset={isActive || isEncountering ? 1000 : 0}
                     {...props}
                 />
-                {isActive && vessel.forecast && vessel.forecast.length > 0 && (
-                    <Polyline
-                        positions={vessel.forecast}
-                        color="#18181b"
-                        weight={2}
-                        dashArray={[5, 3]}
-                    />
-                )}
+                {(isActive || isEncountering) &&
+                    vessel.forecast &&
+                    vessel.forecast.length > 0 && (
+                        <Polyline
+                            positions={vessel.forecast.map((point) => [
+                                point[1],
+                                point[2],
+                            ])}
+                            color={isEncountering ? "#2563eb" : "#18181b"}
+                            weight={2}
+                            dashArray={[5, 3]}
+                        />
+                    )}
             </>
         );
     },
@@ -67,12 +72,18 @@ const arrowMarkup = renderToStaticMarkup(
 function createVesselIcon(
     isActive: boolean,
     isEncountering: boolean,
-    cri?: number
+    vessel: Vessel
 ) {
+    let cri = vessel?.cri ?? -1;
     const borderClass =
         isActive || isEncountering
             ? "border-opacity-100 bg-opacity-100"
             : "border-opacity-0 border-zinc-500";
+
+    if (cri === -1) {
+        console.error("cri is undefined!!!");
+        cri = 0;
+    }
 
     const colorClass = isEncountering
         ? "text-blue-600 bg-blue-100 bg-opacity-100 border-blue-600"

@@ -5,7 +5,7 @@ import {
     faShip,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { LatLngBoundsExpression, LatLngTuple } from "leaflet";
+import { LatLng, LatLngBoundsExpression, LatLngTuple } from "leaflet";
 import { useEffect } from "react";
 import { Link, Outlet } from "react-router-dom";
 import Button from "../components/Button";
@@ -29,7 +29,7 @@ function vesselToBoundExpr(vessel: Vessel): LatLngBoundsExpression {
 
     points.push(
         ...vessel.forecast.map(
-            (forecast) => [forecast[0], forecast[1]] as LatLngTuple
+            (forecast) => [forecast[1], forecast[2]] as LatLngTuple
         )
     );
 
@@ -184,7 +184,7 @@ function Layout() {
                                     >
                                         Vessel
                                     </ContainerTitle>
-                                    <ul className="w-full text-md justify-between text-white grid grid-cols-2">
+                                    <ul className="w-full text-md justify-between text-white grid grid-cols-2 gap-2 ">
                                         {activeVesselMmsi &&
                                             shownAttributes
                                                 .filter(
@@ -212,36 +212,50 @@ function Layout() {
                                                         </ContainerSegment>
                                                     </li>
                                                 ))}
+                                    </ul>
 
-                                        {encounteringVesselsMmsi &&
-                                            encounteringVesselsMmsi.length >
-                                                0 && (
-                                                <li key="ev">
-                                                    <ContainerTitle>
-                                                        Encounters
-                                                    </ContainerTitle>
-                                                    <ul className="space-y-2">
-                                                        {encounteringVesselsMmsi.map(
-                                                            (mmsi: string) => {
-                                                                const vessel =
-                                                                    vessels[
-                                                                        mmsi
-                                                                    ];
+                                    {encounteringVesselsMmsi &&
+                                        encounteringVesselsMmsi.length > 0 && (
+                                            <>
+                                                <ContainerTitle className="py-2">
+                                                    Encounters
+                                                </ContainerTitle>
+                                                <ul className="grid grid-cols-2 gap-2">
+                                                    {encounteringVesselsMmsi.map(
+                                                        (mmsi: string) => {
+                                                            const vessel =
+                                                                vessels[mmsi];
 
-                                                                if (!vessel) {
-                                                                    return null;
-                                                                }
-                                                                return (
-                                                                    <li
-                                                                        key={
-                                                                            vessel.mmsi
-                                                                        }
+                                                            if (!vessel) {
+                                                                return null;
+                                                            }
+                                                            return (
+                                                                <li
+                                                                    key={
+                                                                        vessel.mmsi
+                                                                    }
+                                                                    className="w-full"
+                                                                >
+                                                                    <Button
+                                                                        className="w-full"
+                                                                        onClick={() => {
+                                                                            setActiveVesselMmsi(
+                                                                                vessel.mmsi
+                                                                            );
+                                                                            map?.setView(
+                                                                                new LatLng(
+                                                                                    vessel.latitude,
+                                                                                    vessel.longitude
+                                                                                )
+                                                                            );
+                                                                        }}
                                                                     >
                                                                         <ContainerSegment
                                                                             title={
                                                                                 vessel.name ||
                                                                                 ""
                                                                             }
+                                                                            className="text-left"
                                                                         >
                                                                             <div className="truncate">
                                                                                 {
@@ -249,14 +263,14 @@ function Layout() {
                                                                                 }
                                                                             </div>
                                                                         </ContainerSegment>
-                                                                    </li>
-                                                                );
-                                                            }
-                                                        )}
-                                                    </ul>
-                                                </li>
-                                            )}
-                                    </ul>
+                                                                    </Button>
+                                                                </li>
+                                                            );
+                                                        }
+                                                    )}
+                                                </ul>
+                                            </>
+                                        )}
                                 </>
                             )}
                         </div>

@@ -107,19 +107,22 @@ const MapContent = ({ vessels, maxZoom }: MapContentProps) => {
                     isActive={true}
                 />
             )}
-            {encounteringVesselsMmsi.map((encounteringVesselMmsi) => (
-                <VesselMarker
-                    key={`encountering-vessel-${encounteringVesselMmsi}`}
-                    vessel={vessels[encounteringVesselMmsi]}
-                    isActive={false}
-                    isEncountering={true}
-                    eventHandlers={{
-                        click: () => {
-                            setActiveVesselMmsi(encounteringVesselMmsi);
-                        },
-                    }}
-                />
-            ))}
+            {encounteringVesselsMmsi.map(
+                (encounteringVesselMmsi) =>
+                    vessels[encounteringVesselMmsi] && (
+                        <VesselMarker
+                            key={`encountering-vessel-${encounteringVesselMmsi}`}
+                            vessel={vessels[encounteringVesselMmsi]}
+                            isActive={false}
+                            isEncountering={true}
+                            eventHandlers={{
+                                click: () => {
+                                    setActiveVesselMmsi(encounteringVesselMmsi);
+                                },
+                            }}
+                        />
+                    )
+            )}
 
             {clusters.map((cluster) => {
                 const [longitude, latitude] = cluster.geometry.coordinates;

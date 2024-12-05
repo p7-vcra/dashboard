@@ -23,7 +23,7 @@ const Button: React.FC<ButtonProps> = ({
             className={twMerge(
                 "bg-zinc-700 text-white p-2 rounded-lg hover:bg-zinc-600 active:bg-zinc-700  border-2 border-zinc-600",
                 className,
-                disabled && "opacity-50 cursor-not-allowed hover:bg-zinc-700"
+                disabled && "opacity-50 cursor-not-allowed hover:bg-zinc-700",
             )}
             disabled={disabled}
             style={style}

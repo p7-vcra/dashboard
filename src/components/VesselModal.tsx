@@ -79,7 +79,7 @@ function VesselModal({ vessel, onClose }: VesselModalProps) {
                                             title={key
                                                 .replace(
                                                     /([a-z])([A-Z])/g,
-                                                    "$1 $2"
+                                                    "$1 $2",
                                                 )
                                                 .toUpperCase()}
                                         >

@@ -3,11 +3,12 @@ interface Vessel {
     vesselType: string;
     latitude: number;
     longitude: number;
-    name?: string;
+    timestamp: string;
     cog: number;
     sog: number;
+    name?: string;
     cri?: number;
-    forecast?: [number, number][];
+    forecast?: [string, number, number][];
     encounteringVessels?: string[];
 }
 

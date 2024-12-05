@@ -26,7 +26,7 @@ const Container: React.FC<ContainerProps> = ({
             rounded-lg
             text-white
             p-4`,
-                className
+                className,
             )}
             style={style}
         >
