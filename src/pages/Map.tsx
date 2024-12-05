@@ -1,37 +1,18 @@
 import { MapContainer, TileLayer, ZoomControl } from "react-leaflet";
 import { default as MapContent } from "../components/MapContent";
 import MousePositionOverlay from "../components/MousePositionOverlay";
-import VesselModal from "../components/VesselModal";
-import { useActiveVessel } from "../contexts/ActiveVesselContext";
 import { useMap } from "../contexts/MapContext";
 import { useMousePosition } from "../contexts/MousePositionContext";
 import { useVessels } from "../contexts/VesselsContext";
 
 function Map() {
-    const {
-        activeVesselMmsi,
-        setActiveVesselMmsi,
-        setEncounteringVesselsMmsi,
-    } = useActiveVessel();
     const { mousePosition } = useMousePosition();
     const { filtered } = useVessels();
     const { mapOptions, setMap } = useMap();
-    const { vessels } = useVessels();
-
-    function onClose() {
-        setActiveVesselMmsi(null);
-        setEncounteringVesselsMmsi([]);
-    }
 
     return (
         <div className="relative h-screen z-10 w-full">
             <MousePositionOverlay position={mousePosition} />
-            {activeVesselMmsi && (
-                <VesselModal
-                    vessel={vessels[activeVesselMmsi]}
-                    onClose={onClose}
-                />
-            )}
             <MapContainer
                 minZoom={mapOptions.minZoom}
                 maxZoom={mapOptions.maxZoom}

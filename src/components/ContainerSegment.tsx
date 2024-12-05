@@ -7,12 +7,12 @@ interface ContainerSegmentProps {
     style?: React.CSSProperties;
 }
 
-const ContainerSegment: React.FC<ContainerSegmentProps> = ({
+function ContainerSegment({
     children,
     title,
     className = "",
     style = {},
-}) => {
+}: ContainerSegmentProps) {
     return (
         <div
             className={`space-y-1 flex flex-col w-full ${className}`}
@@ -22,6 +22,6 @@ const ContainerSegment: React.FC<ContainerSegmentProps> = ({
             <div className="w-full">{children}</div>
         </div>
     );
-};
+}
 
 export default ContainerSegment;
