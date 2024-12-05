@@ -1,38 +1,42 @@
-import React, {
-    createContext,
-    useCallback,
-    useContext,
-    useMemo,
-    useState,
-} from "react";
-import { Vessel } from "../types/vessel";
-import { useVessels } from "./VesselsContext";
+import React, { createContext, useCallback, useContext, useState } from "react";
 
 interface ActiveVesselContextType {
-    activeVessel: Vessel | null;
-    setActiveVessel: (mmsi: string | null) => void;
+    activeVesselMmsi: string | null;
+    encounteringVesselsMmsi: string[];
+    setActiveVesselMmsi: (mmsi: string | null) => void;
+    setEncounteringVesselsMmsi: (mmsis: string[]) => void;
 }
 
 const ActiveVesselContext = createContext<ActiveVesselContextType | undefined>(
-    undefined
+    undefined,
 );
 
 function ActiveVesselProvider({ children }: { children: React.ReactNode }) {
-    const { vessels } = useVessels();
     const [activeVesselMmsi, setActiveVesselMmsi] = useState<string | null>(
-        null
+        null,
     );
 
-    const activeVessel = useMemo(() => {
-        return activeVesselMmsi ? vessels[activeVesselMmsi] || null : null;
-    }, [vessels, activeVesselMmsi]);
+    const [encounteringVesselsMmsi, setEncounteringVesselsMmsi] = useState<
+        string[]
+    >([]);
 
-    const setActiveVessel = useCallback((mmsi: string | null) => {
+    const updateActiveVessel = useCallback((mmsi: string | null) => {
         setActiveVesselMmsi(mmsi);
     }, []);
 
+    const updateEncounteringVessels = useCallback((mmsis: string[]) => {
+        setEncounteringVesselsMmsi(mmsis);
+    }, []);
+
     return (
-        <ActiveVesselContext.Provider value={{ activeVessel, setActiveVessel }}>
+        <ActiveVesselContext.Provider
+            value={{
+                activeVesselMmsi,
+                encounteringVesselsMmsi,
+                setActiveVesselMmsi: updateActiveVessel,
+                setEncounteringVesselsMmsi: updateEncounteringVessels,
+            }}
+        >
             {children}
         </ActiveVesselContext.Provider>
     );
@@ -42,7 +46,7 @@ function useActiveVessel() {
     const context = useContext(ActiveVesselContext);
     if (!context) {
         throw new Error(
-            "useActiveVessel must be used within an ActiveVesselProvider"
+            "useActiveVessel must be used within an ActiveVesselProvider",
         );
     }
     return context;

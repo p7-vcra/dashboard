@@ -8,20 +8,29 @@ import { useMousePosition } from "../contexts/MousePositionContext";
 import { useVessels } from "../contexts/VesselsContext";
 
 function Map() {
-    const { activeVessel, setActiveVessel } = useActiveVessel();
+    const {
+        activeVesselMmsi,
+        setActiveVesselMmsi,
+        setEncounteringVesselsMmsi,
+    } = useActiveVessel();
     const { mousePosition } = useMousePosition();
     const { filtered } = useVessels();
     const { mapOptions, setMap } = useMap();
+    const { vessels } = useVessels();
 
     function onClose() {
-        setActiveVessel(null);
+        setActiveVesselMmsi(null);
+        setEncounteringVesselsMmsi([]);
     }
 
     return (
         <div className="relative h-screen z-10 w-full">
             <MousePositionOverlay position={mousePosition} />
-            {activeVessel && (
-                <VesselModal vessel={activeVessel} onClose={onClose} />
+            {activeVesselMmsi && (
+                <VesselModal
+                    vessel={vessels[activeVesselMmsi]}
+                    onClose={onClose}
+                />
             )}
             <MapContainer
                 minZoom={mapOptions.minZoom}

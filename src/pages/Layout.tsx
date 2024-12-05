@@ -1,12 +1,11 @@
 import {
     faExpand,
     faLocation,
-    faMagnifyingGlassPlus,
     faMap,
     faShip,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { LatLngBoundsExpression, LatLngTuple } from "leaflet";
+import { LatLng, LatLngBoundsExpression, LatLngTuple } from "leaflet";
 import { useEffect } from "react";
 import { Link, Outlet } from "react-router-dom";
 import Button from "../components/Button";
@@ -18,6 +17,24 @@ import { useActiveVessel } from "../contexts/ActiveVesselContext";
 import { useMap } from "../contexts/MapContext";
 import { useVesselData } from "../contexts/VesselsContext";
 import { Vessel } from "../types/vessel";
+
+function vesselToBoundExpr(vessel: Vessel): LatLngBoundsExpression {
+    const points: LatLngBoundsExpression = [
+        [vessel.latitude, vessel.longitude] as LatLngTuple,
+    ];
+
+    if (!vessel.forecast) {
+        return points;
+    }
+
+    points.push(
+        ...vessel.forecast.map(
+            (forecast) => [forecast[1], forecast[2]] as LatLngTuple
+        )
+    );
+
+    return points;
+}
 
 function Layout() {
     const routes = {
@@ -34,13 +51,19 @@ function Layout() {
     };
 
     const { map } = useMap();
-    const { activeVessel, setActiveVessel } = useActiveVessel();
+    const {
+        activeVesselMmsi,
+        setActiveVesselMmsi,
+        setEncounteringVesselsMmsi,
+        encounteringVesselsMmsi,
+    } = useActiveVessel();
     const { vessels } = useVesselData();
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === "Escape") {
-                setActiveVessel(null);
+                setActiveVesselMmsi(null);
+                setEncounteringVesselsMmsi([]);
             }
         };
         document.addEventListener("keydown", handleKeyDown);
@@ -48,21 +71,44 @@ function Layout() {
         return () => {
             document.removeEventListener("keydown", handleKeyDown);
         };
-    }, [setActiveVessel]);
+    }, [setActiveVesselMmsi]);
 
-    const onZoomClick = () => {
-        if (activeVessel) {
-            const { latitude, longitude } = activeVessel;
-            map?.flyTo([latitude, longitude], 15, {
-                animate: true,
-                duration: 0.25,
-            });
+    const onEncountersClick = () => {
+        console.log("Encounters", activeVesselMmsi, encounteringVesselsMmsi);
+        if (!activeVesselMmsi) {
+            return;
         }
+
+        if (!vessels[activeVesselMmsi].encounteringVessels) {
+            return;
+        }
+
+        setEncounteringVesselsMmsi(
+            vessels[activeVesselMmsi].encounteringVessels || []
+        );
+
+        console.log("Encounters", activeVesselMmsi, encounteringVesselsMmsi);
+
+        const points = [
+            vessels[activeVesselMmsi],
+            ...encounteringVesselsMmsi
+                .map((mmsi) => vessels[mmsi] || null)
+                .filter((vessel) => vessel !== null),
+        ].reduce((acc: LatLngTuple[], vessel) => {
+            acc.push(...(vesselToBoundExpr(vessel) as LatLngTuple[]));
+            return acc;
+        }, [] as LatLngTuple[]) as LatLngBoundsExpression;
+
+        map?.fitBounds(points, {
+            animate: true,
+            duration: 0.25,
+            padding: [50, 50],
+        });
     };
 
     const onMoveClick = () => {
-        if (activeVessel) {
-            const { latitude, longitude } = activeVessel;
+        if (activeVesselMmsi) {
+            const { latitude, longitude } = vessels[activeVesselMmsi];
             map?.panTo([latitude, longitude], {
                 animate: true,
                 duration: 0.25,
@@ -71,18 +117,10 @@ function Layout() {
     };
 
     const onExpandClick = () => {
-        const points: LatLngBoundsExpression = [
-            [activeVessel?.latitude, activeVessel?.longitude] as LatLngTuple,
-        ];
-
-        if (activeVessel?.forecast) {
-            points.push(
-                ...activeVessel.forecast.map(
-                    (forecast) => [forecast[0], forecast[1]] as LatLngTuple
-                )
-            );
+        if (!activeVesselMmsi) {
+            return;
         }
-
+        const points = vesselToBoundExpr(vessels[activeVesselMmsi]);
         map?.fitBounds(points, {
             animate: true,
             duration: 0.25,
@@ -104,28 +142,31 @@ function Layout() {
     return (
         <div className="">
             <aside className="fixed top-0 left-0 z-40 w-20 h-screen transition-transform border-r-2 border-zinc-600">
-                <div className="h-full px-3 py-4 overflow-y-auto bg-zinc-800 ">
+                <div className="h-full px-3 py-4  bg-zinc-800 ">
                     <ul className="space-y-2 font-medium text-sm">
                         {Object.values(routes).map((route) => (
-                            <li key={route.href}>
+                            <li key={route.href} className="relative group">
                                 <Link
                                     to={route.href}
                                     className="flex items-center justify-center p-4 text-white rounded-lg  hover:bg-zinc-700"
                                 >
                                     <FontAwesomeIcon icon={route.icon} />
                                 </Link>
+                                <div className="absolute text-sm left-full ml-2 top-1/2 -translate-y-1/2 hidden group-hover:block w-max bg-zinc-900 text-white  rounded-lg border-1 border-zinc-600 px-2 py-1">
+                                    {route.display}
+                                </div>
                             </li>
                         ))}
                     </ul>
                 </div>
             </aside>
 
-            <main className="flex-1 ml-20 mr-72 -z-10">
+            <main className="flex-1 ml-20 mr-72">
                 <Outlet />
             </main>
 
             <aside className="fixed top-0 right-0 z-40 w-72 h-screen transition-transform border-l-2 border-zinc-600">
-                <div className="h-full px-3  overflow-y-auto bg-zinc-800 ">
+                <div className="h-full px-3   bg-zinc-800 ">
                     <div className="space-y-2 flex flex-col justify-between h-full">
                         <div>
                             <div className="border-b-2 -mx-3 py-4 mb-3 border-zinc-600 ">
@@ -133,18 +174,25 @@ function Layout() {
                                     <VesselSearch vessels={vessels} />
                                 </div>
                             </div>
-                            {activeVessel && (
+                            {activeVesselMmsi && (
                                 <>
                                     <ContainerTitle
-                                        onClose={() => setActiveVessel(null)}
+                                        onClose={() => {
+                                            setActiveVesselMmsi(null);
+                                            setEncounteringVesselsMmsi([]);
+                                        }}
                                     >
                                         Vessel
                                     </ContainerTitle>
-                                    <ul className="w-full text-md justify-between text-white grid grid-cols-2">
-                                        {activeVessel &&
+                                    <ul className="w-full text-md justify-between text-white grid grid-cols-2 gap-2 ">
+                                        {activeVesselMmsi &&
                                             shownAttributes
                                                 .filter(
-                                                    (key) => key in activeVessel
+                                                    (key) =>
+                                                        key in
+                                                        vessels[
+                                                            activeVesselMmsi
+                                                        ]
                                                 )
                                                 .map((key) => (
                                                     <li key={key}>
@@ -157,47 +205,123 @@ function Layout() {
                                                                 .toUpperCase()}
                                                         >
                                                             <div className="truncate">
-                                                                {activeVessel[
-                                                                    key
-                                                                ] || "-"}
+                                                                {vessels[
+                                                                    activeVesselMmsi
+                                                                ][key] || "-"}
                                                             </div>
                                                         </ContainerSegment>
                                                     </li>
                                                 ))}
                                     </ul>
+
+                                    {encounteringVesselsMmsi &&
+                                        encounteringVesselsMmsi.length > 0 && (
+                                            <>
+                                                <ContainerTitle className="py-2">
+                                                    Encounters
+                                                </ContainerTitle>
+                                                <ul className="grid grid-cols-2 gap-2">
+                                                    {encounteringVesselsMmsi.map(
+                                                        (mmsi: string) => {
+                                                            const vessel =
+                                                                vessels[mmsi];
+
+                                                            if (!vessel) {
+                                                                return null;
+                                                            }
+                                                            return (
+                                                                <li
+                                                                    key={
+                                                                        vessel.mmsi
+                                                                    }
+                                                                    className="w-full"
+                                                                >
+                                                                    <Button
+                                                                        className="w-full"
+                                                                        onClick={() => {
+                                                                            setActiveVesselMmsi(
+                                                                                vessel.mmsi
+                                                                            );
+                                                                            map?.setView(
+                                                                                new LatLng(
+                                                                                    vessel.latitude,
+                                                                                    vessel.longitude
+                                                                                )
+                                                                            );
+                                                                        }}
+                                                                    >
+                                                                        <ContainerSegment
+                                                                            title={
+                                                                                vessel.name ||
+                                                                                ""
+                                                                            }
+                                                                            className="text-left"
+                                                                        >
+                                                                            <div className="truncate">
+                                                                                {
+                                                                                    vessel.mmsi
+                                                                                }
+                                                                            </div>
+                                                                        </ContainerSegment>
+                                                                    </Button>
+                                                                </li>
+                                                            );
+                                                        }
+                                                    )}
+                                                </ul>
+                                            </>
+                                        )}
                                 </>
                             )}
                         </div>
-
                         <div>
                             <ul className="flex space-x-2 text-md pb-4">
-                                <li>
+                                <li className="group relative">
                                     <Button
                                         className="px-3"
                                         onClick={onMoveClick}
-                                        disabled={!activeVessel}
+                                        disabled={!activeVesselMmsi}
                                     >
                                         <FontAwesomeIcon icon={faLocation} />
                                     </Button>
-                                </li>
-                                <li>
-                                    <Button
-                                        className="px-3"
-                                        onClick={onZoomClick}
-                                        disabled={!activeVessel}
+                                    <div
+                                        className={`absolute text-sm left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block w-max rounded-lg border-1 px-2 py-1 ${
+                                            !activeVesselMmsi
+                                                ? "bg-zinc-700 text-zinc-500 border-zinc-500"
+                                                : "bg-zinc-900 text-white border-zinc-600"
+                                        }`}
                                     >
-                                        <FontAwesomeIcon
-                                            icon={faMagnifyingGlassPlus}
-                                        />
-                                    </Button>
+                                        Move into view
+                                    </div>
                                 </li>
-                                <li>
+                                <li className="group relative">
                                     <Button
                                         className="px-3"
                                         onClick={onExpandClick}
-                                        disabled={!activeVessel}
+                                        disabled={!activeVesselMmsi}
                                     >
                                         <FontAwesomeIcon icon={faExpand} />
+                                    </Button>
+                                    <div
+                                        className={`absolute text-sm left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block w-max rounded-lg border-1 px-2 py-1 ${
+                                            !activeVesselMmsi
+                                                ? "bg-zinc-700 text-zinc-500 border-zinc-500"
+                                                : "bg-zinc-900 text-white border-zinc-600"
+                                        }`}
+                                    >
+                                        Expand view
+                                    </div>
+                                </li>
+                                <li className="w-full">
+                                    <Button
+                                        className="w-full"
+                                        onClick={onEncountersClick}
+                                        disabled={
+                                            !activeVesselMmsi ||
+                                            encounteringVesselsMmsi.length === 0
+                                        }
+                                    >
+                                        <span>Encounters</span>
                                     </Button>
                                 </li>
                             </ul>

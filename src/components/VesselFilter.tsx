@@ -11,6 +11,7 @@ function VesselFilter() {
     const [criRange, setCriRange] = useState([0, 1]);
     const [vesselType, setVesselType] = useState("");
     const [hasForecast, setHasForecast] = useState(false);
+    const [hasEncountering, setHasEncountering] = useState(false);
 
     const applyFilter = () => {
         setFilter((vessel) => {
@@ -20,6 +21,9 @@ function VesselFilter() {
                     (vessel.cri ?? 0) * 1 >= criRange[0] &&
                     (vessel.cri ?? 0) * 1 <= criRange[1] &&
                     vessel.vesselType.includes(vesselType) &&
+                    (hasEncountering
+                        ? (vessel.encounteringVessels?.length ?? 0) > 0
+                        : true) &&
                     (!hasForecast ||
                         (vessel.forecast && vessel.forecast.length > 0))) ||
                 false
@@ -33,6 +37,7 @@ function VesselFilter() {
         setCriRange([0, 1]);
         setVesselType("");
         setHasForecast(false);
+        setHasEncountering(false);
 
         document.querySelectorAll("input").forEach((input) => {
             input.value = "";
@@ -71,6 +76,13 @@ function VesselFilter() {
             display: "Trajectory prediction",
             type: "checkbox",
             label: "Only forecasted location",
+            onChange: (checked: boolean) => setHasForecast(checked),
+        },
+        hasEncountering: {
+            display: "Encountering vessels",
+            type: "checkbox",
+            label: "Only encountering vessels",
+            onChange: (checked: boolean) => setHasEncountering(checked),
         },
     };
 
@@ -163,7 +175,11 @@ function VesselFilter() {
                                             id={key}
                                             name={key}
                                             onChange={(e) =>
-                                                setHasForecast(e.target.checked)
+                                                "onChange" in value
+                                                    ? value.onChange(
+                                                          e.target.checked
+                                                      )
+                                                    : undefined
                                             }
                                             className="peer hidden cursor-pointer"
                                         />

@@ -11,7 +11,7 @@ interface VesselSearchProps {
 }
 
 function VesselSearch({ vessels }: VesselSearchProps) {
-    const { setActiveVessel } = useActiveVessel();
+    const { setActiveVesselMmsi } = useActiveVessel();
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedIndex, setSelectedIndex] = useState(-1);
 
@@ -23,7 +23,7 @@ function VesselSearch({ vessels }: VesselSearchProps) {
     const { map } = useMap();
     const handleVesselClick = (vessel: Vessel) => {
         if (vessel) {
-            setActiveVessel(vessel.mmsi);
+            setActiveVesselMmsi(vessel.mmsi);
         }
         map?.setView(new LatLng(vessel.latitude, vessel.longitude));
         setSearchTerm("");
