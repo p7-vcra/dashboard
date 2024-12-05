@@ -7,11 +7,7 @@ interface ContainerProps {
     style?: React.CSSProperties;
 }
 
-const Container: React.FC<ContainerProps> = ({
-    children,
-    className = "",
-    style = {},
-}) => {
+function Container({ children, className = "", style = {} }: ContainerProps) {
     return (
         <div
             className={twMerge(
@@ -26,13 +22,13 @@ const Container: React.FC<ContainerProps> = ({
             rounded-lg
             text-white
             p-4`,
-                className,
+                className
             )}
             style={style}
         >
             {children}
         </div>
     );
-};
+}
 
 export default Container;

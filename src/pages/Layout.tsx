@@ -11,6 +11,7 @@ import { Link, Outlet } from "react-router-dom";
 import Button from "../components/Button";
 import ContainerSegment from "../components/ContainerSegment";
 import ContainerTitle from "../components/ContainerTitle";
+import VesselCard from "../components/VesselCard";
 import VesselFilter from "../components/VesselFilter";
 import VesselSearch from "../components/VesselSearch";
 import { useActiveVessel } from "../contexts/ActiveVesselContext";
@@ -128,17 +129,6 @@ function Layout() {
         });
     };
 
-    const shownAttributes: Array<keyof Vessel> = [
-        "mmsi",
-        "name",
-        "cri",
-        "vesselType",
-        "latitude",
-        "longitude",
-        "sog",
-        "cog",
-    ];
-
     return (
         <div className="">
             <aside className="fixed top-0 left-0 z-40 w-20 h-screen transition-transform border-r-2 border-zinc-600">
@@ -184,41 +174,15 @@ function Layout() {
                                     >
                                         Vessel
                                     </ContainerTitle>
-                                    <ul className="w-full text-md justify-between text-white grid grid-cols-2 gap-2 ">
-                                        {activeVesselMmsi &&
-                                            shownAttributes
-                                                .filter(
-                                                    (key) =>
-                                                        key in
-                                                        vessels[
-                                                            activeVesselMmsi
-                                                        ]
-                                                )
-                                                .map((key) => (
-                                                    <li key={key}>
-                                                        <ContainerSegment
-                                                            title={key
-                                                                .replace(
-                                                                    /([a-z])([A-Z])/g,
-                                                                    "$1 $2"
-                                                                )
-                                                                .toUpperCase()}
-                                                        >
-                                                            <div className="truncate">
-                                                                {vessels[
-                                                                    activeVesselMmsi
-                                                                ][key] || "-"}
-                                                            </div>
-                                                        </ContainerSegment>
-                                                    </li>
-                                                ))}
-                                    </ul>
+                                    <VesselCard
+                                        vessel={vessels[activeVesselMmsi]}
+                                    />
 
                                     {encounteringVesselsMmsi &&
                                         encounteringVesselsMmsi.length > 0 && (
                                             <>
                                                 <ContainerTitle className="py-2">
-                                                    Encounters
+                                                    Encountering Vessels
                                                 </ContainerTitle>
                                                 <ul className="grid grid-cols-2 gap-2">
                                                     {encounteringVesselsMmsi.map(
@@ -312,7 +276,7 @@ function Layout() {
                                         Expand view
                                     </div>
                                 </li>
-                                <li className="w-full">
+                                <li className="w-full group relative">
                                     <Button
                                         className="w-full"
                                         onClick={onEncountersClick}
@@ -321,8 +285,18 @@ function Layout() {
                                             encounteringVesselsMmsi.length === 0
                                         }
                                     >
-                                        <span>Encounters</span>
+                                        Encountering
                                     </Button>
+                                    <div
+                                        className={`absolute text-center text-sm left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block w-max rounded-lg border-1 px-2 py-1 ${
+                                            !activeVesselMmsi
+                                                ? "bg-zinc-700 text-zinc-500 border-zinc-500"
+                                                : "bg-zinc-900 text-white border-zinc-600"
+                                        }`}
+                                    >
+                                        Expand to encountering <br /> vessels
+                                        view
+                                    </div>
                                 </li>
                             </ul>
                             <div className="border-t-2 border-zinc-600 pt-4 -mx-3 pb-4">

@@ -9,12 +9,12 @@ interface ContainerTitleProps {
     onClose?: () => void;
 }
 
-const ContainerTitle: React.FC<ContainerTitleProps> = ({
+function ContainerTitle({
     children,
     className = "",
     style = {},
     onClose,
-}) => {
+}: ContainerTitleProps) {
     return (
         <div className="w-full flex items-center justify-between text-white">
             <div className={`font-bold text-sm ${className}`} style={style}>
@@ -30,6 +30,6 @@ const ContainerTitle: React.FC<ContainerTitleProps> = ({
             )}
         </div>
     );
-};
+}
 
 export default ContainerTitle;
