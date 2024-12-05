@@ -289,7 +289,8 @@ function Layout() {
                                     </Button>
                                     <div
                                         className={`absolute text-center text-sm left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block w-max rounded-lg border-1 px-2 py-1 ${
-                                            !activeVesselMmsi
+                                            !activeVesselMmsi ||
+                                            encounteringVesselsMmsi.length === 0
                                                 ? "bg-zinc-700 text-zinc-500 border-zinc-500"
                                                 : "bg-zinc-900 text-white border-zinc-600"
                                         }`}
