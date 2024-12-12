@@ -1,6 +1,7 @@
 import { useState } from "react";
 // @ts-expect-error No types available
 import RangeSlider from "react-range-slider-input";
+import { useActiveVessel } from "../contexts/ActiveVesselContext";
 import { useVessels } from "../contexts/VesselsContext";
 import Button from "./Button";
 import ContainerSegment from "./ContainerSegment";
@@ -12,8 +13,14 @@ function VesselFilter() {
     const [vesselType, setVesselType] = useState("");
     const [hasForecast, setHasForecast] = useState(false);
     const [hasEncountering, setHasEncountering] = useState(false);
+    const { activeVesselMmsi } = useActiveVessel();
+    const { vessels } = useVessels();
 
     const applyFilter = () => {
+        const activeVessel = activeVesselMmsi
+            ? vessels[activeVesselMmsi]
+            : null;
+
         setFilter((vessel) => {
             return (
                 (vessel.sog >= sogRange[0] &&
@@ -26,6 +33,9 @@ function VesselFilter() {
                         : true) &&
                     (!hasForecast ||
                         (vessel.forecast && vessel.forecast.length > 0))) ||
+                (activeVessel && activeVessel.mmsi === vessel.mmsi) ||
+                (activeVessel &&
+                    activeVessel.encounteringVessels?.includes(vessel.mmsi)) ||
                 false
             );
         });

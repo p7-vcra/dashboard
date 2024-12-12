@@ -135,14 +135,17 @@ function Layout() {
                 <div className="h-full px-3 py-4  bg-zinc-800 ">
                     <ul className="space-y-2 font-medium text-sm">
                         {Object.values(routes).map((route) => (
-                            <li key={route.href} className="relative group">
+                            <li
+                                key={route.href}
+                                className="relative group cursor-pointer"
+                            >
                                 <Link
                                     to={route.href}
                                     className="flex items-center justify-center p-4 text-white rounded-lg  hover:bg-zinc-700"
                                 >
                                     <FontAwesomeIcon icon={route.icon} />
                                 </Link>
-                                <div className="absolute text-sm left-full ml-2 top-1/2 -translate-y-1/2 hidden group-hover:block w-max bg-zinc-900 text-white  rounded-lg border-1 border-zinc-600 px-2 py-1">
+                                <div className="absolute text-sm cursor-pointer left-full ml-2 top-1/2 -translate-y-1/2 hidden group-hover:block w-max bg-zinc-900 text-white  rounded-lg border-1 border-zinc-600 px-2 py-1">
                                     {route.display}
                                 </div>
                             </li>
@@ -184,7 +187,7 @@ function Layout() {
                                                 <ContainerTitle className="py-2">
                                                     Encountering Vessels
                                                 </ContainerTitle>
-                                                <ul className="grid grid-cols-2 gap-2">
+                                                <ul className="grid grid-cols-2 gap-2 max-h-32 overflow-y-scroll">
                                                     {encounteringVesselsMmsi.map(
                                                         (mmsi: string) => {
                                                             const vessel =
@@ -205,6 +208,14 @@ function Layout() {
                                                                         onClick={() => {
                                                                             setActiveVesselMmsi(
                                                                                 vessel.mmsi
+                                                                            );
+                                                                            setEncounteringVesselsMmsi(
+                                                                                vessels[
+                                                                                    vessel
+                                                                                        .mmsi
+                                                                                ]
+                                                                                    .encounteringVessels ||
+                                                                                    []
                                                                             );
                                                                             map?.setView(
                                                                                 new LatLng(
@@ -289,7 +300,8 @@ function Layout() {
                                     </Button>
                                     <div
                                         className={`absolute text-center text-sm left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block w-max rounded-lg border-1 px-2 py-1 ${
-                                            !activeVesselMmsi
+                                            !activeVesselMmsi ||
+                                            encounteringVesselsMmsi.length === 0
                                                 ? "bg-zinc-700 text-zinc-500 border-zinc-500"
                                                 : "bg-zinc-900 text-white border-zinc-600"
                                         }`}
