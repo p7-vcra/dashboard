@@ -12,4 +12,21 @@ interface Vessel {
     encounteringVessels?: string[];
 }
 
-export { type Vessel };
+type VesselForecast = Pick<Vessel, "mmsi" | "forecast">;
+
+type EncounteringVessel = Pick<Vessel, "mmsi" | "latitude" | "longitude" | "cog" | "sog"> & { length: number };
+
+interface VesselEncounter {
+    vessel1: EncounteringVessel
+    vessel2: EncounteringVessel
+    distance: number;
+    startTime: string;
+    endTime: string;
+    duration: string;
+    euclidianDist: number;
+    relMovementDirection: number;
+    azimuthTargetToOwn: number;
+    cri: number;
+}
+
+export { type Vessel, type VesselEncounter, type VesselForecast };

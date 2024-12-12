@@ -105,6 +105,16 @@ const MapContent = ({ vessels, maxZoom }: MapContentProps) => {
                     key={`active-vessel-${activeVesselMmsi}`}
                     vessel={vessels[activeVesselMmsi]}
                     isActive={true}
+                    isEncountering={false}
+                    eventHandlers={{
+                        click: () => {
+                            setActiveVesselMmsi(activeVesselMmsi);
+                            setEncounteringVesselsMmsi(
+                                vessels[activeVesselMmsi].encounteringVessels ||
+                                    []
+                            );
+                        },
+                    }}
                 />
             )}
             {encounteringVesselsMmsi.map(
@@ -118,6 +128,10 @@ const MapContent = ({ vessels, maxZoom }: MapContentProps) => {
                             eventHandlers={{
                                 click: () => {
                                     setActiveVesselMmsi(encounteringVesselMmsi);
+                                    setEncounteringVesselsMmsi(
+                                        vessels[encounteringVesselMmsi]
+                                            .encounteringVessels || []
+                                    );
                                 },
                             }}
                         />

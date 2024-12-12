@@ -6,7 +6,7 @@ import React, {
     useRef,
     useState,
 } from "react";
-import { Vessel } from "../types/vessel";
+import { Vessel, VesselEncounter, VesselForecast } from "../types/vessel";
 import { useMap } from "./MapContext";
 
 interface VesselsContextType {
@@ -114,7 +114,7 @@ function useVesselData() {
                 (acc, vessel) => {
                     const { mmsi } = vessel;
                     acc[mmsi] = {
-                        cri: parseFloat(Math.random().toFixed(2)), // Dummy data, remove later
+                        // cri: parseFloat(Math.random().toFixed(2)), // Dummy data, remove later
                         ...vesselsRef.current[mmsi],
                         ...vessel,
                     };
@@ -138,9 +138,54 @@ function useVesselData() {
                     const { mmsi, forecast } = vessel;
                     if (vesselsRef.current[mmsi]) {
                         acc[mmsi] = {
-                            encounteringVessels: ["209535000", "211249810"],
+                            // encounteringVessels: ["209535000", "211249810"],
                             ...vesselsRef.current[mmsi],
                             forecast,
+                        };
+                    }
+                    return acc;
+                },
+                {}
+            );
+
+            setVessels(parsedData);
+        });
+
+        eventSource.addEventListener("cri", (event) => {
+            const eventData: VesselEncounter[] = JSON.parse(
+                event.data,
+                enounterReviver
+            );
+            const parsedData = eventData.reduce(
+                (
+                    acc: { [mmsi: string]: Vessel },
+                    encounter: VesselEncounter
+                ) => {
+                    const { vessel1, vessel2 } = encounter;
+                    if (vesselsRef.current[vessel1.mmsi]) {
+                        acc[vessel1.mmsi] = {
+                            ...vesselsRef.current[vessel1.mmsi],
+                            encounteringVessels: [
+                                ...(
+                                    vesselsRef.current[vessel1.mmsi]
+                                        .encounteringVessels || []
+                                ).filter((mmsi) => mmsi !== vessel2.mmsi),
+                                vessel2.mmsi,
+                            ],
+                            cri: encounter.cri,
+                        };
+                    }
+                    if (vesselsRef.current[vessel2.mmsi]) {
+                        acc[vessel2.mmsi] = {
+                            ...vesselsRef.current[vessel2.mmsi],
+                            encounteringVessels: [
+                                ...(
+                                    vesselsRef.current[vessel2.mmsi]
+                                        .encounteringVessels || []
+                                ).filter((mmsi) => mmsi !== vessel1.mmsi),
+                                vessel1.mmsi,
+                            ],
+                            cri: encounter.cri,
                         };
                     }
                     return acc;
@@ -161,7 +206,7 @@ function useVesselData() {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function vesselReviver(_key: string, value: any): Vessel[] | never {
+function vesselReviver(_key: string, value: any): Vessel[] {
     if (Array.isArray(value)) {
         return value.map((item) => {
             if (typeof item === "object" && item !== null) {
@@ -185,7 +230,7 @@ function predictionReviver(
     _key: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any
-): Pick<Vessel, "mmsi" | "forecast">[] {
+): VesselForecast[] {
     if (Array.isArray(value)) {
         const groupedByMmsi: {
             [mmsi: string]: {
@@ -216,7 +261,48 @@ function predictionReviver(
                 latitude,
                 longitude,
             ]),
-        })) as Pick<Vessel, "mmsi" | "forecast">[];
+        })) as VesselForecast[];
+    }
+    return value;
+}
+
+function enounterReviver(
+    _key: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    value: any
+): VesselEncounter[] {
+    if (Array.isArray(value)) {
+        return value.map((item) => {
+            if (typeof item === "object" && item !== null) {
+                return {
+                    vessel1: {
+                        mmsi: item["vessel_1"],
+                        latitude: item["vessel_1_latitude"],
+                        longitude: item["vessel_1_longitude"],
+                        sog: item["vessel_1_speed"],
+                        cog: item["vessel_1_course"],
+                        length: item["vessel_1_length"],
+                    },
+                    vessel2: {
+                        mmsi: item["vessel_2"],
+                        latitude: item["vessel_2_latitude"],
+                        longitude: item["vessel_2_longitude"],
+                        sog: item["vessel_2_speed"],
+                        cog: item["vessel_2_course"],
+                        length: item["vessel_2_length"],
+                    },
+                    distance: item["distance"],
+                    startTime: item["start_time"],
+                    endTime: item["end_time"],
+                    duration: item["duration"],
+                    euclidianDist: item["euclidian_dist"],
+                    relMovementDirection: item["rel_movement_direction"],
+                    azimuthTargetToOwn: item["azimuth_target_to_own"],
+                    cri: item["ves_cri"],
+                } as VesselEncounter;
+            }
+            return item;
+        });
     }
     return value;
 }
