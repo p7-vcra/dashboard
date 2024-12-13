@@ -9,12 +9,10 @@ function VesselCard({ vessel }: VesselCardProps) {
     const shownAttributes: Array<keyof Vessel> = [
         "mmsi",
         "name",
-        "cri",
         "vesselType",
         "latitude",
         "longitude",
         "sog",
-        "cog",
     ];
 
     return (
@@ -31,7 +29,10 @@ function VesselCard({ vessel }: VesselCardProps) {
                                         .toUpperCase()}
                                 >
                                     <div className="truncate">
-                                        {vessel[key] || "-"}
+                                        {vessel[key] !== undefined &&
+                                        vessel[key] !== null
+                                            ? String(vessel[key])
+                                            : "-"}
                                     </div>
                                 </ContainerSegment>
                             </li>

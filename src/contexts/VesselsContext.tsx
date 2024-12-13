@@ -6,7 +6,12 @@ import React, {
     useRef,
     useState,
 } from "react";
-import { Vessel, VesselEncounter, VesselForecast } from "../types/vessel";
+import {
+    EncounteringVessel,
+    Vessel,
+    VesselEncounter,
+    VesselForecast,
+} from "../types/vessel";
 import { useMap } from "./MapContext";
 
 interface VesselsContextType {
@@ -114,7 +119,6 @@ function useVesselData() {
                 (acc, vessel) => {
                     const { mmsi } = vessel;
                     acc[mmsi] = {
-                        // cri: parseFloat(Math.random().toFixed(2)), // Dummy data, remove later
                         ...vesselsRef.current[mmsi],
                         ...vessel,
                     };
@@ -138,7 +142,6 @@ function useVesselData() {
                     const { mmsi, forecast } = vessel;
                     if (vesselsRef.current[mmsi]) {
                         acc[mmsi] = {
-                            // encounteringVessels: ["209535000", "211249810"],
                             ...vesselsRef.current[mmsi],
                             forecast,
                         };
@@ -156,44 +159,46 @@ function useVesselData() {
                 event.data,
                 enounterReviver
             );
-            const parsedData = eventData.reduce(
-                (
-                    acc: { [mmsi: string]: Vessel },
-                    encounter: VesselEncounter
-                ) => {
-                    const { vessel1, vessel2 } = encounter;
-                    if (vesselsRef.current[vessel1.mmsi]) {
-                        acc[vessel1.mmsi] = {
-                            ...vesselsRef.current[vessel1.mmsi],
-                            encounteringVessels: [
-                                ...(
-                                    vesselsRef.current[vessel1.mmsi]
-                                        .encounteringVessels || []
-                                ).filter((mmsi) => mmsi !== vessel2.mmsi),
-                                vessel2.mmsi,
-                            ],
-                            cri: encounter.cri,
-                        };
-                    }
-                    if (vesselsRef.current[vessel2.mmsi]) {
-                        acc[vessel2.mmsi] = {
-                            ...vesselsRef.current[vessel2.mmsi],
-                            encounteringVessels: [
-                                ...(
-                                    vesselsRef.current[vessel2.mmsi]
-                                        .encounteringVessels || []
-                                ).filter((mmsi) => mmsi !== vessel1.mmsi),
-                                vessel1.mmsi,
-                            ],
-                            cri: encounter.cri,
-                        };
-                    }
-                    return acc;
-                },
-                {}
-            );
 
-            setVessels(parsedData);
+            const parsedData = eventData.reduce<{
+                [mmsi: string]: EncounteringVessel[];
+            }>((acc, encounter) => {
+                const { vessel1, vessel2 } = encounter;
+                if (vesselsRef.current[vessel1.mmsi]) {
+                    if (!acc[vessel1.mmsi]) {
+                        acc[vessel1.mmsi] = [];
+                    }
+                    acc[vessel1.mmsi].push({
+                        mmsi: vessel2.mmsi,
+                        ...encounter,
+                    });
+                }
+                if (vesselsRef.current[vessel2.mmsi]) {
+                    if (!acc[vessel2.mmsi]) {
+                        acc[vessel2.mmsi] = [];
+                    }
+                    acc[vessel2.mmsi].push({
+                        mmsi: vessel1.mmsi,
+                        ...encounter,
+                    });
+                }
+                return acc;
+            }, {});
+
+            const updatedVessels = Object.entries(parsedData).reduce<{
+                [mmsi: string]: Vessel;
+            }>((acc, [mmsi, encountering]) => {
+                const vessel = vesselsRef.current[mmsi];
+                if (vessel) {
+                    acc[mmsi] = {
+                        ...vessel,
+                        encounteringVessels: encountering,
+                    };
+                }
+                return acc;
+            }, {});
+
+            setVessels(updatedVessels);
         });
 
         return () => {
@@ -215,6 +220,7 @@ function vesselReviver(_key: string, value: any): Vessel[] {
                     vesselType: item["type of mobile"],
                     latitude: item["latitude"],
                     longitude: item["longitude"],
+                    length: item["length"] || 0,
                     cog: item["cog"] || 0,
                     sog: item["sog"] || 0,
                     name: item["name"] || "",

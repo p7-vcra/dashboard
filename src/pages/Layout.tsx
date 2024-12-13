@@ -9,8 +9,8 @@ import { LatLng, LatLngBoundsExpression, LatLngTuple } from "leaflet";
 import { useEffect } from "react";
 import { Link, Outlet } from "react-router-dom";
 import Button from "../components/Button";
-import ContainerSegment from "../components/ContainerSegment";
 import ContainerTitle from "../components/ContainerTitle";
+import EncounteringVesselCard from "../components/EncounteringVesselCard";
 import VesselCard from "../components/VesselCard";
 import VesselFilter from "../components/VesselFilter";
 import VesselSearch from "../components/VesselSearch";
@@ -52,19 +52,13 @@ function Layout() {
     };
 
     const { map } = useMap();
-    const {
-        activeVesselMmsi,
-        setActiveVesselMmsi,
-        setEncounteringVesselsMmsi,
-        encounteringVesselsMmsi,
-    } = useActiveVessel();
+    const { activeVesselMmsi, setActiveVesselMmsi } = useActiveVessel();
     const { vessels } = useVesselData();
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === "Escape") {
                 setActiveVesselMmsi(null);
-                setEncounteringVesselsMmsi([]);
             }
         };
         document.addEventListener("keydown", handleKeyDown);
@@ -75,7 +69,7 @@ function Layout() {
     }, [setActiveVesselMmsi]);
 
     const onEncountersClick = () => {
-        console.log("Encounters", activeVesselMmsi, encounteringVesselsMmsi);
+        console.log("Encounters", activeVesselMmsi);
         if (!activeVesselMmsi) {
             return;
         }
@@ -84,16 +78,12 @@ function Layout() {
             return;
         }
 
-        setEncounteringVesselsMmsi(
-            vessels[activeVesselMmsi].encounteringVessels || []
-        );
-
-        console.log("Encounters", activeVesselMmsi, encounteringVesselsMmsi);
+        console.log("Encounters", activeVesselMmsi);
 
         const points = [
             vessels[activeVesselMmsi],
-            ...encounteringVesselsMmsi
-                .map((mmsi) => vessels[mmsi] || null)
+            ...(vessels[activeVesselMmsi].encounteringVessels ?? [])
+                .map((encounter) => vessels[encounter.mmsi] || null)
                 .filter((vessel) => vessel !== null),
         ].reduce((acc: LatLngTuple[], vessel) => {
             acc.push(...(vesselToBoundExpr(vessel) as LatLngTuple[]));
@@ -172,7 +162,6 @@ function Layout() {
                                     <ContainerTitle
                                         onClose={() => {
                                             setActiveVesselMmsi(null);
-                                            setEncounteringVesselsMmsi([]);
                                         }}
                                     >
                                         Vessel
@@ -180,74 +169,67 @@ function Layout() {
                                     <VesselCard
                                         vessel={vessels[activeVesselMmsi]}
                                     />
-
-                                    {encounteringVesselsMmsi &&
-                                        encounteringVesselsMmsi.length > 0 && (
-                                            <>
-                                                <ContainerTitle className="py-2">
-                                                    Encountering Vessels
-                                                </ContainerTitle>
-                                                <ul className="grid grid-cols-2 gap-2 max-h-32 overflow-y-scroll">
-                                                    {encounteringVesselsMmsi.map(
-                                                        (mmsi: string) => {
-                                                            const vessel =
-                                                                vessels[mmsi];
-
-                                                            if (!vessel) {
-                                                                return null;
-                                                            }
-                                                            return (
-                                                                <li
-                                                                    key={
-                                                                        vessel.mmsi
-                                                                    }
-                                                                    className="w-full"
-                                                                >
-                                                                    <Button
-                                                                        className="w-full"
-                                                                        onClick={() => {
-                                                                            setActiveVesselMmsi(
-                                                                                vessel.mmsi
-                                                                            );
-                                                                            setEncounteringVesselsMmsi(
-                                                                                vessels[
-                                                                                    vessel
-                                                                                        .mmsi
-                                                                                ]
-                                                                                    .encounteringVessels ||
-                                                                                    []
-                                                                            );
-                                                                            map?.setView(
-                                                                                new LatLng(
-                                                                                    vessel.latitude,
-                                                                                    vessel.longitude
-                                                                                )
-                                                                            );
-                                                                        }}
-                                                                    >
-                                                                        <ContainerSegment
-                                                                            title={
-                                                                                vessel.name ||
-                                                                                ""
-                                                                            }
-                                                                            className="text-left"
-                                                                        >
-                                                                            <div className="truncate">
-                                                                                {
-                                                                                    vessel.mmsi
-                                                                                }
-                                                                            </div>
-                                                                        </ContainerSegment>
-                                                                    </Button>
-                                                                </li>
-                                                            );
-                                                        }
-                                                    )}
-                                                </ul>
-                                            </>
-                                        )}
                                 </>
                             )}
+
+                            {activeVesselMmsi &&
+                                vessels[activeVesselMmsi] &&
+                                vessels[activeVesselMmsi]
+                                    .encounteringVessels && (
+                                    <>
+                                        <ContainerTitle className="py-2">
+                                            Encountering Vessels
+                                        </ContainerTitle>
+                                        <ul className="">
+                                            {vessels[
+                                                activeVesselMmsi
+                                            ].encounteringVessels.map(
+                                                (encounter, index) => {
+                                                    const vessel =
+                                                        vessels[encounter.mmsi];
+
+                                                    if (!vessel) {
+                                                        return null;
+                                                    }
+                                                    return (
+                                                        <li
+                                                            key={vessel.mmsi}
+                                                            className="w-full flex items-center space-x-2"
+                                                        >
+                                                            <span className="bg-zinc-700  border-zinc-500 border-2 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                                                                {index + 1}
+                                                            </span>
+                                                            <Button
+                                                                className="w-full"
+                                                                onClick={() => {
+                                                                    setActiveVesselMmsi(
+                                                                        vessel.mmsi
+                                                                    );
+
+                                                                    map?.setView(
+                                                                        new LatLng(
+                                                                            vessel.latitude,
+                                                                            vessel.longitude
+                                                                        )
+                                                                    );
+                                                                }}
+                                                            >
+                                                                <EncounteringVesselCard
+                                                                    vessel={
+                                                                        vessel
+                                                                    }
+                                                                    encounteringVessel={
+                                                                        encounter
+                                                                    }
+                                                                />
+                                                            </Button>
+                                                        </li>
+                                                    );
+                                                }
+                                            )}
+                                        </ul>
+                                    </>
+                                )}
                         </div>
                         <div>
                             <ul className="flex space-x-2 text-md pb-4">
@@ -291,17 +273,13 @@ function Layout() {
                                     <Button
                                         className="w-full"
                                         onClick={onEncountersClick}
-                                        disabled={
-                                            !activeVesselMmsi ||
-                                            encounteringVesselsMmsi.length === 0
-                                        }
+                                        disabled={!activeVesselMmsi}
                                     >
                                         Encountering
                                     </Button>
                                     <div
                                         className={`absolute text-center text-sm left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block w-max rounded-lg border-1 px-2 py-1 ${
-                                            !activeVesselMmsi ||
-                                            encounteringVesselsMmsi.length === 0
+                                            !activeVesselMmsi
                                                 ? "bg-zinc-700 text-zinc-500 border-zinc-500"
                                                 : "bg-zinc-900 text-white border-zinc-600"
                                         }`}

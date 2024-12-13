@@ -10,18 +10,23 @@ import { Vessel } from "../types/vessel";
 const VesselMarker = React.memo(
     function MarkerComponent({
         vessel,
+        cri,
         isActive,
         isEncountering,
+        index,
         ...props
     }: Omit<MarkerProps, "position"> & {
         vessel: Vessel;
+        cri: number;
         isActive: boolean;
         isEncountering?: boolean;
+        index?: number;
     }) {
         isEncountering = isEncountering || false;
+        const cog = vessel.cog || 0;
         const icon = React.useMemo(
-            () => createVesselIcon(isActive, isEncountering, vessel),
-            [isActive, vessel]
+            () => createVesselIcon(isActive, isEncountering, cri, cog, index),
+            [isActive, isEncountering, cri, cog, index]
         );
 
         return (
@@ -29,8 +34,8 @@ const VesselMarker = React.memo(
                 <Marker
                     position={new LatLng(vessel.latitude, vessel.longitude)}
                     icon={icon}
-                    //@ts-expect-error rotationAngle is imported from leaflet-rotatedmarker
-                    rotationAngle={vessel.cog}
+                    // @ts-expect-error rotationAngle is not in the types
+                    // rotationAngle={vessel.cog || 0}
                     rotationOrigin="center center"
                     zIndexOffset={isActive || isEncountering ? 1000 : 0}
                     {...props}
@@ -62,28 +67,24 @@ const VesselMarker = React.memo(
     }
 );
 
-const arrowMarkup = renderToStaticMarkup(
-    <FontAwesomeIcon
-        icon={faLocationArrow}
-        transform={{ rotate: -45, size: 20, y: 2 }}
-    />
-); // 45 degrees counter clockwise as the icon points NE by default
+// const arrowMarkup = renderToStaticMarkup(
+//     <FontAwesomeIcon
+//         icon={faLocationArrow}
+//         transform={{ rotate: -45, size: 20, y: 2 }}
+//     />
+// ); // 45 degrees counter clockwise as the icon points NE by default
 
 function createVesselIcon(
     isActive: boolean,
     isEncountering: boolean,
-    vessel: Vessel
+    cri: number,
+    cog: number,
+    index?: number
 ) {
-    let cri = vessel?.cri ?? -1;
     const borderClass =
         isActive || isEncountering
             ? "border-opacity-100 bg-opacity-100"
             : "border-opacity-0 border-zinc-500";
-
-    if (cri === -1) {
-        console.error("cri is undefined!!!");
-        cri = 0;
-    }
 
     const colorClass = isEncountering
         ? "text-blue-600 bg-blue-100 bg-opacity-100 border-blue-600"
@@ -103,8 +104,21 @@ function createVesselIcon(
         borderClass
     );
 
+    const arrowMarkupRotated = renderToStaticMarkup(
+        <FontAwesomeIcon
+            icon={faLocationArrow}
+            transform={{ rotate: -45 + cog, size: 20 }}
+        />
+    );
+
+    const indexMarkup =
+        index !== undefined
+            ? `<span class="bg-zinc-700 absolute -top-2 right-0  border-zinc-500 border-2 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">${index}</span>`
+            : "";
     return L.divIcon({
-        html: `<div class="${classNames}">${arrowMarkup}</div>`,
+        html: `<div class="relative"><div class="${classNames}">${arrowMarkupRotated}</div>${indexMarkup}</div>`,
+        iconSize: L.point(28, 28, true),
+        iconAnchor: L.point(14, 14, true),
     });
 }
 

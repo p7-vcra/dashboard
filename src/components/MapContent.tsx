@@ -17,6 +17,19 @@ function createClusterIcon(pointCount: number) {
     });
 }
 
+// Get the maximum CRI value from the encounters
+function getMaxCri(vessel: Vessel): number {
+    if (!vessel.encounteringVessels) {
+        return 0;
+    }
+
+    return vessel.encounteringVessels?.reduce(
+        (maxCri, encounteringVessel) =>
+            Math.max(maxCri, encounteringVessel.cri),
+        0
+    );
+}
+
 interface MapContentProps {
     vessels: { [mmsi: string]: Vessel };
     maxZoom: number;
@@ -26,12 +39,7 @@ const MapContent = ({ vessels, maxZoom }: MapContentProps) => {
     const { map, mapOptions, setMapOptions } = useMap();
 
     const { setMousePosition } = useMousePosition();
-    const {
-        activeVesselMmsi,
-        encounteringVesselsMmsi,
-        setActiveVesselMmsi,
-        setEncounteringVesselsMmsi,
-    } = useActiveVessel();
+    const { activeVesselMmsi, setActiveVesselMmsi } = useActiveVessel();
 
     const updateMousePosition = useCallback(
         (event: L.LeafletMouseEvent) => {
@@ -66,15 +74,18 @@ const MapContent = ({ vessels, maxZoom }: MapContentProps) => {
             map?.off("moveend", updateMapOptions);
             map?.off("zoomend", updateMapOptions);
         };
-    }, [map, mapOptions, updateMousePosition]);
+    }, [map, mapOptions, updateMapOptions, updateMousePosition]);
 
     const points = Object.values(vessels)
         .filter(
             (vessel) =>
                 !(activeVesselMmsi && vessel.mmsi === activeVesselMmsi) &&
-                !encounteringVesselsMmsi.some(
-                    (encounteringVesselMmsi) =>
-                        encounteringVesselMmsi === vessel.mmsi
+                !(
+                    activeVesselMmsi &&
+                    vessels[activeVesselMmsi].encounteringVessels?.some(
+                        (encounteringVessel) =>
+                            encounteringVessel.mmsi === vessel.mmsi
+                    )
                 )
         )
         .map((vessel) => ({
@@ -104,39 +115,37 @@ const MapContent = ({ vessels, maxZoom }: MapContentProps) => {
                 <VesselMarker
                     key={`active-vessel-${activeVesselMmsi}`}
                     vessel={vessels[activeVesselMmsi]}
+                    cri={getMaxCri(vessels[activeVesselMmsi])}
                     isActive={true}
                     isEncountering={false}
                     eventHandlers={{
                         click: () => {
                             setActiveVesselMmsi(activeVesselMmsi);
-                            setEncounteringVesselsMmsi(
-                                vessels[activeVesselMmsi].encounteringVessels ||
-                                    []
-                            );
                         },
                     }}
                 />
             )}
-            {encounteringVesselsMmsi.map(
-                (encounteringVesselMmsi) =>
-                    vessels[encounteringVesselMmsi] && (
-                        <VesselMarker
-                            key={`encountering-vessel-${encounteringVesselMmsi}`}
-                            vessel={vessels[encounteringVesselMmsi]}
-                            isActive={false}
-                            isEncountering={true}
-                            eventHandlers={{
-                                click: () => {
-                                    setActiveVesselMmsi(encounteringVesselMmsi);
-                                    setEncounteringVesselsMmsi(
-                                        vessels[encounteringVesselMmsi]
-                                            .encounteringVessels || []
-                                    );
-                                },
-                            }}
-                        />
-                    )
-            )}
+            {activeVesselMmsi &&
+                vessels[activeVesselMmsi].encounteringVessels?.map(
+                    (encounteringVessel, index) =>
+                        vessels[encounteringVessel.mmsi] && (
+                            <VesselMarker
+                                key={`encountering-vessel-${encounteringVessel.mmsi}`}
+                                vessel={vessels[encounteringVessel.mmsi]}
+                                cri={encounteringVessel.cri}
+                                isActive={false}
+                                isEncountering={true}
+                                index={index + 1}
+                                eventHandlers={{
+                                    click: () => {
+                                        setActiveVesselMmsi(
+                                            encounteringVessel.mmsi
+                                        );
+                                    },
+                                }}
+                            />
+                        )
+                )}
 
             {clusters.map((cluster) => {
                 const [longitude, latitude] = cluster.geometry.coordinates;
@@ -175,6 +184,7 @@ const MapContent = ({ vessels, maxZoom }: MapContentProps) => {
                     <VesselMarker
                         key={`vessel-${cluster.properties.vessel.mmsi}`}
                         vessel={cluster.properties.vessel}
+                        cri={getMaxCri(cluster.properties.vessel)}
                         isActive={
                             activeVesselMmsi === cluster.properties.vessel.mmsi
                         }
@@ -182,10 +192,6 @@ const MapContent = ({ vessels, maxZoom }: MapContentProps) => {
                             click: () => {
                                 setActiveVesselMmsi(
                                     cluster.properties.vessel.mmsi
-                                );
-                                setEncounteringVesselsMmsi(
-                                    vessels[cluster.properties.vessel.mmsi]
-                                        .encounteringVessels || []
                                 );
                             },
                         }}

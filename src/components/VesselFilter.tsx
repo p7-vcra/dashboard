@@ -25,8 +25,8 @@ function VesselFilter() {
             return (
                 (vessel.sog >= sogRange[0] &&
                     vessel.sog <= sogRange[1] &&
-                    (vessel.cri ?? 0) * 1 >= criRange[0] &&
-                    (vessel.cri ?? 0) * 1 <= criRange[1] &&
+                    // (vessel.cri ?? 0) * 1 >= criRange[0] &&
+                    // (vessel.cri ?? 0) * 1 <= criRange[1] &&
                     vessel.vesselType.includes(vesselType) &&
                     (hasEncountering
                         ? (vessel.encounteringVessels?.length ?? 0) > 0
@@ -35,7 +35,9 @@ function VesselFilter() {
                         (vessel.forecast && vessel.forecast.length > 0))) ||
                 (activeVessel && activeVessel.mmsi === vessel.mmsi) ||
                 (activeVessel &&
-                    activeVessel.encounteringVessels?.includes(vessel.mmsi)) ||
+                    activeVessel.encounteringVessels?.some(
+                        (encounter) => encounter.mmsi === vessel.mmsi
+                    )) ||
                 false
             );
         });
