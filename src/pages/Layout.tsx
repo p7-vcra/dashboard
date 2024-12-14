@@ -69,7 +69,6 @@ function Layout() {
     }, [setActiveVesselMmsi]);
 
     const onEncountersClick = () => {
-        console.log("Encounters", activeVesselMmsi);
         if (!activeVesselMmsi) {
             return;
         }
@@ -77,8 +76,6 @@ function Layout() {
         if (!vessels[activeVesselMmsi].encounteringVessels) {
             return;
         }
-
-        console.log("Encounters", activeVesselMmsi);
 
         const points = [
             vessels[activeVesselMmsi],
@@ -196,9 +193,9 @@ function Layout() {
                                                             key={vessel.mmsi}
                                                             className="w-full flex items-center space-x-2"
                                                         >
-                                                            <span className="bg-zinc-700  border-zinc-500 border-2 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                                                            <div className="bg-zinc-700 border-zinc-500 border-2 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center aspect-square">
                                                                 {index + 1}
-                                                            </span>
+                                                            </div>
                                                             <Button
                                                                 className="w-full"
                                                                 onClick={() => {
@@ -273,12 +270,20 @@ function Layout() {
                                     <Button
                                         className="w-full"
                                         onClick={onEncountersClick}
-                                        disabled={!activeVesselMmsi}
+                                        disabled={
+                                            (activeVesselMmsi &&
+                                                !vessels[activeVesselMmsi]
+                                                    .encounteringVessels) ||
+                                            !activeVesselMmsi
+                                        }
                                     >
                                         Encountering
                                     </Button>
                                     <div
                                         className={`absolute text-center text-sm left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block w-max rounded-lg border-1 px-2 py-1 ${
+                                            (activeVesselMmsi &&
+                                                !vessels[activeVesselMmsi]
+                                                    .encounteringVessels) ||
                                             !activeVesselMmsi
                                                 ? "bg-zinc-700 text-zinc-500 border-zinc-500"
                                                 : "bg-zinc-900 text-white border-zinc-600"

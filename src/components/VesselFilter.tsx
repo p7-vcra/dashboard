@@ -3,6 +3,7 @@ import { useState } from "react";
 import RangeSlider from "react-range-slider-input";
 import { useActiveVessel } from "../contexts/ActiveVesselContext";
 import { useVessels } from "../contexts/VesselsContext";
+import { getMaxCri, getMinCri } from "../utils/vessel";
 import Button from "./Button";
 import ContainerSegment from "./ContainerSegment";
 
@@ -23,16 +24,21 @@ function VesselFilter() {
 
         setFilter((vessel) => {
             return (
+                // Filter vessels based on the criteria
                 (vessel.sog >= sogRange[0] &&
                     vessel.sog <= sogRange[1] &&
-                    // (vessel.cri ?? 0) * 1 >= criRange[0] &&
-                    // (vessel.cri ?? 0) * 1 <= criRange[1] &&
+                    vessel.encounteringVessels?.some(
+                        (encounter) =>
+                            criRange[0] <= encounter.cri &&
+                            criRange[1] >= encounter.cri
+                    ) &&
                     vessel.vesselType.includes(vesselType) &&
                     (hasEncountering
                         ? (vessel.encounteringVessels?.length ?? 0) > 0
                         : true) &&
                     (!hasForecast ||
                         (vessel.forecast && vessel.forecast.length > 0))) ||
+                // Always show the active vessel and its encountering vessels
                 (activeVessel && activeVessel.mmsi === vessel.mmsi) ||
                 (activeVessel &&
                     activeVessel.encounteringVessels?.some(
@@ -87,13 +93,13 @@ function VesselFilter() {
         hasForecast: {
             display: "Trajectory prediction",
             type: "checkbox",
-            label: "Only forecasted location",
+            label: "Has forecasted location",
             onChange: (checked: boolean) => setHasForecast(checked),
         },
         hasEncountering: {
             display: "Encountering vessels",
             type: "checkbox",
-            label: "Only encountering vessels",
+            label: "Has encountering vessels",
             onChange: (checked: boolean) => setHasEncountering(checked),
         },
     };
