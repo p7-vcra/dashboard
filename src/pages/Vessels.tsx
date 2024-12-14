@@ -5,6 +5,7 @@ import { useVesselData } from "../contexts/VesselsContext";
 
 const Vessels: React.FC = () => {
     const { filtered } = useVesselData();
+    document.title = "Vessels - Vessel CRA";
 
     return (
         <div className="bg-zinc-700 p-2 h-full min-h-screen">

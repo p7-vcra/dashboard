@@ -14,6 +14,7 @@ function Map() {
     const { mousePosition } = useMousePosition();
     const { filtered } = useVessels();
     const { mapOptions, setMap } = useMap();
+    document.title = "Map - Vessel CRA";
 
     return (
         <div className="relative h-screen z-10 w-full">
