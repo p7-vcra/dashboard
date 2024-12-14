@@ -1,4 +1,9 @@
-import { MapContainer, TileLayer, ZoomControl } from "react-leaflet";
+import {
+    MapContainer,
+    ScaleControl,
+    TileLayer,
+    ZoomControl,
+} from "react-leaflet";
 import { default as MapContent } from "../components/MapContent";
 import MousePositionOverlay from "../components/MousePositionOverlay";
 import { useMap } from "../contexts/MapContext";
@@ -25,12 +30,13 @@ function Map() {
                 ref={setMap}
             >
                 <MapContent vessels={filtered} maxZoom={mapOptions.maxZoom} />
+                <ZoomControl position="bottomleft" />
+                <ScaleControl position="bottomleft" metric />
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     noWrap={true}
                 />
-                <ZoomControl position="bottomleft" />
             </MapContainer>
         </div>
     );

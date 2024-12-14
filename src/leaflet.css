@@ -355,10 +355,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
 .leaflet-control-zoom-in,
 .leaflet-control-zoom-out {
-    font:
-        bold 18px "Lucida Console",
-        Monaco,
-        monospace;
+    font: bold 18px "Lucida Console", Monaco, monospace;
     text-indent: 1px;
 }
 
@@ -454,29 +451,33 @@ svg.leaflet-image-layer.leaflet-interactive path {
     height: 0.6669em;
 }
 .leaflet-left .leaflet-control-scale {
-    margin-left: 5px;
+    /* margin-left: 50px; */
+    @apply ml-14;
 }
 .leaflet-bottom .leaflet-control-scale {
-    margin-bottom: 5px;
+    /* margin-bottom: 0px; */
+    @apply -mb-10;
 }
+
 .leaflet-control-scale-line {
-    border: 2px solid #777;
     border-top: none;
     line-height: 1.1;
     padding: 2px 5px 1px;
     white-space: nowrap;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
-    background: rgba(255, 255, 255, 0.8);
-    text-shadow: 1px 1px #fff;
+    /* background: rgba(255, 255, 255, 0.8); */
+    @apply bg-zinc-800 bg-opacity-80 backdrop-blur-sm text-white border-zinc-600 border-2 rounded-sm;
 }
 .leaflet-control-scale-line:not(:first-child) {
-    border-top: 2px solid #777;
+    /* border-top: 2px solid #777; */
     border-bottom: none;
     margin-top: -2px;
+    @apply border-zinc-600 border-t-2;
 }
 .leaflet-control-scale-line:not(:first-child):not(:last-child) {
-    border-bottom: 2px solid #777;
+    /* border-bottom: 2px solid #777; */
+    @apply border-zinc-600 border-b-2;
 }
 
 .leaflet-touch .leaflet-control-attribution,
