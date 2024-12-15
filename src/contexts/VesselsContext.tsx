@@ -123,11 +123,13 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
 
             const updatedVessels = Object.entries(vessels).reduce<{
                 [mmsi: string]: Vessel;
-            }>((acc, [mmsi, vessel]) => {
-                acc[mmsi] = {
-                    ...vessel,
-                    encounteringVessels: parsedData[mmsi] ? parsedData[mmsi] : [],
-                };
+            }>((acc, [mmsi]) => {
+                if (vesselsRef.current[mmsi]) {
+                    acc[mmsi] = {
+                        ...vesselsRef.current[mmsi],
+                        encounteringVessels: parsedData[mmsi] ? parsedData[mmsi] : [],
+                    };
+                }
                 return acc;
             }, {});
 
