@@ -17,8 +17,6 @@ import { useMap } from "./MapContext";
 interface VesselsContextType {
     vessels: { [mmsi: string]: Vessel };
     filtered: { [mmsi: string]: Vessel };
-    setVessels: (newVessels: { [mmsi: string]: Vessel }) => void;
-    filter: (vessel: Vessel) => boolean;
     setFilter: (predicate: (vessel: Vessel) => boolean) => void;
 }
 
@@ -160,7 +158,7 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
                 return acc;
             }, {});
 
-            const updatedVessels = Object.entries(parsedData).reduce<{
+            const updatedVesselsEncounters = Object.entries(parsedData).reduce<{
                 [mmsi: string]: Vessel;
             }>((acc, [mmsi, encountering]) => {
                 const vessel = vesselsRef.current[mmsi];
@@ -173,6 +171,23 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
                 return acc;
             }, {});
 
+            // Time this operaion
+            console.time("updateVessels");
+
+            const updatedVessels = Object.entries(vessels).reduce<{
+                [mmsi: string]: Vessel;
+            }>((acc, [mmsi, vessel]) => {
+                acc[mmsi] = {
+                    ...vessel,
+                    encounteringVessels: updatedVesselsEncounters[mmsi]
+                        ? updatedVesselsEncounters[mmsi].encounteringVessels
+                        : [],
+                };
+                return acc;
+            }, {});
+
+            console.timeEnd("updateVessels");
+
             updateVessels(updatedVessels);
         });
 
@@ -182,15 +197,11 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
         };
     }, [baseUrl, mapOptions, predictionEndpoint, setVessels]);
 
-    ////////
-
     return (
         <VesselsContext.Provider
             value={{
                 vessels,
                 filtered,
-                setVessels: updateVessels,
-                filter,
                 setFilter: updateFilter,
             }}
         >

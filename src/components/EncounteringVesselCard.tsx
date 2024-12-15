@@ -17,8 +17,6 @@ function EncounteringVesselCard({
         "futureCri",
     ];
 
-    console.log(encounteringVessel);
-
     const data = {
         ...vessel,
         ...encounteringVessel,

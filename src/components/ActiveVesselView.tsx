@@ -24,7 +24,8 @@ function ActiveVesselView() {
                 </>
             )}
             {activeVesselMmsi &&
-                vessels[activeVesselMmsi]?.encounteringVessels && (
+                vessels[activeVesselMmsi]?.encounteringVessels &&
+                vessels[activeVesselMmsi]?.encounteringVessels.length > 0 && (
                     <>
                         <ContainerTitle className="py-2">
                             Encountering Vessels

@@ -4,8 +4,8 @@ import {
     TileLayer,
     ZoomControl,
 } from "react-leaflet";
-import { default as MapContent } from "../components/MapContent";
 import MousePositionOverlay from "../components/MousePositionOverlay";
+import VesselClusters from "../components/VesselClusters";
 import { useMap } from "../contexts/MapContext";
 import { useMousePosition } from "../contexts/MousePositionContext";
 import { useVessels } from "../contexts/VesselsContext";
@@ -30,7 +30,10 @@ function Map() {
                 preferCanvas={true}
                 ref={setMap}
             >
-                <MapContent vessels={filtered} maxZoom={mapOptions.maxZoom} />
+                <VesselClusters
+                    vessels={filtered}
+                    maxZoom={mapOptions.maxZoom}
+                />
                 <ZoomControl position="bottomleft" />
                 <ScaleControl position="bottomleft" metric />
                 <TileLayer

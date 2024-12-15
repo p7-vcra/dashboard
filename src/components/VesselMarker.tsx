@@ -6,6 +6,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { Marker, MarkerProps, Polyline } from "react-leaflet";
 import { twMerge } from "tailwind-merge";
 import { Vessel } from "../types/vessel";
+import Badge from "./Badge";
 
 const VesselMarker = React.memo(
     function MarkerComponent({
@@ -103,12 +104,13 @@ function createVesselIcon(
 
     const indexMarkup =
         index !== undefined
-            ? `<span class="bg-zinc-700 absolute -top-2 right-0  border-zinc-500 border-2 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">${index}</span>`
+            ? renderToStaticMarkup(
+                  <Badge className="absolute -top-2.5 -right-4">{index} </Badge>
+              )
             : "";
+
     return L.divIcon({
         html: `<div class="relative"><div class="${classNames}">${arrowMarkupRotated}</div>${indexMarkup}</div>`,
-        iconSize: L.point(28, 28, true),
-        iconAnchor: L.point(14, 14, true),
     });
 }
 

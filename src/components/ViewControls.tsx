@@ -115,6 +115,7 @@ function ViewControls() {
                         disabled={
                             !activeVesselMmsi ||
                             !vessels[activeVesselMmsi]?.encounteringVessels
+                                ?.length
                         }
                     >
                         <FontAwesomeIcon icon={faArrowsToCircle} />

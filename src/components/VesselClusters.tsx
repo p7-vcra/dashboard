@@ -23,7 +23,7 @@ interface MapContentProps {
     maxZoom: number;
 }
 
-const MapContent = ({ vessels, maxZoom }: MapContentProps) => {
+const VesselClusters = ({ vessels, maxZoom }: MapContentProps) => {
     const { map, mapOptions, setMapOptions } = useMap();
 
     const { setMousePosition } = useMousePosition();
@@ -190,4 +190,4 @@ const MapContent = ({ vessels, maxZoom }: MapContentProps) => {
     );
 };
 
-export default MapContent;
+export default VesselClusters;
