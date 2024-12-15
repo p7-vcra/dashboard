@@ -65,7 +65,7 @@ function Layout() {
                 <Outlet />
             </main>
 
-            <Sidebar position="right" width={72}>
+            <Sidebar position="right" width={72} className="overflow-y-auto">
                 <Sections>
                     <Section>
                         <VesselSearch vessels={vessels} />
