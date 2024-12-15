@@ -6,16 +6,7 @@ interface VesselCardProps {
 }
 
 function VesselCard({ vessel }: VesselCardProps) {
-    const shownAttributes: Array<keyof Vessel> = [
-        "mmsi",
-        "name",
-        "cri",
-        "vesselType",
-        "latitude",
-        "longitude",
-        "sog",
-        "cog",
-    ];
+    const shownAttributes: Array<keyof Vessel> = ["mmsi", "name", "vesselType", "latitude", "longitude", "sog"];
 
     return (
         <div>
@@ -25,13 +16,11 @@ function VesselCard({ vessel }: VesselCardProps) {
                         .filter((key) => key in vessel)
                         .map((key) => (
                             <li key={key}>
-                                <ContainerSegment
-                                    title={key
-                                        .replace(/([a-z])([A-Z])/g, "$1 $2")
-                                        .toUpperCase()}
-                                >
+                                <ContainerSegment title={key.replace(/([a-z])([A-Z])/g, "$1 $2").toUpperCase()}>
                                     <div className="truncate">
-                                        {vessel[key] || "-"}
+                                        {vessel[key] !== undefined && vessel[key] !== null && vessel[key] !== ""
+                                            ? String(vessel[key])
+                                            : "-"}
                                     </div>
                                 </ContainerSegment>
                             </li>

@@ -1,14 +1,13 @@
-import { MapContainer, TileLayer, ZoomControl } from "react-leaflet";
-import { default as MapContent } from "../components/MapContent";
+import { MapContainer, ScaleControl, TileLayer, ZoomControl } from "react-leaflet";
 import MousePositionOverlay from "../components/MousePositionOverlay";
+import VesselClusters from "../components/VesselClusters";
 import { useMap } from "../contexts/MapContext";
 import { useMousePosition } from "../contexts/MousePositionContext";
-import { useVessels } from "../contexts/VesselsContext";
 
 function Map() {
     const { mousePosition } = useMousePosition();
-    const { filtered } = useVessels();
     const { mapOptions, setMap } = useMap();
+    document.title = "Map - Vessel CRA";
 
     return (
         <div className="relative h-screen z-10 w-full">
@@ -24,13 +23,14 @@ function Map() {
                 preferCanvas={true}
                 ref={setMap}
             >
-                <MapContent vessels={filtered} maxZoom={mapOptions.maxZoom} />
+                <VesselClusters maxZoom={mapOptions.maxZoom} />
+                <ZoomControl position="bottomleft" />
+                <ScaleControl position="bottomleft" metric />
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     noWrap={true}
                 />
-                <ZoomControl position="bottomleft" />
             </MapContainer>
         </div>
     );

@@ -11,23 +11,20 @@ import Vessels from "./pages/Vessels";
 function App() {
     return (
         <BrowserRouter>
-            <VesselsProvider>
-                <ActiveVesselProvider>
-                    <MousePositionProvider>
-                        <MapProvider>
+            <MapProvider>
+                <VesselsProvider>
+                    <ActiveVesselProvider>
+                        <MousePositionProvider>
                             <Routes>
                                 <Route path="/" element={<Layout />}>
                                     <Route index element={<Map />} />
-                                    <Route
-                                        path="/vessels"
-                                        element={<Vessels />}
-                                    />
+                                    <Route path="/vessels" element={<Vessels />} />
                                 </Route>
                             </Routes>
-                        </MapProvider>
-                    </MousePositionProvider>
-                </ActiveVesselProvider>
-            </VesselsProvider>
+                        </MousePositionProvider>
+                    </ActiveVesselProvider>
+                </VesselsProvider>
+            </MapProvider>
         </BrowserRouter>
     );
 }

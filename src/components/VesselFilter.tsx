@@ -17,25 +17,25 @@ function VesselFilter() {
     const { vessels } = useVessels();
 
     const applyFilter = () => {
-        const activeVessel = activeVesselMmsi
-            ? vessels[activeVesselMmsi]
-            : null;
+        const activeVessel = activeVesselMmsi ? vessels[activeVesselMmsi] : null;
 
         setFilter((vessel) => {
             return (
+                // Filter vessels based on the criteria
                 (vessel.sog >= sogRange[0] &&
                     vessel.sog <= sogRange[1] &&
-                    (vessel.cri ?? 0) * 1 >= criRange[0] &&
-                    (vessel.cri ?? 0) * 1 <= criRange[1] &&
-                    vessel.vesselType.includes(vesselType) &&
-                    (hasEncountering
-                        ? (vessel.encounteringVessels?.length ?? 0) > 0
+                    (criRange[0] > 0
+                        ? vessel.encounteringVessels?.some(
+                              (encounter) => criRange[0] <= encounter.cri && criRange[1] >= encounter.cri,
+                          )
                         : true) &&
-                    (!hasForecast ||
-                        (vessel.forecast && vessel.forecast.length > 0))) ||
+                    vessel.vesselType.includes(vesselType) &&
+                    (hasEncountering ? (vessel.encounteringVessels?.length ?? 0) > 0 : true) &&
+                    (!hasForecast || (vessel.forecast && vessel.forecast.length > 0))) ||
+                // Always show the active vessel and its encountering vessels
                 (activeVessel && activeVessel.mmsi === vessel.mmsi) ||
                 (activeVessel &&
-                    activeVessel.encounteringVessels?.includes(vessel.mmsi)) ||
+                    activeVessel.encounteringVessels?.some((encounter) => encounter.mmsi === vessel.mmsi)) ||
                 false
             );
         });
@@ -53,9 +53,7 @@ function VesselFilter() {
             input.value = "";
             input.checked = false;
         });
-        document
-            .querySelectorAll("select")
-            .forEach((select) => (select.value = ""));
+        document.querySelectorAll("select").forEach((select) => (select.value = ""));
     };
 
     const filters = {
@@ -85,13 +83,13 @@ function VesselFilter() {
         hasForecast: {
             display: "Trajectory prediction",
             type: "checkbox",
-            label: "Only forecasted location",
+            label: "Has forecasted location",
             onChange: (checked: boolean) => setHasForecast(checked),
         },
         hasEncountering: {
             display: "Encountering vessels",
             type: "checkbox",
-            label: "Only encountering vessels",
+            label: "Has encountering vessels",
             onChange: (checked: boolean) => setHasEncountering(checked),
         },
     };
@@ -102,56 +100,23 @@ function VesselFilter() {
                 <div className="flex flex-col space-y-4 pt-2">
                     {Object.entries(filters).map(([key, value]) => (
                         <div key={key} className="text-sm">
-                            <ContainerSegment
-                                title={value.display.toLocaleUpperCase()}
-                            >
+                            <ContainerSegment title={value.display.toLocaleUpperCase()}>
                                 {value.type === "range" ? (
                                     <div className="space-x-2 flex-col text-white h-full">
                                         <div className="flex items-center space-x-2">
-                                            <div className="min-w-5">
-                                                {"value" in value
-                                                    ? `${value.value[0]}`
-                                                    : ""}
-                                            </div>
+                                            <div className="min-w-5">{"value" in value ? `${value.value[0]}` : ""}</div>
                                             <RangeSlider
-                                                max={
-                                                    "max" in value
-                                                        ? value.max
-                                                        : 0
-                                                }
-                                                min={
-                                                    "min" in value
-                                                        ? value.min
-                                                        : 0
-                                                }
+                                                max={"max" in value ? value.max : 0}
+                                                min={"min" in value ? value.min : 0}
                                                 defaultValue={
-                                                    "min" in value &&
-                                                    "max" in value
-                                                        ? [value.min, value.max]
-                                                        : [0, 0]
+                                                    "min" in value && "max" in value ? [value.min, value.max] : [0, 0]
                                                 }
                                                 className="w-full bg-zinc-500"
-                                                onInput={
-                                                    "onInput" in value
-                                                        ? value.onInput
-                                                        : undefined
-                                                }
-                                                value={
-                                                    "value" in value
-                                                        ? value.value
-                                                        : undefined
-                                                }
-                                                step={
-                                                    "step" in value
-                                                        ? value.step
-                                                        : 1
-                                                }
+                                                onInput={"onInput" in value ? value.onInput : undefined}
+                                                value={"value" in value ? value.value : undefined}
+                                                step={"step" in value ? value.step : 1}
                                             />
-                                            <div className="min-w-5">
-                                                {"value" in value
-                                                    ? `${value.value[1]}`
-                                                    : ""}
-                                            </div>
+                                            <div className="min-w-5">{"value" in value ? `${value.value[1]}` : ""}</div>
                                         </div>
                                     </div>
                                 ) : (
@@ -162,16 +127,11 @@ function VesselFilter() {
                                             name={key}
                                             className="bg-zinc-700 border-zinc-600 border-2 rounded-lg p-2 h-full w-full"
                                             defaultValue=""
-                                            onChange={(e) =>
-                                                setVesselType(e.target.value)
-                                            }
+                                            onChange={(e) => setVesselType(e.target.value)}
                                         >
                                             <option value="">Any</option>
                                             {value.options.map((option) => (
-                                                <option
-                                                    key={option}
-                                                    value={option}
-                                                >
+                                                <option key={option} value={option}>
                                                     {option}
                                                 </option>
                                             ))}
@@ -185,11 +145,7 @@ function VesselFilter() {
                                             id={key}
                                             name={key}
                                             onChange={(e) =>
-                                                "onChange" in value
-                                                    ? value.onChange(
-                                                          e.target.checked
-                                                      )
-                                                    : undefined
+                                                "onChange" in value ? value.onChange(e.target.checked) : undefined
                                             }
                                             className="peer hidden cursor-pointer"
                                         />
@@ -198,8 +154,7 @@ function VesselFilter() {
                                                 htmlFor={key}
                                                 className="text-white p-2 cursor-pointer select-none w-full"
                                             >
-                                                {"label" in value &&
-                                                    value.label}
+                                                {"label" in value && value.label}
                                             </label>
                                         </div>
                                     </div>

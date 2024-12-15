@@ -1,19 +1,10 @@
-import React, {
-    createContext,
-    useCallback,
-    useContext,
-    useEffect,
-    useRef,
-    useState,
-} from "react";
-import { Vessel, VesselEncounter, VesselForecast } from "../types/vessel";
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { EncounteringVessel, ForecastPoint, Vessel, VesselEncounter, VesselForecast } from "../types/vessel";
 import { useMap } from "./MapContext";
 
 interface VesselsContextType {
     vessels: { [mmsi: string]: Vessel };
     filtered: { [mmsi: string]: Vessel };
-    setVessels: (newVessels: { [mmsi: string]: Vessel }) => void;
-    filter: (vessel: Vessel) => boolean;
     setFilter: (predicate: (vessel: Vessel) => boolean) => void;
 }
 
@@ -21,50 +12,153 @@ const VesselsContext = createContext<VesselsContextType | undefined>(undefined);
 
 function VesselsProvider({ children }: { children: React.ReactNode }) {
     const [vessels, setVessels] = useState<{ [mmsi: string]: Vessel }>({});
-    const [filter, setFilter] = useState<(vessel: Vessel) => boolean>(
-        () => () => true
-    );
+    const [filter, setFilter] = useState<(vessel: Vessel) => boolean>(() => () => true);
     const [filtered, setFiltered] = useState<{ [mmsi: string]: Vessel }>({});
 
     const updateVessels = useCallback(
         (newVessels: { [mmsi: string]: Vessel }) => {
             setVessels((prevVessels) => {
                 const updatedVessels = { ...prevVessels, ...newVessels };
-                setFiltered(
-                    Object.fromEntries(
-                        Object.entries(updatedVessels).filter(([, vessel]) =>
-                            filter(vessel)
-                        )
-                    )
-                );
+                setFiltered(Object.fromEntries(Object.entries(updatedVessels).filter(([, vessel]) => filter(vessel))));
                 return updatedVessels;
             });
         },
-        [filter]
+        [filter],
     );
 
-    const updateFilter = useCallback(
-        (predicate: (vessel: Vessel) => boolean) => {
-            setFilter(() => predicate);
-        },
-        []
-    );
+    const updateFilter = useCallback((predicate: (vessel: Vessel) => boolean) => {
+        setFilter(() => predicate);
+    }, []);
 
     useEffect(() => {
-        setFiltered(
-            Object.fromEntries(
-                Object.entries(vessels).filter(([, vessel]) => filter(vessel))
-            )
-        );
+        setFiltered(Object.fromEntries(Object.entries(vessels).filter(([, vessel]) => filter(vessel))));
     }, [vessels, filter]);
+
+    const { mapOptions } = useMap();
+    const vesselsRef = useRef(vessels);
+    vesselsRef.current = vessels;
+
+    const baseUrl = import.meta.env.VITE_API_URL;
+    const predictionEndpoint = import.meta.env.VITE_API_PREDICTION_ENDPOINT;
+
+    useEffect(() => {
+        const { bounds } = mapOptions;
+        const params = new URLSearchParams(
+            bounds
+                ? {
+                      latitude_range: `${bounds.south},${bounds.north}`,
+                      longitude_range: `${bounds.west},${bounds.east}`,
+                  }
+                : {},
+        );
+        const url = new URL(`${baseUrl}${predictionEndpoint}`);
+        url.search = params.toString();
+
+        const eventSource = new EventSource(url);
+
+        eventSource.onopen = () => console.log(`Opened connection to ${url}`);
+
+        eventSource.addEventListener("ais", (event) => {
+            const eventData: Vessel[] = JSON.parse(event.data, vesselReviver);
+
+            const parsedData = eventData.reduce<{ [mmsi: string]: Vessel }>((acc, vessel) => {
+                const { mmsi } = vessel;
+                acc[mmsi] = {
+                    ...vesselsRef.current[mmsi],
+                    ...vessel,
+                };
+                return acc;
+            }, {});
+            updateVessels(parsedData);
+        });
+
+        eventSource.addEventListener("prediction", (event) => {
+            console.log(event);
+            const eventData: VesselForecast[] = JSON.parse(event.data, predictionReviver);
+            const parsedData = eventData.reduce((acc: { [mmsi: string]: Vessel }, vessel: VesselForecast) => {
+                const { mmsi, forecast } = vessel;
+                if (vesselsRef.current[mmsi]) {
+                    const validForecast = forecast?.filter(
+                        (point) => new Date(point.timestamp).getTime() > Date.now() - 60 * 1000, // 1 minute
+                    );
+                    acc[mmsi] = {
+                        ...vesselsRef.current[mmsi],
+                        forecast: validForecast,
+                    };
+                }
+                return acc;
+            }, {});
+
+            updateVessels(parsedData);
+        });
+
+        eventSource.addEventListener("cri", (event) => {
+            const eventData: VesselEncounter[] = JSON.parse(event.data, enounterReviver);
+
+            const parsedData = eventData.reduce<{
+                [mmsi: string]: EncounteringVessel[];
+            }>((acc, encounter) => {
+                const { vessel1, vessel2 } = encounter;
+                if (vesselsRef.current[vessel1.mmsi]) {
+                    if (!acc[vessel1.mmsi]) {
+                        acc[vessel1.mmsi] = [];
+                    }
+                    acc[vessel1.mmsi].push({
+                        mmsi: vessel2.mmsi,
+                        ...encounter,
+                    });
+                }
+                if (vesselsRef.current[vessel2.mmsi]) {
+                    if (!acc[vessel2.mmsi]) {
+                        acc[vessel2.mmsi] = [];
+                    }
+                    acc[vessel2.mmsi].push({
+                        mmsi: vessel1.mmsi,
+                        ...encounter,
+                    });
+                }
+                return acc;
+            }, {});
+
+            const updatedVesselsEncounters = Object.entries(parsedData).reduce<{
+                [mmsi: string]: Vessel;
+            }>((acc, [mmsi, encountering]) => {
+                const vessel = vesselsRef.current[mmsi];
+                if (vessel) {
+                    acc[mmsi] = {
+                        ...vessel,
+                        encounteringVessels: encountering,
+                    };
+                }
+                return acc;
+            }, {});
+
+            const updatedVessels = Object.entries(vessels).reduce<{
+                [mmsi: string]: Vessel;
+            }>((acc, [mmsi, vessel]) => {
+                acc[mmsi] = {
+                    ...vessel,
+                    encounteringVessels: updatedVesselsEncounters[mmsi]
+                        ? updatedVesselsEncounters[mmsi].encounteringVessels
+                        : [],
+                };
+                return acc;
+            }, {});
+
+            updateVessels(updatedVessels);
+        });
+
+        return () => {
+            console.log(`Closing connection to ${url}`);
+            eventSource.close();
+        };
+    }, [baseUrl, mapOptions, predictionEndpoint, setVessels]);
 
     return (
         <VesselsContext.Provider
             value={{
                 vessels,
                 filtered,
-                setVessels: updateVessels,
-                filter,
                 setFilter: updateFilter,
             }}
         >
@@ -81,131 +175,6 @@ function useVessels() {
     return context;
 }
 
-function useVesselData() {
-    const { vessels, setVessels, filtered } = useVessels();
-    const { mapOptions } = useMap();
-    const vesselsRef = useRef(vessels);
-    vesselsRef.current = vessels;
-
-    const baseUrl = import.meta.env.VITE_API_URL;
-    const predictionEndpoint = import.meta.env.VITE_API_PREDICTION_ENDPOINT;
-
-    useEffect(() => {
-        const { bounds } = mapOptions;
-        const params = new URLSearchParams(
-            bounds
-                ? {
-                      latitude_range: `${bounds.south},${bounds.north}`,
-                      longitude_range: `${bounds.west},${bounds.east}`,
-                  }
-                : {}
-        );
-        const url = new URL(`${baseUrl}${predictionEndpoint}`);
-        url.search = params.toString();
-
-        const eventSource = new EventSource(url);
-
-        eventSource.onopen = () => console.log(`Opened connection to ${url}`);
-
-        eventSource.addEventListener("ais", (event) => {
-            const eventData: Vessel[] = JSON.parse(event.data, vesselReviver);
-
-            const parsedData = eventData.reduce<{ [mmsi: string]: Vessel }>(
-                (acc, vessel) => {
-                    const { mmsi } = vessel;
-                    acc[mmsi] = {
-                        // cri: parseFloat(Math.random().toFixed(2)), // Dummy data, remove later
-                        ...vesselsRef.current[mmsi],
-                        ...vessel,
-                    };
-                    return acc;
-                },
-                {}
-            );
-            setVessels(parsedData);
-        });
-
-        eventSource.addEventListener("prediction", (event) => {
-            const eventData: Vessel[] = JSON.parse(
-                event.data,
-                predictionReviver
-            );
-            const parsedData = eventData.reduce(
-                (
-                    acc: { [mmsi: string]: Vessel },
-                    vessel: Pick<Vessel, "mmsi" | "forecast">
-                ) => {
-                    const { mmsi, forecast } = vessel;
-                    if (vesselsRef.current[mmsi]) {
-                        acc[mmsi] = {
-                            // encounteringVessels: ["209535000", "211249810"],
-                            ...vesselsRef.current[mmsi],
-                            forecast,
-                        };
-                    }
-                    return acc;
-                },
-                {}
-            );
-
-            setVessels(parsedData);
-        });
-
-        eventSource.addEventListener("cri", (event) => {
-            const eventData: VesselEncounter[] = JSON.parse(
-                event.data,
-                enounterReviver
-            );
-            const parsedData = eventData.reduce(
-                (
-                    acc: { [mmsi: string]: Vessel },
-                    encounter: VesselEncounter
-                ) => {
-                    const { vessel1, vessel2 } = encounter;
-                    if (vesselsRef.current[vessel1.mmsi]) {
-                        acc[vessel1.mmsi] = {
-                            ...vesselsRef.current[vessel1.mmsi],
-                            encounteringVessels: [
-                                ...(
-                                    vesselsRef.current[vessel1.mmsi]
-                                        .encounteringVessels || []
-                                ).filter((mmsi) => mmsi !== vessel2.mmsi),
-                                vessel2.mmsi,
-                            ],
-                            cri: encounter.cri,
-                        };
-                    }
-                    if (vesselsRef.current[vessel2.mmsi]) {
-                        acc[vessel2.mmsi] = {
-                            ...vesselsRef.current[vessel2.mmsi],
-                            encounteringVessels: [
-                                ...(
-                                    vesselsRef.current[vessel2.mmsi]
-                                        .encounteringVessels || []
-                                ).filter((mmsi) => mmsi !== vessel1.mmsi),
-                                vessel1.mmsi,
-                            ],
-                            cri: encounter.cri,
-                        };
-                    }
-                    return acc;
-                },
-                {}
-            );
-
-            setVessels(parsedData);
-        });
-
-        return () => {
-            console.log(`Closing connection to ${url}`);
-            eventSource.close();
-        };
-    }, [baseUrl, mapOptions, predictionEndpoint, setVessels]);
-
-    return { vessels, filtered };
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function vesselReviver(_key: string, value: any): Vessel[] {
     if (Array.isArray(value)) {
         return value.map((item) => {
@@ -215,6 +184,7 @@ function vesselReviver(_key: string, value: any): Vessel[] {
                     vesselType: item["type of mobile"],
                     latitude: item["latitude"],
                     longitude: item["longitude"],
+                    length: item["length"] || 0,
                     cog: item["cog"] || 0,
                     sog: item["sog"] || 0,
                     name: item["name"] || "",
@@ -226,11 +196,7 @@ function vesselReviver(_key: string, value: any): Vessel[] {
     }
     return value;
 }
-function predictionReviver(
-    _key: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    value: any
-): VesselForecast[] {
+function predictionReviver(_key: string, value: any): VesselForecast[] {
     if (Array.isArray(value)) {
         const groupedByMmsi: {
             [mmsi: string]: {
@@ -250,27 +216,19 @@ function predictionReviver(
                     timestamp: item["timestamp"],
                     latitude: item["latitude"],
                     longitude: item["longitude"],
-                });
+                } as ForecastPoint);
             }
         });
 
         return Object.entries(groupedByMmsi).map(([mmsi, forecast]) => ({
             mmsi,
-            forecast: forecast.map(({ timestamp, latitude, longitude }) => [
-                timestamp,
-                latitude,
-                longitude,
-            ]),
+            forecast,
         })) as VesselForecast[];
     }
     return value;
 }
 
-function enounterReviver(
-    _key: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    value: any
-): VesselEncounter[] {
+function enounterReviver(_key: string, value: any): VesselEncounter[] {
     if (Array.isArray(value)) {
         return value.map((item) => {
             if (typeof item === "object" && item !== null) {
@@ -307,4 +265,4 @@ function enounterReviver(
     return value;
 }
 
-export { useVesselData, useVessels, VesselsProvider };
+export { useVessels, VesselsProvider };

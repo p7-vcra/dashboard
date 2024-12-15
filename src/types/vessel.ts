@@ -6,19 +6,29 @@ interface Vessel {
     timestamp: string;
     cog: number;
     sog: number;
+    length: number;
     name?: string;
-    cri?: number;
-    forecast?: [string, number, number][];
-    encounteringVessels?: string[];
+    forecast?: ForecastPoint[];
+    encounteringVessels?: EncounteringVessel[];
 }
 
 type VesselForecast = Pick<Vessel, "mmsi" | "forecast">;
 
-type EncounteringVessel = Pick<Vessel, "mmsi" | "latitude" | "longitude" | "cog" | "sog"> & { length: number };
+type EncounteringVessel = Omit<VesselEncounter, "vessel1" | "vessel2"> & {
+    mmsi: string;
+};
+
+interface ForecastPoint {
+    timestamp: string;
+    latitude: number;
+    longitude: number;
+}
+
+type EncounteringPairVessel = Pick<Vessel, "mmsi" | "latitude" | "longitude" | "cog" | "sog" | "length">;
 
 interface VesselEncounter {
-    vessel1: EncounteringVessel
-    vessel2: EncounteringVessel
+    vessel1: EncounteringPairVessel;
+    vessel2: EncounteringPairVessel;
     distance: number;
     startTime: string;
     endTime: string;
@@ -27,6 +37,14 @@ interface VesselEncounter {
     relMovementDirection: number;
     azimuthTargetToOwn: number;
     cri: number;
+    futureCri: number;
 }
 
-export { type Vessel, type VesselEncounter, type VesselForecast };
+export {
+    type EncounteringPairVessel,
+    type EncounteringVessel,
+    type ForecastPoint,
+    type Vessel,
+    type VesselEncounter,
+    type VesselForecast,
+};
