@@ -23,7 +23,7 @@ function vesselToBoundExpr(vessel: Vessel): LatLngBoundsExpression {
 
     points.push(
         ...vessel.forecast.map(
-            (forecast) => [forecast[1], forecast[2]] as LatLngTuple
+            (forecast) => [forecast.latitude, forecast.longitude] as LatLngTuple
         )
     );
 
@@ -79,7 +79,7 @@ function ViewControls() {
         map?.fitBounds(points, {
             animate: true,
             duration: 0.25,
-            padding: [50, 50],
+            padding: [100, 100],
         });
     };
 

@@ -30,6 +30,23 @@ const VesselMarker = React.memo(
             [isActive, isEncountering, cri, cog, index]
         );
 
+        const colors = {
+            red: "#dc2626",
+            orange: "#ea580c",
+            yellow: "#ca8a04",
+            blue: "#2563eb",
+            zinc: "#f9fafb",
+        };
+
+        const lineColor =
+            cri >= 0.9
+                ? colors.red
+                : cri >= 0.75
+                ? colors.orange
+                : cri >= 0.5
+                ? colors.yellow
+                : colors.zinc;
+
         return (
             <>
                 <Marker
@@ -43,10 +60,10 @@ const VesselMarker = React.memo(
                     vessel.forecast.length > 0 && (
                         <Polyline
                             positions={vessel.forecast.map((point) => [
-                                point[1],
-                                point[2],
+                                point.latitude,
+                                point.longitude,
                             ])}
-                            color={isEncountering ? "#2563eb" : "#18181b"}
+                            color={isEncountering ? colors.blue : lineColor}
                             weight={2}
                             dashArray={[5, 3]}
                         />

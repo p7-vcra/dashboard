@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import {
     EncounteringVessel,
+    ForecastPoint,
     Vessel,
     VesselEncounter,
     VesselForecast,
@@ -103,20 +104,23 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
         });
 
         eventSource.addEventListener("prediction", (event) => {
-            const eventData: Vessel[] = JSON.parse(
+            console.log(event);
+            const eventData: VesselForecast[] = JSON.parse(
                 event.data,
                 predictionReviver
             );
             const parsedData = eventData.reduce(
-                (
-                    acc: { [mmsi: string]: Vessel },
-                    vessel: Pick<Vessel, "mmsi" | "forecast">
-                ) => {
+                (acc: { [mmsi: string]: Vessel }, vessel: VesselForecast) => {
                     const { mmsi, forecast } = vessel;
                     if (vesselsRef.current[mmsi]) {
+                        const validForecast = forecast?.filter(
+                            (point) =>
+                                new Date(point.timestamp).getTime() >
+                                Date.now() - 60 * 1000 // 1 minute
+                        );
                         acc[mmsi] = {
                             ...vesselsRef.current[mmsi],
-                            forecast,
+                            forecast: validForecast,
                         };
                     }
                     return acc;
@@ -234,11 +238,7 @@ function vesselReviver(_key: string, value: any): Vessel[] {
     }
     return value;
 }
-function predictionReviver(
-    _key: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    value: any
-): VesselForecast[] {
+function predictionReviver(_key: string, value: any): VesselForecast[] {
     if (Array.isArray(value)) {
         const groupedByMmsi: {
             [mmsi: string]: {
@@ -258,27 +258,19 @@ function predictionReviver(
                     timestamp: item["timestamp"],
                     latitude: item["latitude"],
                     longitude: item["longitude"],
-                });
+                } as ForecastPoint);
             }
         });
 
         return Object.entries(groupedByMmsi).map(([mmsi, forecast]) => ({
             mmsi,
-            forecast: forecast.map(({ timestamp, latitude, longitude }) => [
-                timestamp,
-                latitude,
-                longitude,
-            ]),
+            forecast,
         })) as VesselForecast[];
     }
     return value;
 }
 
-function enounterReviver(
-    _key: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    value: any
-): VesselEncounter[] {
+function enounterReviver(_key: string, value: any): VesselEncounter[] {
     if (Array.isArray(value)) {
         return value.map((item) => {
             if (typeof item === "object" && item !== null) {

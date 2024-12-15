@@ -8,7 +8,7 @@ interface Vessel {
     sog: number;
     length: number;
     name?: string;
-    forecast?: [string, number, number][];
+    forecast?: ForecastPoint[];
     encounteringVessels?: EncounteringVessel[];
 }
 
