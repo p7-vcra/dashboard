@@ -37,7 +37,7 @@ interface VesselEncounter {
     relMovementDirection: number;
     azimuthTargetToOwn: number;
     cri: number;
-    futureCri?: number;
+    isFutureCri?: boolean;
 }
 
 export {

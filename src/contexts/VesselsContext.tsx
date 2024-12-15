@@ -92,8 +92,7 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
 
             updateVessels(parsedData);
         });
-
-        eventSource.addEventListener("cri", (event) => {
+        const handleEncounterEvent = (event: MessageEvent, isFutureCri: boolean) => {
             const eventData: VesselEncounter[] = JSON.parse(event.data, enounterReviver);
 
             const parsedData = eventData.reduce<{
@@ -107,6 +106,7 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
                     acc[vessel1.mmsi].push({
                         mmsi: vessel2.mmsi,
                         ...encounter,
+                        isFutureCri,
                     });
                 }
                 if (vesselsRef.current[vessel2.mmsi]) {
@@ -116,6 +116,7 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
                     acc[vessel2.mmsi].push({
                         mmsi: vessel1.mmsi,
                         ...encounter,
+                        isFutureCri,
                     });
                 }
                 return acc;
@@ -127,14 +128,22 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
                 if (vesselsRef.current[mmsi]) {
                     acc[mmsi] = {
                         ...vesselsRef.current[mmsi],
-                        encounteringVessels: parsedData[mmsi] ? parsedData[mmsi] : [],
+                        encounteringVessels: [
+                            ...(vesselsRef.current[mmsi].encounteringVessels || []).filter(
+                                (ev) => ev.isFutureCri !== isFutureCri && (isFutureCri || ev.mmsi in parsedData),
+                            ),
+                            ...(parsedData[mmsi] ? parsedData[mmsi] : []),
+                        ],
                     };
                 }
                 return acc;
             }, {});
 
             updateVessels(updatedVessels);
-        });
+        };
+
+        eventSource.addEventListener("cri", (event) => handleEncounterEvent(event, false));
+        eventSource.addEventListener("future_cri", (event) => handleEncounterEvent(event, true));
 
         return () => {
             console.log(`Closing connection to ${url}`);
@@ -245,7 +254,6 @@ function enounterReviver(_key: string, value: any): VesselEncounter[] {
                     relMovementDirection: item["rel_movement_direction"],
                     azimuthTargetToOwn: item["azimuth_target_to_own"],
                     cri: item["ves_cri"],
-                    futureCri: item["future_cri"],
                 } as VesselEncounter;
             }
             return item;
