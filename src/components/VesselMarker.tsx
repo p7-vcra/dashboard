@@ -34,9 +34,6 @@ const VesselMarker = React.memo(
                 <Marker
                     position={new LatLng(vessel.latitude, vessel.longitude)}
                     icon={icon}
-                    // @ts-expect-error rotationAngle is not in the types
-                    // rotationAngle={vessel.cog || 0}
-                    rotationOrigin="center center"
                     zIndexOffset={isActive || isEncountering ? 1000 : 0}
                     {...props}
                 />
@@ -66,13 +63,6 @@ const VesselMarker = React.memo(
         );
     }
 );
-
-// const arrowMarkup = renderToStaticMarkup(
-//     <FontAwesomeIcon
-//         icon={faLocationArrow}
-//         transform={{ rotate: -45, size: 20, y: 2 }}
-//     />
-// ); // 45 degrees counter clockwise as the icon points NE by default
 
 function createVesselIcon(
     isActive: boolean,
@@ -107,7 +97,7 @@ function createVesselIcon(
     const arrowMarkupRotated = renderToStaticMarkup(
         <FontAwesomeIcon
             icon={faLocationArrow}
-            transform={{ rotate: -45 + cog, size: 20 }}
+            transform={{ rotate: -45 + cog, size: 20 }} // 45 degrees counter clockwise as the icon points NE by default
         />
     );
 

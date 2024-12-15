@@ -7,27 +7,15 @@ import { useActiveVessel } from "../contexts/ActiveVesselContext";
 import { useMap } from "../contexts/MapContext";
 import { useMousePosition } from "../contexts/MousePositionContext";
 import { Vessel } from "../types/vessel";
+import { getMaxCri } from "../utils/vessel";
 import { VesselMarker } from "./VesselMarker";
 
 function createClusterIcon(pointCount: number) {
     return L.divIcon({
         html: `<span class="text-white bg-zinc-800 border hover:bg-zinc-700 border-zinc-500 h-7 w-7 font-medium rounded-full flex justify-center items-center">${pointCount}</span>`,
-        iconSize: L.point(28, 28, true),
-        iconAnchor: L.point(14, 14, true),
+        // iconSize: L.point(28, 28, true),
+        // iconAnchor: L.point(14, 14, true),
     });
-}
-
-// Get the maximum CRI value from the encounters
-function getMaxCri(vessel: Vessel): number {
-    if (!vessel.encounteringVessels) {
-        return 0;
-    }
-
-    return vessel.encounteringVessels?.reduce(
-        (maxCri, encounteringVessel) =>
-            Math.max(maxCri, encounteringVessel.cri),
-        0
-    );
 }
 
 interface MapContentProps {
@@ -106,7 +94,7 @@ const MapContent = ({ vessels, maxZoom }: MapContentProps) => {
             mapOptions.bounds?.east || 9999,
             mapOptions.bounds?.north || 9999,
         ],
-        options: { radius: 180, minPoints: 2, maxZoom: 16 },
+        options: { radius: 180, minPoints: 2, maxZoom: 10 },
     });
 
     return (

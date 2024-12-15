@@ -75,7 +75,7 @@ function VesselSearch({ vessels }: VesselSearchProps) {
                         onChange={handleSearchChange}
                         onKeyDown={handleKeyDown}
                         placeholder="Search for a vessel"
-                        className="bg-transparent py-1 pr-4 !outline-none w-full"
+                        className="bg-transparent py-2 pr-4 !outline-none w-full"
                     />
                 </div>
                 {searchTerm.length > 2 && filteredVessels.length > 0 && (

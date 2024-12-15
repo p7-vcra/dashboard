@@ -3,7 +3,6 @@ import { useState } from "react";
 import RangeSlider from "react-range-slider-input";
 import { useActiveVessel } from "../contexts/ActiveVesselContext";
 import { useVessels } from "../contexts/VesselsContext";
-import { getMaxCri, getMinCri } from "../utils/vessel";
 import Button from "./Button";
 import ContainerSegment from "./ContainerSegment";
 
