@@ -4,8 +4,8 @@ import { useMap } from "../contexts/MapContext";
 import { useVessels } from "../contexts/VesselsContext";
 import Badge from "./Badge";
 import Button from "./Button";
-import ContainerTitle from "./ContainerTitle";
 import EncounteringVesselCard from "./EncounteringVesselCard";
+import ContainerTitle from "./SectionTitle";
 import VesselCard from "./VesselCard";
 
 function ActiveVesselView() {
