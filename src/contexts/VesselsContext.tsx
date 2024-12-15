@@ -63,31 +63,6 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
         );
     }, [vessels, filter]);
 
-    return (
-        <VesselsContext.Provider
-            value={{
-                vessels,
-                filtered,
-                setVessels: updateVessels,
-                filter,
-                setFilter: updateFilter,
-            }}
-        >
-            {children}
-        </VesselsContext.Provider>
-    );
-}
-
-function useVessels() {
-    const context = useContext(VesselsContext);
-    if (!context) {
-        throw new Error("useVessels must be used within a VesselsProvider");
-    }
-    return context;
-}
-
-function useVesselData() {
-    const { vessels, setVessels, filtered } = useVessels();
     const { mapOptions } = useMap();
     const vesselsRef = useRef(vessels);
     vesselsRef.current = vessels;
@@ -126,7 +101,7 @@ function useVesselData() {
                 },
                 {}
             );
-            setVessels(parsedData);
+            updateVessels(parsedData);
         });
 
         eventSource.addEventListener("prediction", (event) => {
@@ -151,7 +126,7 @@ function useVesselData() {
                 {}
             );
 
-            setVessels(parsedData);
+            updateVessels(parsedData);
         });
 
         eventSource.addEventListener("cri", (event) => {
@@ -198,7 +173,7 @@ function useVesselData() {
                 return acc;
             }, {});
 
-            setVessels(updatedVessels);
+            updateVessels(updatedVessels);
         });
 
         return () => {
@@ -207,10 +182,31 @@ function useVesselData() {
         };
     }, [baseUrl, mapOptions, predictionEndpoint, setVessels]);
 
-    return { vessels, filtered };
+    ////////
+
+    return (
+        <VesselsContext.Provider
+            value={{
+                vessels,
+                filtered,
+                setVessels: updateVessels,
+                filter,
+                setFilter: updateFilter,
+            }}
+        >
+            {children}
+        </VesselsContext.Provider>
+    );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function useVessels() {
+    const context = useContext(VesselsContext);
+    if (!context) {
+        throw new Error("useVessels must be used within a VesselsProvider");
+    }
+    return context;
+}
+
 function vesselReviver(_key: string, value: any): Vessel[] {
     if (Array.isArray(value)) {
         return value.map((item) => {
@@ -313,4 +309,4 @@ function enounterReviver(
     return value;
 }
 
-export { useVesselData, useVessels, VesselsProvider };
+export { useVessels, VesselsProvider };

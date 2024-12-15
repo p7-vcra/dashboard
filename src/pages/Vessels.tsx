@@ -1,10 +1,11 @@
 import React from "react";
 import Container from "../components/Container";
 import VesselCard from "../components/VesselCard";
-import { useVesselData } from "../contexts/VesselsContext";
+import { useVessels } from "../contexts/VesselsContext";
+// import { useVesselData } from "../contexts/VesselsContext";
 
 const Vessels: React.FC = () => {
-    const { filtered } = useVesselData();
+    const { filtered } = useVessels();
     document.title = "Vessels - Vessel CRA";
 
     return (

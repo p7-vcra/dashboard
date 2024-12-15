@@ -10,7 +10,8 @@ import VesselFilter from "../components/VesselFilter";
 import VesselSearch from "../components/VesselSearch";
 import ViewControls from "../components/ViewControls";
 import { useActiveVessel } from "../contexts/ActiveVesselContext";
-import { useVesselData } from "../contexts/VesselsContext";
+import { useVessels } from "../contexts/VesselsContext";
+// import { useVesselData } from "../contexts/VesselsContext";
 
 function Layout() {
     const routes = {
@@ -27,7 +28,7 @@ function Layout() {
     };
 
     const { setActiveVesselMmsi } = useActiveVessel();
-    const { vessels } = useVesselData();
+    const { vessels } = useVessels();
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -76,7 +77,12 @@ function Layout() {
                     <Section bottom>
                         <ViewControls />
                     </Section>
-                    <Section bottom title="Filters" collapseble>
+                    <Section
+                        bottom
+                        title="Filters"
+                        collapseble
+                        initialCollapsed
+                    >
                         <VesselFilter />
                     </Section>
                 </Sections>

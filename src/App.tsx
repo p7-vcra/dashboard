@@ -11,10 +11,10 @@ import Vessels from "./pages/Vessels";
 function App() {
     return (
         <BrowserRouter>
-            <VesselsProvider>
-                <ActiveVesselProvider>
-                    <MousePositionProvider>
-                        <MapProvider>
+            <MapProvider>
+                <VesselsProvider>
+                    <ActiveVesselProvider>
+                        <MousePositionProvider>
                             <Routes>
                                 <Route path="/" element={<Layout />}>
                                     <Route index element={<Map />} />
@@ -24,10 +24,10 @@ function App() {
                                     />
                                 </Route>
                             </Routes>
-                        </MapProvider>
-                    </MousePositionProvider>
-                </ActiveVesselProvider>
-            </VesselsProvider>
+                        </MousePositionProvider>
+                    </ActiveVesselProvider>
+                </VesselsProvider>
+            </MapProvider>
         </BrowserRouter>
     );
 }
