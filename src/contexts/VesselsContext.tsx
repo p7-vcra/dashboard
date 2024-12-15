@@ -23,7 +23,7 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
                 return updatedVessels;
             });
         },
-        [filter],
+        [filter]
     );
 
     const updateFilter = useCallback((predicate: (vessel: Vessel) => boolean) => {
@@ -49,7 +49,7 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
                       latitude_range: `${bounds.south},${bounds.north}`,
                       longitude_range: `${bounds.west},${bounds.east}`,
                   }
-                : {},
+                : {}
         );
         const url = new URL(`${baseUrl}${predictionEndpoint}`);
         url.search = params.toString();
@@ -80,7 +80,7 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
                     const validForecast = forecast?.filter(
                         (point) =>
                             new Date(point.timestamp).getTime() >
-                            new Date(vesselsRef.current[mmsi].timestamp).getTime() - 60 * 1000, // 1 minute
+                            new Date(vesselsRef.current[mmsi].timestamp).getTime() - 60 * 1000 // 1 minute
                     );
                     acc[mmsi] = {
                         ...vesselsRef.current[mmsi],
@@ -123,11 +123,13 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
 
             const updatedVessels = Object.entries(vessels).reduce<{
                 [mmsi: string]: Vessel;
-            }>((acc, [mmsi, vessel]) => {
-                acc[mmsi] = {
-                    ...vessel,
-                    encounteringVessels: parsedData[mmsi] ? parsedData[mmsi] : [],
-                };
+            }>((acc, [mmsi]) => {
+                if (vesselsRef.current[mmsi]) {
+                    acc[mmsi] = {
+                        ...vesselsRef.current[mmsi],
+                        encounteringVessels: parsedData[mmsi] ? parsedData[mmsi] : [],
+                    };
+                }
                 return acc;
             }, {});
 

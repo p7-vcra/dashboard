@@ -11,7 +11,6 @@ import VesselSearch from "../components/VesselSearch";
 import ViewControls from "../components/ViewControls";
 import { useActiveVessel } from "../contexts/ActiveVesselContext";
 import { useVessels } from "../contexts/VesselsContext";
-// import { useVesselData } from "../contexts/VesselsContext";
 
 function Layout() {
     const routes = {
