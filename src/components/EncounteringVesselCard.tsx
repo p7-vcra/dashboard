@@ -1,29 +1,28 @@
-import { EncounteringVessel, Vessel } from "../types/vessel";
+import { Vessel } from "../types/vessel";
 import ContainerSegment from "./ContainerSegment";
 
 interface EncounteringVesselCardProps {
     vessel: Vessel;
-    encounteringVessel: EncounteringVessel;
+    cri?: number;
+    futureCri?: number;
 }
 
-function EncounteringVesselCard({ vessel, encounteringVessel }: EncounteringVesselCardProps) {
-    const shownAttributes: Array<keyof (Vessel & EncounteringVessel)> = ["mmsi", "name", "cri", "futureCri"];
-
+function EncounteringVesselCard({ vessel, cri, futureCri }: EncounteringVesselCardProps) {
     const data = {
-        ...vessel,
-        ...encounteringVessel,
+        name: vessel.name,
+        mmsi: vessel.mmsi,
+        cri: cri,
+        futureCri: futureCri,
     };
 
     return (
         <div>
             <ul className="w-full text-sm justify-between text-white grid grid-cols-2 gap-2 text-left">
                 {vessel &&
-                    shownAttributes.map((key) => (
+                    Object.entries(data).map(([key, value]) => (
                         <li key={key}>
                             <ContainerSegment title={key.replace(/([a-z])([A-Z])/g, "$1 $2").toUpperCase()}>
-                                <div className="truncate">
-                                    {data[key] !== undefined && data[key] !== null ? String(data[key]) : "-"}
-                                </div>
+                                <div className="truncate">{value ?? "-"}</div>
                             </ContainerSegment>
                         </li>
                     ))}
