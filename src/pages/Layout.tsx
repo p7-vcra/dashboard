@@ -48,16 +48,9 @@ function Layout() {
             <Sidebar position="left" width={20}>
                 <nav>
                     <ul className="p-3 font-medium text-sm">
-                        {Object.values(routes).map(
-                            ({ href, icon, display }) => (
-                                <NavigationItem
-                                    key={href}
-                                    href={href}
-                                    icon={icon}
-                                    title={display}
-                                />
-                            )
-                        )}
+                        {Object.values(routes).map(({ href, icon, display }) => (
+                            <NavigationItem key={href} href={href} icon={icon} title={display} />
+                        ))}
                     </ul>
                 </nav>
             </Sidebar>
@@ -77,12 +70,7 @@ function Layout() {
                     <Section bottom>
                         <ViewControls />
                     </Section>
-                    <Section
-                        bottom
-                        title="Filters"
-                        collapseble
-                        initialCollapsed
-                    >
+                    <Section bottom title="Filters" collapseble initialCollapsed>
                         <VesselFilter />
                     </Section>
                 </Sections>

@@ -11,7 +11,7 @@ function Badge({ children, className = "" }: BadgeProps) {
         <div
             className={twMerge(
                 "bg-zinc-700 border-zinc-500 border-2 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center aspect-square",
-                className
+                className,
             )}
         >
             {children}

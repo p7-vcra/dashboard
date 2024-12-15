@@ -32,10 +32,7 @@ function Section({
             {title && (
                 <div className="flex justify-between items-center text-white">
                     {collapseble ? (
-                        <button
-                            onClick={() => setCollapsed(!collapsed)}
-                            className="w-full flex p-3"
-                        >
+                        <button onClick={() => setCollapsed(!collapsed)} className="w-full flex p-3">
                             <ContainerTitle>{title}</ContainerTitle>
                             <FontAwesomeIcon
                                 icon={faCaretDown}

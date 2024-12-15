@@ -7,7 +7,7 @@ function getMaxCri(vessel: Vessel): number {
 
     return vessel.encounteringVessels.reduce(
         (maxCri, encounteringVessel) => Math.max(maxCri, encounteringVessel.cri),
-        0
+        0,
     );
 }
 
@@ -18,10 +18,8 @@ function getMinCri(vessel: Vessel): number {
 
     return vessel.encounteringVessels.reduce(
         (minCri, encounteringVessel) => Math.min(minCri, encounteringVessel.cri),
-        Infinity
+        Infinity,
     );
 }
-
-
 
 export { getMaxCri, getMinCri };

@@ -6,16 +6,8 @@ interface EncounteringVesselCardProps {
     encounteringVessel: EncounteringVessel;
 }
 
-function EncounteringVesselCard({
-    vessel,
-    encounteringVessel,
-}: EncounteringVesselCardProps) {
-    const shownAttributes: Array<keyof (Vessel & EncounteringVessel)> = [
-        "mmsi",
-        "name",
-        "cri",
-        "futureCri",
-    ];
+function EncounteringVesselCard({ vessel, encounteringVessel }: EncounteringVesselCardProps) {
+    const shownAttributes: Array<keyof (Vessel & EncounteringVessel)> = ["mmsi", "name", "cri", "futureCri"];
 
     const data = {
         ...vessel,
@@ -28,16 +20,9 @@ function EncounteringVesselCard({
                 {vessel &&
                     shownAttributes.map((key) => (
                         <li key={key}>
-                            <ContainerSegment
-                                title={key
-                                    .replace(/([a-z])([A-Z])/g, "$1 $2")
-                                    .toUpperCase()}
-                            >
+                            <ContainerSegment title={key.replace(/([a-z])([A-Z])/g, "$1 $2").toUpperCase()}>
                                 <div className="truncate">
-                                    {data[key] !== undefined &&
-                                    data[key] !== null
-                                        ? String(data[key])
-                                        : "-"}
+                                    {data[key] !== undefined && data[key] !== null ? String(data[key]) : "-"}
                                 </div>
                             </ContainerSegment>
                         </li>

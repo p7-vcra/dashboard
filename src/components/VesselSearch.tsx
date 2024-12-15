@@ -39,9 +39,7 @@ function VesselSearch({ vessels }: VesselSearchProps) {
                 });
             } else if (e.key === "ArrowUp") {
                 setSelectedIndex((prevIndex) => {
-                    const newIndex =
-                        (prevIndex - 1 + filteredVessels.length) %
-                        filteredVessels.length;
+                    const newIndex = (prevIndex - 1 + filteredVessels.length) % filteredVessels.length;
                     scrollIntoView(newIndex - 1);
                     return newIndex;
                 });
@@ -55,16 +53,14 @@ function VesselSearch({ vessels }: VesselSearchProps) {
     };
 
     const scrollIntoView = (index: number) => {
-        const element = document.querySelectorAll("#results > li")[
-            index
-        ] as HTMLElement;
+        const element = document.querySelectorAll("#results > li")[index] as HTMLElement;
         element?.scrollIntoView({ behavior: "instant", block: "nearest" });
     };
 
     const filteredVessels = Object.values(vessels).filter(
         (vessel) =>
             vessel.mmsi.toString().includes(searchTerm) ||
-            vessel.name?.toLocaleLowerCase().includes(searchTerm.toLowerCase())
+            vessel.name?.toLocaleLowerCase().includes(searchTerm.toLowerCase()),
     );
 
     return (
@@ -91,16 +87,12 @@ function VesselSearch({ vessels }: VesselSearchProps) {
                                     onMouseEnter={() => setSelectedIndex(index)}
                                     onMouseMove={() => setSelectedIndex(index)}
                                     className={`cursor-pointer p-2 rounded-md ${
-                                        index === selectedIndex
-                                            ? "bg-zinc-800"
-                                            : ""
+                                        index === selectedIndex ? "bg-zinc-800" : ""
                                     }`}
                                 >
                                     <div className="space-y-2 text-left">
                                         <div className="font-bold text-zinc-300 text-sm">
-                                            {vessel.name !== ""
-                                                ? vessel.name
-                                                : "-"}
+                                            {vessel.name !== "" ? vessel.name : "-"}
                                         </div>
                                         <div className="">{vessel.mmsi}</div>
                                     </div>

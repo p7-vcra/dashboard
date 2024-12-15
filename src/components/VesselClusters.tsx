@@ -31,7 +31,7 @@ const VesselClusters = ({ maxZoom }: MapContentProps) => {
         (event: L.LeafletMouseEvent) => {
             setMousePosition(event.latlng);
         },
-        [setMousePosition]
+        [setMousePosition],
     );
 
     const updateMapOptions = useCallback(() => {
@@ -68,15 +68,12 @@ const VesselClusters = ({ maxZoom }: MapContentProps) => {
                 !(activeVesselMmsi && vessel.mmsi === activeVesselMmsi) &&
                 !(
                     activeVesselMmsi &&
-                    vessels[activeVesselMmsi]?.encounteringVessels !==
-                        undefined &&
-                    vessels[activeVesselMmsi]?.encounteringVessels?.length >
-                        0 &&
+                    vessels[activeVesselMmsi]?.encounteringVessels !== undefined &&
+                    vessels[activeVesselMmsi]?.encounteringVessels?.length > 0 &&
                     vessels[activeVesselMmsi].encounteringVessels.some(
-                        (encounteringVessel) =>
-                            encounteringVessel.mmsi === vessel.mmsi
+                        (encounteringVessel) => encounteringVessel.mmsi === vessel.mmsi,
                     )
-                )
+                ),
         )
         .map((vessel) => ({
             type: "Feature",
@@ -128,19 +125,16 @@ const VesselClusters = ({ maxZoom }: MapContentProps) => {
                                 index={index + 1}
                                 eventHandlers={{
                                     click: () => {
-                                        setActiveVesselMmsi(
-                                            encounteringVessel.mmsi
-                                        );
+                                        setActiveVesselMmsi(encounteringVessel.mmsi);
                                     },
                                 }}
                             />
-                        )
+                        ),
                 )}
 
             {clusters.map((cluster) => {
                 const [longitude, latitude] = cluster.geometry.coordinates;
-                const { cluster: isCluster, point_count: pointCount } =
-                    cluster.properties;
+                const { cluster: isCluster, point_count: pointCount } = cluster.properties;
 
                 if (isCluster) {
                     return (
@@ -151,19 +145,13 @@ const VesselClusters = ({ maxZoom }: MapContentProps) => {
                             eventHandlers={{
                                 mousedown: () => {
                                     const expansionZoom = Math.min(
-                                        supercluster.getClusterExpansionZoom(
-                                            cluster.id
-                                        ),
-                                        maxZoom
+                                        supercluster.getClusterExpansionZoom(cluster.id),
+                                        maxZoom,
                                     );
-                                    map?.flyTo(
-                                        [latitude, longitude],
-                                        expansionZoom,
-                                        {
-                                            animate: true,
-                                            duration: 0.25,
-                                        }
-                                    );
+                                    map?.flyTo([latitude, longitude], expansionZoom, {
+                                        animate: true,
+                                        duration: 0.25,
+                                    });
                                 },
                             }}
                         />
@@ -175,14 +163,10 @@ const VesselClusters = ({ maxZoom }: MapContentProps) => {
                         key={`vessel-${cluster.properties.vessel.mmsi}`}
                         vessel={cluster.properties.vessel}
                         cri={getMaxCri(cluster.properties.vessel)}
-                        isActive={
-                            activeVesselMmsi === cluster.properties.vessel.mmsi
-                        }
+                        isActive={activeVesselMmsi === cluster.properties.vessel.mmsi}
                         eventHandlers={{
                             click: () => {
-                                setActiveVesselMmsi(
-                                    cluster.properties.vessel.mmsi
-                                );
+                                setActiveVesselMmsi(cluster.properties.vessel.mmsi);
                             },
                         }}
                     />

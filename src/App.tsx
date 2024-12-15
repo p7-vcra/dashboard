@@ -18,10 +18,7 @@ function App() {
                             <Routes>
                                 <Route path="/" element={<Layout />}>
                                     <Route index element={<Map />} />
-                                    <Route
-                                        path="/vessels"
-                                        element={<Vessels />}
-                                    />
+                                    <Route path="/vessels" element={<Vessels />} />
                                 </Route>
                             </Routes>
                         </MousePositionProvider>

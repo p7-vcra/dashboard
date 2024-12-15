@@ -14,7 +14,9 @@ interface Vessel {
 
 type VesselForecast = Pick<Vessel, "mmsi" | "forecast">;
 
-type EncounteringVessel = Omit<VesselEncounter, "vessel1" | "vessel2"> & { mmsi: string };
+type EncounteringVessel = Omit<VesselEncounter, "vessel1" | "vessel2"> & {
+    mmsi: string;
+};
 
 interface ForecastPoint {
     timestamp: string;
@@ -25,8 +27,8 @@ interface ForecastPoint {
 type EncounteringPairVessel = Pick<Vessel, "mmsi" | "latitude" | "longitude" | "cog" | "sog" | "length">;
 
 interface VesselEncounter {
-    vessel1: EncounteringPairVessel
-    vessel2: EncounteringPairVessel
+    vessel1: EncounteringPairVessel;
+    vessel2: EncounteringPairVessel;
     distance: number;
     startTime: string;
     endTime: string;
@@ -38,5 +40,11 @@ interface VesselEncounter {
     futureCri: number;
 }
 
-export { type EncounteringPairVessel, type EncounteringVessel, type ForecastPoint, type Vessel, type VesselEncounter, type VesselForecast };
-
+export {
+    type EncounteringPairVessel,
+    type EncounteringVessel,
+    type ForecastPoint,
+    type Vessel,
+    type VesselEncounter,
+    type VesselForecast,
+};

@@ -1,8 +1,4 @@
-import {
-    faArrowsToCircle,
-    faExpand,
-    faLocation,
-} from "@fortawesome/free-solid-svg-icons";
+import { faArrowsToCircle, faExpand, faLocation } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { LatLngBoundsExpression, LatLngTuple } from "leaflet";
 import { useActiveVessel } from "../contexts/ActiveVesselContext";
@@ -13,19 +9,13 @@ import Button from "./Button";
 import Tooltip from "./Tooltip";
 
 function vesselToBoundExpr(vessel: Vessel): LatLngBoundsExpression {
-    const points: LatLngBoundsExpression = [
-        [vessel.latitude, vessel.longitude] as LatLngTuple,
-    ];
+    const points: LatLngBoundsExpression = [[vessel.latitude, vessel.longitude] as LatLngTuple];
 
     if (!vessel.forecast) {
         return points;
     }
 
-    points.push(
-        ...vessel.forecast.map(
-            (forecast) => [forecast.latitude, forecast.longitude] as LatLngTuple
-        )
-    );
+    points.push(...vessel.forecast.map((forecast) => [forecast.latitude, forecast.longitude] as LatLngTuple));
 
     return points;
 }
@@ -87,22 +77,14 @@ function ViewControls() {
         <ul className="flex space-x-2 text-md w-full">
             <li>
                 <Tooltip content="Move into view">
-                    <Button
-                        className="px-3"
-                        onClick={onMoveClick}
-                        disabled={!activeVesselMmsi}
-                    >
+                    <Button className="px-3" onClick={onMoveClick} disabled={!activeVesselMmsi}>
                         <FontAwesomeIcon icon={faLocation} />
                     </Button>
                 </Tooltip>
             </li>
             <li>
                 <Tooltip content="Expand view">
-                    <Button
-                        className="px-3"
-                        onClick={onExpandClick}
-                        disabled={!activeVesselMmsi}
-                    >
+                    <Button className="px-3" onClick={onExpandClick} disabled={!activeVesselMmsi}>
                         <FontAwesomeIcon icon={faExpand} />
                     </Button>
                 </Tooltip>
@@ -112,17 +94,9 @@ function ViewControls() {
                     <Button
                         className="px-3 w-full"
                         onClick={onEncountersClick}
-                        disabled={
-                            !activeVesselMmsi ||
-                            !vessels[activeVesselMmsi]?.encounteringVessels
-                                ?.length
-                        }
+                        disabled={!activeVesselMmsi || !vessels[activeVesselMmsi]?.encounteringVessels?.length}
                     >
-                        <FontAwesomeIcon
-                            icon={faArrowsToCircle}
-                            className="mr-2"
-                        />{" "}
-                        Encounter
+                        <FontAwesomeIcon icon={faArrowsToCircle} className="mr-2" /> Encounter
                     </Button>
                 </Tooltip>
             </li>

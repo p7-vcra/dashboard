@@ -1,18 +1,5 @@
-import React, {
-    createContext,
-    useCallback,
-    useContext,
-    useEffect,
-    useRef,
-    useState,
-} from "react";
-import {
-    EncounteringVessel,
-    ForecastPoint,
-    Vessel,
-    VesselEncounter,
-    VesselForecast,
-} from "../types/vessel";
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { EncounteringVessel, ForecastPoint, Vessel, VesselEncounter, VesselForecast } from "../types/vessel";
 import { useMap } from "./MapContext";
 
 interface VesselsContextType {
@@ -25,41 +12,26 @@ const VesselsContext = createContext<VesselsContextType | undefined>(undefined);
 
 function VesselsProvider({ children }: { children: React.ReactNode }) {
     const [vessels, setVessels] = useState<{ [mmsi: string]: Vessel }>({});
-    const [filter, setFilter] = useState<(vessel: Vessel) => boolean>(
-        () => () => true
-    );
+    const [filter, setFilter] = useState<(vessel: Vessel) => boolean>(() => () => true);
     const [filtered, setFiltered] = useState<{ [mmsi: string]: Vessel }>({});
 
     const updateVessels = useCallback(
         (newVessels: { [mmsi: string]: Vessel }) => {
             setVessels((prevVessels) => {
                 const updatedVessels = { ...prevVessels, ...newVessels };
-                setFiltered(
-                    Object.fromEntries(
-                        Object.entries(updatedVessels).filter(([, vessel]) =>
-                            filter(vessel)
-                        )
-                    )
-                );
+                setFiltered(Object.fromEntries(Object.entries(updatedVessels).filter(([, vessel]) => filter(vessel))));
                 return updatedVessels;
             });
         },
-        [filter]
+        [filter],
     );
 
-    const updateFilter = useCallback(
-        (predicate: (vessel: Vessel) => boolean) => {
-            setFilter(() => predicate);
-        },
-        []
-    );
+    const updateFilter = useCallback((predicate: (vessel: Vessel) => boolean) => {
+        setFilter(() => predicate);
+    }, []);
 
     useEffect(() => {
-        setFiltered(
-            Object.fromEntries(
-                Object.entries(vessels).filter(([, vessel]) => filter(vessel))
-            )
-        );
+        setFiltered(Object.fromEntries(Object.entries(vessels).filter(([, vessel]) => filter(vessel))));
     }, [vessels, filter]);
 
     const { mapOptions } = useMap();
@@ -77,7 +49,7 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
                       latitude_range: `${bounds.south},${bounds.north}`,
                       longitude_range: `${bounds.west},${bounds.east}`,
                   }
-                : {}
+                : {},
         );
         const url = new URL(`${baseUrl}${predictionEndpoint}`);
         url.search = params.toString();
@@ -89,53 +61,39 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
         eventSource.addEventListener("ais", (event) => {
             const eventData: Vessel[] = JSON.parse(event.data, vesselReviver);
 
-            const parsedData = eventData.reduce<{ [mmsi: string]: Vessel }>(
-                (acc, vessel) => {
-                    const { mmsi } = vessel;
-                    acc[mmsi] = {
-                        ...vesselsRef.current[mmsi],
-                        ...vessel,
-                    };
-                    return acc;
-                },
-                {}
-            );
+            const parsedData = eventData.reduce<{ [mmsi: string]: Vessel }>((acc, vessel) => {
+                const { mmsi } = vessel;
+                acc[mmsi] = {
+                    ...vesselsRef.current[mmsi],
+                    ...vessel,
+                };
+                return acc;
+            }, {});
             updateVessels(parsedData);
         });
 
         eventSource.addEventListener("prediction", (event) => {
             console.log(event);
-            const eventData: VesselForecast[] = JSON.parse(
-                event.data,
-                predictionReviver
-            );
-            const parsedData = eventData.reduce(
-                (acc: { [mmsi: string]: Vessel }, vessel: VesselForecast) => {
-                    const { mmsi, forecast } = vessel;
-                    if (vesselsRef.current[mmsi]) {
-                        const validForecast = forecast?.filter(
-                            (point) =>
-                                new Date(point.timestamp).getTime() >
-                                Date.now() - 60 * 1000 // 1 minute
-                        );
-                        acc[mmsi] = {
-                            ...vesselsRef.current[mmsi],
-                            forecast: validForecast,
-                        };
-                    }
-                    return acc;
-                },
-                {}
-            );
+            const eventData: VesselForecast[] = JSON.parse(event.data, predictionReviver);
+            const parsedData = eventData.reduce((acc: { [mmsi: string]: Vessel }, vessel: VesselForecast) => {
+                const { mmsi, forecast } = vessel;
+                if (vesselsRef.current[mmsi]) {
+                    const validForecast = forecast?.filter(
+                        (point) => new Date(point.timestamp).getTime() > Date.now() - 60 * 1000, // 1 minute
+                    );
+                    acc[mmsi] = {
+                        ...vesselsRef.current[mmsi],
+                        forecast: validForecast,
+                    };
+                }
+                return acc;
+            }, {});
 
             updateVessels(parsedData);
         });
 
         eventSource.addEventListener("cri", (event) => {
-            const eventData: VesselEncounter[] = JSON.parse(
-                event.data,
-                enounterReviver
-            );
+            const eventData: VesselEncounter[] = JSON.parse(event.data, enounterReviver);
 
             const parsedData = eventData.reduce<{
                 [mmsi: string]: EncounteringVessel[];

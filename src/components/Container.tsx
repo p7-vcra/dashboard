@@ -22,7 +22,7 @@ function Container({ children, className = "", style = {} }: ContainerProps) {
             rounded-lg
             text-white
             p-4`,
-                className
+                className,
             )}
             style={style}
         >

@@ -17,9 +17,7 @@ function ActiveVesselView() {
         <>
             {activeVesselMmsi && (
                 <>
-                    <ContainerTitle onClose={() => setActiveVesselMmsi(null)}>
-                        Vessel
-                    </ContainerTitle>
+                    <ContainerTitle onClose={() => setActiveVesselMmsi(null)}>Vessel</ContainerTitle>
                     <VesselCard vessel={vessels[activeVesselMmsi]} />
                 </>
             )}
@@ -27,50 +25,27 @@ function ActiveVesselView() {
                 vessels[activeVesselMmsi]?.encounteringVessels &&
                 vessels[activeVesselMmsi]?.encounteringVessels.length > 0 && (
                     <>
-                        <ContainerTitle className="py-2">
-                            Encountering Vessels
-                        </ContainerTitle>
+                        <ContainerTitle className="py-2">Encountering Vessels</ContainerTitle>
                         <ul className="space-y-2">
-                            {vessels[activeVesselMmsi].encounteringVessels.map(
-                                (encounter, index) => {
-                                    const vessel = vessels[encounter.mmsi];
-                                    if (!vessel)
-                                        return (
-                                            <li className="text-zinc-300 italic text-sm ">
-                                                Data not available yet...
-                                            </li>
-                                        );
-                                    return (
-                                        <li
-                                            key={vessel.mmsi}
-                                            className="w-full flex items-center space-x-2"
+                            {vessels[activeVesselMmsi].encounteringVessels.map((encounter, index) => {
+                                const vessel = vessels[encounter.mmsi];
+                                if (!vessel)
+                                    return <li className="text-zinc-300 italic text-sm ">Data not available yet...</li>;
+                                return (
+                                    <li key={vessel.mmsi} className="w-full flex items-center space-x-2">
+                                        <Badge> {index + 1} </Badge>
+                                        <Button
+                                            className="w-full"
+                                            onClick={() => {
+                                                setActiveVesselMmsi(vessel.mmsi);
+                                                map?.setView(new LatLng(vessel.latitude, vessel.longitude));
+                                            }}
                                         >
-                                            <Badge> {index + 1} </Badge>
-                                            <Button
-                                                className="w-full"
-                                                onClick={() => {
-                                                    setActiveVesselMmsi(
-                                                        vessel.mmsi
-                                                    );
-                                                    map?.setView(
-                                                        new LatLng(
-                                                            vessel.latitude,
-                                                            vessel.longitude
-                                                        )
-                                                    );
-                                                }}
-                                            >
-                                                <EncounteringVesselCard
-                                                    vessel={vessel}
-                                                    encounteringVessel={
-                                                        encounter
-                                                    }
-                                                />
-                                            </Button>
-                                        </li>
-                                    );
-                                }
-                            )}
+                                            <EncounteringVesselCard vessel={vessel} encounteringVessel={encounter} />
+                                        </Button>
+                                    </li>
+                                );
+                            })}
                         </ul>
                     </>
                 )}

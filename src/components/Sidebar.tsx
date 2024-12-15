@@ -14,7 +14,7 @@ function Sidebar({ children, position, width, className = "" }: SidebarProps) {
         <aside
             className={twMerge(
                 `fixed top-0 z-40 h-screen bg-zinc-800 transition-transform ${borderClass} border-zinc-600`,
-                className
+                className,
             )}
             style={{
                 width: `${width / 4}rem`,

@@ -27,7 +27,7 @@ const VesselMarker = React.memo(
         const cog = vessel.cog || 0;
         const icon = React.useMemo(
             () => createVesselIcon(isActive, isEncountering, cri, cog, index),
-            [isActive, isEncountering, cri, cog, index]
+            [isActive, isEncountering, cri, cog, index],
         );
 
         const colors = {
@@ -39,13 +39,7 @@ const VesselMarker = React.memo(
         };
 
         const lineColor =
-            cri >= 0.9
-                ? colors.red
-                : cri >= 0.75
-                ? colors.orange
-                : cri >= 0.5
-                ? colors.yellow
-                : colors.zinc;
+            cri >= 0.9 ? colors.red : cri >= 0.75 ? colors.orange : cri >= 0.5 ? colors.yellow : colors.zinc;
 
         return (
             <>
@@ -55,19 +49,14 @@ const VesselMarker = React.memo(
                     zIndexOffset={isActive || isEncountering ? 1000 : 0}
                     {...props}
                 />
-                {(isActive || isEncountering) &&
-                    vessel.forecast &&
-                    vessel.forecast.length > 0 && (
-                        <Polyline
-                            positions={vessel.forecast.map((point) => [
-                                point.latitude,
-                                point.longitude,
-                            ])}
-                            color={isEncountering ? colors.blue : lineColor}
-                            weight={2}
-                            dashArray={[5, 3]}
-                        />
-                    )}
+                {(isActive || isEncountering) && vessel.forecast && vessel.forecast.length > 0 && (
+                    <Polyline
+                        positions={vessel.forecast.map((point) => [point.latitude, point.longitude])}
+                        color={isEncountering ? colors.blue : lineColor}
+                        weight={2}
+                        dashArray={[5, 3]}
+                    />
+                )}
             </>
         );
     },
@@ -79,52 +68,40 @@ const VesselMarker = React.memo(
             prevProps.vessel.mmsi === nextProps.vessel.mmsi &&
             prevProps.isActive === nextProps.isActive
         );
-    }
+    },
 );
 
-function createVesselIcon(
-    isActive: boolean,
-    isEncountering: boolean,
-    cri: number,
-    cog: number,
-    index?: number
-) {
+function createVesselIcon(isActive: boolean, isEncountering: boolean, cri: number, cog: number, index?: number) {
     const borderClass =
-        isActive || isEncountering
-            ? "border-opacity-100 bg-opacity-100"
-            : "border-opacity-0 border-zinc-500";
+        isActive || isEncountering ? "border-opacity-100 bg-opacity-100" : "border-opacity-0 border-zinc-500";
 
     const colorClass = isEncountering
         ? "text-blue-600 bg-blue-100 bg-opacity-100 border-blue-600"
         : cri && cri >= 0.9
-        ? "text-red-600 bg-red-100 bg-opacity-15 border-red-600"
-        : cri && cri >= 0.75
-        ? "text-orange-600 bg-orange-100 bg-opacity-15 border-orange-600"
-        : cri && cri >= 0.5
-        ? "text-yellow-600 bg-yellow-100 bg-opacity-15 border-yellow-600"
-        : isActive
-        ? "text-zinc-900 bg-zinc-300 bg-opacity-15 border-zinc-900"
-        : "text-zinc-900";
+          ? "text-red-600 bg-red-100 bg-opacity-15 border-red-600"
+          : cri && cri >= 0.75
+            ? "text-orange-600 bg-orange-100 bg-opacity-15 border-orange-600"
+            : cri && cri >= 0.5
+              ? "text-yellow-600 bg-yellow-100 bg-opacity-15 border-yellow-600"
+              : isActive
+                ? "text-zinc-900 bg-zinc-300 bg-opacity-15 border-zinc-900"
+                : "text-zinc-900";
 
     const classNames = twMerge(
         "border-2 m-[-8px] h-7 w-7 flex justify-center items-center hover:border-opacity-100 rounded-full !outline-none",
         colorClass,
-        borderClass
+        borderClass,
     );
 
     const arrowMarkupRotated = renderToStaticMarkup(
         <FontAwesomeIcon
             icon={faLocationArrow}
             transform={{ rotate: -45 + cog, size: 20 }} // 45 degrees counter clockwise as the icon points NE by default
-        />
+        />,
     );
 
     const indexMarkup =
-        index !== undefined
-            ? renderToStaticMarkup(
-                  <Badge className="absolute -top-2.5 -right-4">{index} </Badge>
-              )
-            : "";
+        index !== undefined ? renderToStaticMarkup(<Badge className="absolute -top-2.5 -right-4">{index} </Badge>) : "";
 
     return L.divIcon({
         html: `<div class="relative"><div class="${classNames}">${arrowMarkupRotated}</div>${indexMarkup}</div>`,

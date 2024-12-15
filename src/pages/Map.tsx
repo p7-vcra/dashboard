@@ -1,9 +1,4 @@
-import {
-    MapContainer,
-    ScaleControl,
-    TileLayer,
-    ZoomControl,
-} from "react-leaflet";
+import { MapContainer, ScaleControl, TileLayer, ZoomControl } from "react-leaflet";
 import MousePositionOverlay from "../components/MousePositionOverlay";
 import VesselClusters from "../components/VesselClusters";
 import { useMap } from "../contexts/MapContext";
