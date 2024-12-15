@@ -171,9 +171,6 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
                 return acc;
             }, {});
 
-            // Time this operaion
-            console.time("updateVessels");
-
             const updatedVessels = Object.entries(vessels).reduce<{
                 [mmsi: string]: Vessel;
             }>((acc, [mmsi, vessel]) => {
@@ -185,8 +182,6 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
                 };
                 return acc;
             }, {});
-
-            console.timeEnd("updateVessels");
 
             updateVessels(updatedVessels);
         });

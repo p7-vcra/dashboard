@@ -26,11 +26,13 @@ function VesselFilter() {
                 // Filter vessels based on the criteria
                 (vessel.sog >= sogRange[0] &&
                     vessel.sog <= sogRange[1] &&
-                    vessel.encounteringVessels?.some(
-                        (encounter) =>
-                            criRange[0] <= encounter.cri &&
-                            criRange[1] >= encounter.cri
-                    ) &&
+                    (criRange[0] > 0
+                        ? vessel.encounteringVessels?.some(
+                              (encounter) =>
+                                  criRange[0] <= encounter.cri &&
+                                  criRange[1] >= encounter.cri
+                          )
+                        : true) &&
                     vessel.vesselType.includes(vesselType) &&
                     (hasEncountering
                         ? (vessel.encounteringVessels?.length ?? 0) > 0

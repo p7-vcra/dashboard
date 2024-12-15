@@ -30,7 +30,8 @@ function VesselCard({ vessel }: VesselCardProps) {
                                 >
                                     <div className="truncate">
                                         {vessel[key] !== undefined &&
-                                        vessel[key] !== null
+                                        vessel[key] !== null &&
+                                        vessel[key] !== ""
                                             ? String(vessel[key])
                                             : "-"}
                                     </div>

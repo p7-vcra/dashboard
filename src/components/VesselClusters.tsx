@@ -6,28 +6,26 @@ import useSupercluster from "use-supercluster";
 import { useActiveVessel } from "../contexts/ActiveVesselContext";
 import { useMap } from "../contexts/MapContext";
 import { useMousePosition } from "../contexts/MousePositionContext";
-import { Vessel } from "../types/vessel";
+import { useVessels } from "../contexts/VesselsContext";
 import { getMaxCri } from "../utils/vessel";
 import { VesselMarker } from "./VesselMarker";
 
 function createClusterIcon(pointCount: number) {
     return L.divIcon({
         html: `<span class="text-white bg-zinc-800 border hover:bg-zinc-700 border-zinc-500 h-7 w-7 font-medium rounded-full flex justify-center items-center">${pointCount}</span>`,
-        // iconSize: L.point(28, 28, true),
-        // iconAnchor: L.point(14, 14, true),
     });
 }
 
 interface MapContentProps {
-    vessels: { [mmsi: string]: Vessel };
     maxZoom: number;
 }
 
-const VesselClusters = ({ vessels, maxZoom }: MapContentProps) => {
+const VesselClusters = ({ maxZoom }: MapContentProps) => {
     const { map, mapOptions, setMapOptions } = useMap();
 
     const { setMousePosition } = useMousePosition();
     const { activeVesselMmsi, setActiveVesselMmsi } = useActiveVessel();
+    const { vessels, filtered } = useVessels();
 
     const updateMousePosition = useCallback(
         (event: L.LeafletMouseEvent) => {
@@ -64,13 +62,17 @@ const VesselClusters = ({ vessels, maxZoom }: MapContentProps) => {
         };
     }, [map, mapOptions, updateMapOptions, updateMousePosition]);
 
-    const points = Object.values(vessels)
+    const points = Object.values(filtered)
         .filter(
             (vessel) =>
                 !(activeVesselMmsi && vessel.mmsi === activeVesselMmsi) &&
                 !(
                     activeVesselMmsi &&
-                    vessels[activeVesselMmsi].encounteringVessels?.some(
+                    vessels[activeVesselMmsi]?.encounteringVessels !==
+                        undefined &&
+                    vessels[activeVesselMmsi]?.encounteringVessels?.length >
+                        0 &&
+                    vessels[activeVesselMmsi].encounteringVessels.some(
                         (encounteringVessel) =>
                             encounteringVessel.mmsi === vessel.mmsi
                     )
@@ -94,7 +96,7 @@ const VesselClusters = ({ vessels, maxZoom }: MapContentProps) => {
             mapOptions.bounds?.east || 9999,
             mapOptions.bounds?.north || 9999,
         ],
-        options: { radius: 180, minPoints: 2, maxZoom: 10 },
+        options: { radius: 180, minPoints: 3, maxZoom: 12 },
     });
 
     return (

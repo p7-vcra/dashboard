@@ -47,6 +47,9 @@ function VesselSearch({ vessels }: VesselSearchProps) {
                 });
             } else if (e.key === "Enter" && selectedIndex >= 0) {
                 handleVesselClick(filteredVessels[selectedIndex]);
+            } else if (e.key === "Escape") {
+                setSearchTerm("");
+                setSelectedIndex(-1);
             }
         }
     };
@@ -65,7 +68,7 @@ function VesselSearch({ vessels }: VesselSearchProps) {
     );
 
     return (
-        <div className=" z-[1000] text-base text-white w-full ">
+        <div className="text-base text-white w-full">
             <div className="relative w-full">
                 <div className="flex items-center">
                     <FontAwesomeIcon icon={faSearch} className="mr-2" />
@@ -79,13 +82,15 @@ function VesselSearch({ vessels }: VesselSearchProps) {
                     />
                 </div>
                 {searchTerm.length > 2 && filteredVessels.length > 0 && (
-                    <div className="z-[5001] mt-4 rounded-b-lg bg-zinc-700 absolute  border-2 border-zinc-600 w-full max-h-[36rem] overflow-y-auto ">
-                        <ul className="pt-2 pb-1 px-1 " id="results">
+                    <div className="z-10 -mx-3 mt-3 rounded-b-lg bg-zinc-700 shadow-lg shadow-black/20 bg-opacity-50 backdrop-blur-md absolute border-b-2 border-t-2 border-zinc-600 w-[calc(100%+1.5rem)] max-h-[36rem] overflow-y-auto">
+                        <ul className="pt-2 pb-1 px-1" id="results">
                             {filteredVessels.map((vessel, index) => (
                                 <li
                                     key={vessel.mmsi}
                                     onClick={() => handleVesselClick(vessel)}
-                                    className={`cursor-pointer hover:bg-zinc-800 p-2 rounded-md ${
+                                    onMouseEnter={() => setSelectedIndex(index)}
+                                    onMouseMove={() => setSelectedIndex(index)}
+                                    className={`cursor-pointer p-2 rounded-md ${
                                         index === selectedIndex
                                             ? "bg-zinc-800"
                                             : ""
@@ -93,7 +98,9 @@ function VesselSearch({ vessels }: VesselSearchProps) {
                                 >
                                     <div className="space-y-2 text-left">
                                         <div className="font-bold text-zinc-300 text-sm">
-                                            {vessel.name !== "" && vessel.name}
+                                            {vessel.name !== ""
+                                                ? vessel.name
+                                                : "-"}
                                         </div>
                                         <div className="">{vessel.mmsi}</div>
                                     </div>

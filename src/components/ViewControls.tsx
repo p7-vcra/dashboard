@@ -84,7 +84,7 @@ function ViewControls() {
     };
 
     return (
-        <ul className="flex space-x-2 text-md">
+        <ul className="flex space-x-2 text-md w-full">
             <li>
                 <Tooltip content="Move into view">
                     <Button
@@ -107,10 +107,10 @@ function ViewControls() {
                     </Button>
                 </Tooltip>
             </li>
-            <li>
+            <li className="w-full">
                 <Tooltip content="Expand to encountering vessels view">
                     <Button
-                        className="px-3"
+                        className="px-3 w-full"
                         onClick={onEncountersClick}
                         disabled={
                             !activeVesselMmsi ||
@@ -118,7 +118,11 @@ function ViewControls() {
                                 ?.length
                         }
                     >
-                        <FontAwesomeIcon icon={faArrowsToCircle} />
+                        <FontAwesomeIcon
+                            icon={faArrowsToCircle}
+                            className="mr-2"
+                        />{" "}
+                        Encounter
                     </Button>
                 </Tooltip>
             </li>

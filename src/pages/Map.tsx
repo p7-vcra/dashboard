@@ -8,11 +8,9 @@ import MousePositionOverlay from "../components/MousePositionOverlay";
 import VesselClusters from "../components/VesselClusters";
 import { useMap } from "../contexts/MapContext";
 import { useMousePosition } from "../contexts/MousePositionContext";
-import { useVessels } from "../contexts/VesselsContext";
 
 function Map() {
     const { mousePosition } = useMousePosition();
-    const { filtered } = useVessels();
     const { mapOptions, setMap } = useMap();
     document.title = "Map - Vessel CRA";
 
@@ -30,10 +28,7 @@ function Map() {
                 preferCanvas={true}
                 ref={setMap}
             >
-                <VesselClusters
-                    vessels={filtered}
-                    maxZoom={mapOptions.maxZoom}
-                />
+                <VesselClusters maxZoom={mapOptions.maxZoom} />
                 <ZoomControl position="bottomleft" />
                 <ScaleControl position="bottomleft" metric />
                 <TileLayer
