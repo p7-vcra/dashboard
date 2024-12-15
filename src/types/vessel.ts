@@ -46,6 +46,5 @@ export {
     type ForecastPoint,
     type Vessel,
     type VesselEncounter,
-    type VesselForecast
+    type VesselForecast,
 };
-

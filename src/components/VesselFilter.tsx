@@ -30,7 +30,7 @@ function VesselFilter() {
                                   (criRange[0] <= encounter.cri && criRange[1] >= encounter.cri) ||
                                   (encounter.futureCri &&
                                       criRange[0] <= encounter.futureCri &&
-                                      criRange[1] >= encounter.futureCri)
+                                      criRange[1] >= encounter.futureCri),
                           )
                         : true) &&
                     vessel.vesselType.includes(vesselType) &&
