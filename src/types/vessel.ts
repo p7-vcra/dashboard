@@ -37,7 +37,7 @@ interface VesselEncounter {
     relMovementDirection: number;
     azimuthTargetToOwn: number;
     cri: number;
-    futureCri: number;
+    futureCri?: number;
 }
 
 export {
@@ -46,5 +46,6 @@ export {
     type ForecastPoint,
     type Vessel,
     type VesselEncounter,
-    type VesselForecast,
+    type VesselForecast
 };
+
