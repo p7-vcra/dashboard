@@ -30,7 +30,11 @@ function ActiveVesselView() {
                             {vessels[activeVesselMmsi].encounteringVessels.map((encounter, index) => {
                                 const vessel = vessels[encounter.mmsi];
                                 if (!vessel)
-                                    return <li className="text-zinc-300 italic text-sm ">Data not available yet...</li>;
+                                    return (
+                                        <li key={encounter.mmsi} className="text-zinc-300 italic text-sm ">
+                                            Data not available yet...
+                                        </li>
+                                    );
                                 return (
                                     <li key={vessel.mmsi} className="w-full flex items-center space-x-2">
                                         <Badge> {index + 1} </Badge>

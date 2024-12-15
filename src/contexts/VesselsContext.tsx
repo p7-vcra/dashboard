@@ -73,13 +73,14 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
         });
 
         eventSource.addEventListener("prediction", (event) => {
-            console.log(event);
             const eventData: VesselForecast[] = JSON.parse(event.data, predictionReviver);
             const parsedData = eventData.reduce((acc: { [mmsi: string]: Vessel }, vessel: VesselForecast) => {
                 const { mmsi, forecast } = vessel;
                 if (vesselsRef.current[mmsi]) {
                     const validForecast = forecast?.filter(
-                        (point) => new Date(point.timestamp).getTime() > Date.now() - 60 * 1000, // 1 minute
+                        (point) =>
+                            new Date(point.timestamp).getTime() >
+                            new Date(vesselsRef.current[mmsi].timestamp).getTime() - 60 * 1000, // 1 minute
                     );
                     acc[mmsi] = {
                         ...vesselsRef.current[mmsi],
@@ -120,27 +121,12 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
                 return acc;
             }, {});
 
-            const updatedVesselsEncounters = Object.entries(parsedData).reduce<{
-                [mmsi: string]: Vessel;
-            }>((acc, [mmsi, encountering]) => {
-                const vessel = vesselsRef.current[mmsi];
-                if (vessel) {
-                    acc[mmsi] = {
-                        ...vessel,
-                        encounteringVessels: encountering,
-                    };
-                }
-                return acc;
-            }, {});
-
             const updatedVessels = Object.entries(vessels).reduce<{
                 [mmsi: string]: Vessel;
             }>((acc, [mmsi, vessel]) => {
                 acc[mmsi] = {
                     ...vessel,
-                    encounteringVessels: updatedVesselsEncounters[mmsi]
-                        ? updatedVesselsEncounters[mmsi].encounteringVessels
-                        : [],
+                    encounteringVessels: parsedData[mmsi] ? parsedData[mmsi] : [],
                 };
                 return acc;
             }, {});
@@ -257,6 +243,7 @@ function enounterReviver(_key: string, value: any): VesselEncounter[] {
                     relMovementDirection: item["rel_movement_direction"],
                     azimuthTargetToOwn: item["azimuth_target_to_own"],
                     cri: item["ves_cri"],
+                    futureCri: item["future_cri"],
                 } as VesselEncounter;
             }
             return item;

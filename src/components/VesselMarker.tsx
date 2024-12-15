@@ -35,7 +35,7 @@ const VesselMarker = React.memo(
             orange: "#ea580c",
             yellow: "#ca8a04",
             blue: "#2563eb",
-            zinc: "#f9fafb",
+            zinc: "#18181b",
         };
 
         const lineColor =
@@ -66,7 +66,10 @@ const VesselMarker = React.memo(
             prevProps.vessel.longitude === nextProps.vessel.longitude &&
             prevProps.vessel.cog === nextProps.vessel.cog &&
             prevProps.vessel.mmsi === nextProps.vessel.mmsi &&
-            prevProps.isActive === nextProps.isActive
+            prevProps.cri === nextProps.cri &&
+            prevProps.isActive === nextProps.isActive &&
+            prevProps.isEncountering === nextProps.isEncountering &&
+            prevProps.index === nextProps.index
         );
     },
 );
