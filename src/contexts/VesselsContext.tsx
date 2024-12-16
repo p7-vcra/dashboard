@@ -50,7 +50,7 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
         const url = new URL(`${baseUrl}${initialVesselsEndpoint}`);
 
         initialFetchDone.current = true;
-        console.log("Fetching initial vessels from", url);
+        console.log("Fetching initial vessels from ", url.toString());
         fetch(url)
             .then(async (response) => {
                 if (response.ok) {
