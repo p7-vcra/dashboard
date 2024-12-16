@@ -24,7 +24,7 @@ function VesselFilter() {
                 // Filter vessels based on the criteria
                 (vessel.sog >= sogRange[0] &&
                     vessel.sog <= sogRange[1] &&
-                    (criRange[0] > 0
+                    (criRange[0] > 0 || criRange[1] < 1
                         ? vessel.encounteringVessels?.some(
                               (encounter) => criRange[0] <= encounter.cri && criRange[1] >= encounter.cri,
                           )
@@ -83,7 +83,7 @@ function VesselFilter() {
         hasForecast: {
             display: "Trajectory prediction",
             type: "checkbox",
-            label: "Has forecasted location",
+            label: "Has predicted trajectory",
             onChange: (checked: boolean) => setHasForecast(checked),
         },
         hasEncountering: {
@@ -149,10 +149,10 @@ function VesselFilter() {
                                             }
                                             className="peer hidden cursor-pointer"
                                         />
-                                        <div className=" bg-zinc-700 border-2 cursor-pointer border-zinc-600 rounded-lg flex peer-checked:bg-zinc-500 peer-checked:border-zinc-300 w-full">
+                                        <div className="bg-zinc-700 border-2 cursor-pointer border-zinc-600 rounded-lg flex peer-checked:bg-zinc-500 peer-checked:border-zinc-300 w-full">
                                             <label
                                                 htmlFor={key}
-                                                className="text-white p-2 cursor-pointer select-none w-full"
+                                                className="text-white p-2 cursor-pointer select-none w-full flex justify-between items-center "
                                             >
                                                 {"label" in value && value.label}
                                             </label>
