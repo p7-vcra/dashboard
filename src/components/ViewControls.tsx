@@ -1,12 +1,12 @@
 import { faArrowsToCircle, faExpand, faLocation } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { LatLngBoundsExpression, LatLngTuple } from "leaflet";
+import { Tooltip } from "react-tooltip";
 import { useActiveVessel } from "../contexts/ActiveVesselContext";
 import { useMap } from "../contexts/MapContext";
 import { useVessels } from "../contexts/VesselsContext";
 import { Vessel } from "../types/vessel";
 import Button from "./Button";
-import Tooltip from "./Tooltip";
 
 function vesselToBoundExpr(vessel: Vessel): LatLngBoundsExpression {
     const points: LatLngBoundsExpression = [[vessel.latitude, vessel.longitude] as LatLngTuple];
@@ -76,28 +76,57 @@ function ViewControls() {
     return (
         <ul className="flex space-x-2 text-md w-full">
             <li>
-                <Tooltip content="Move into view">
-                    <Button className="px-3" onClick={onMoveClick} disabled={!activeVesselMmsi}>
-                        <FontAwesomeIcon icon={faLocation} />
-                    </Button>
+                <Button
+                    className="px-3"
+                    onClick={onMoveClick}
+                    disabled={!activeVesselMmsi}
+                    data-tooltip-id="tooltip-move"
+                >
+                    <FontAwesomeIcon icon={faLocation} />
+                </Button>
+                <Tooltip
+                    id="tooltip-move"
+                    place="top-end"
+                    style={{ backgroundColor: "#18181b", borderRadius: "0.5rem" }}
+                    opacity={1}
+                >
+                    Move into view
                 </Tooltip>
             </li>
             <li>
-                <Tooltip content="Expand view">
-                    <Button className="px-3" onClick={onExpandClick} disabled={!activeVesselMmsi}>
-                        <FontAwesomeIcon icon={faExpand} />
-                    </Button>
+                <Button
+                    className="px-3"
+                    onClick={onExpandClick}
+                    disabled={!activeVesselMmsi}
+                    data-tooltip-id="tooltip-expand"
+                >
+                    <FontAwesomeIcon icon={faExpand} />
+                </Button>
+                <Tooltip
+                    id="tooltip-expand"
+                    place="top"
+                    style={{ backgroundColor: "#18181b", borderRadius: "0.5rem" }}
+                    opacity={1}
+                >
+                    Expand view
                 </Tooltip>
             </li>
             <li className="w-full">
-                <Tooltip content="Expand to encountering vessels view">
-                    <Button
-                        className="px-3 w-full"
-                        onClick={onEncountersClick}
-                        disabled={!activeVesselMmsi || !vessels[activeVesselMmsi]?.encounteringVessels?.length}
-                    >
-                        <FontAwesomeIcon icon={faArrowsToCircle} className="mr-2" /> Encounter
-                    </Button>
+                <Button
+                    className="px-3 w-full"
+                    onClick={onEncountersClick}
+                    disabled={!activeVesselMmsi || !vessels[activeVesselMmsi]?.encounteringVessels?.length}
+                    data-tooltip-id="tooltip-encounter"
+                >
+                    <FontAwesomeIcon icon={faArrowsToCircle} className="mr-2" /> Encounter
+                </Button>
+                <Tooltip
+                    id="tooltip-encounter"
+                    place="top"
+                    style={{ backgroundColor: "#18181b", borderRadius: "0.5rem" }}
+                    opacity={1}
+                >
+                    Expand view to show encounters
                 </Tooltip>
             </li>
         </ul>

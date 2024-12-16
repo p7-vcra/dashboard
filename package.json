@@ -23,6 +23,7 @@
         "react-leaflet": "^4.2.1",
         "react-query": "^3.39.3",
         "react-range-slider-input": "^3.0.7",
+        "react-tooltip": "^5.28.0",
         "supercluster": "^8.0.1",
         "tailwind-merge": "^2.5.5",
         "use-supercluster": "^1.2.0"
