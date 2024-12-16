@@ -15,12 +15,12 @@ function App() {
                 <VesselsProvider>
                     <ActiveVesselProvider>
                         <MousePositionProvider>
-                            <Routes>
-                                <Route path="/" element={<Layout />}>
+                            <Layout>
+                                <Routes>
                                     <Route index element={<Map />} />
                                     <Route path="/vessels" element={<Vessels />} />
-                                </Route>
-                            </Routes>
+                                </Routes>
+                            </Layout>
                         </MousePositionProvider>
                     </ActiveVesselProvider>
                 </VesselsProvider>

@@ -1,6 +1,5 @@
 import { faMap, faShip } from "@fortawesome/free-solid-svg-icons";
 import { useEffect } from "react";
-import { Outlet } from "react-router-dom";
 import ActiveVesselView from "../components/ActiveVesselView";
 import NavigationItem from "../components/NavigationItem";
 import Section from "../components/Section";
@@ -12,7 +11,11 @@ import ViewControls from "../components/ViewControls";
 import { useActiveVessel } from "../contexts/ActiveVesselContext";
 import { useVessels } from "../contexts/VesselsContext";
 
-function Layout() {
+interface LayoutProps {
+    children: React.ReactNode;
+}
+
+function Layout({ children }: LayoutProps) {
     const routes = {
         map: {
             display: "Map",
@@ -54,9 +57,7 @@ function Layout() {
                 </nav>
             </Sidebar>
 
-            <main className="flex-1 ml-20 mr-72">
-                <Outlet />
-            </main>
+            <main className="flex-1 ml-20 mr-72">{children}</main>
 
             <Sidebar position="right" width={72} className="overflow-y-auto">
                 <Sections>

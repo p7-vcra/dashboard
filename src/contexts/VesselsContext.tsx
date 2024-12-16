@@ -23,7 +23,7 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
                 return updatedVessels;
             });
         },
-        [filter]
+        [filter],
     );
 
     const updateFilter = useCallback((predicate: (vessel: Vessel) => boolean) => {
@@ -50,7 +50,7 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
         const url = new URL(`${baseUrl}${initialVesselsEndpoint}`);
 
         initialFetchDone.current = true;
-        console.log("Fetching initial vessels from", url);
+        console.log("Fetching initial vessels from ", url.toString());
         fetch(url)
             .then(async (response) => {
                 if (response.ok) {
@@ -80,7 +80,7 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
                       latitude_range: `${bounds.south},${bounds.north}`,
                       longitude_range: `${bounds.west},${bounds.east}`,
                   }
-                : {}
+                : {},
         );
         const url = new URL(`${baseUrl}${predictionEndpoint}`);
         url.search = params.toString();
@@ -111,7 +111,7 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
                     const validForecast = forecast?.filter(
                         (point) =>
                             new Date(point.timestamp).getTime() >
-                            new Date(vesselsRef.current[mmsi].timestamp).getTime() - 60 * 1000 // 1 minute
+                            new Date(vesselsRef.current[mmsi].timestamp).getTime() - 60 * 1000, // 1 minute
                     );
                     acc[mmsi] = {
                         ...vesselsRef.current[mmsi],
@@ -161,7 +161,7 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
                         ...vesselsRef.current[mmsi],
                         encounteringVessels: [
                             ...(vesselsRef.current[mmsi].encounteringVessels || []).filter(
-                                (ev) => ev.isFutureCri !== isFutureCri && (isFutureCri || ev.mmsi in parsedData)
+                                (ev) => ev.isFutureCri !== isFutureCri && (isFutureCri || ev.mmsi in parsedData),
                             ),
                             ...(parsedData[mmsi] ? parsedData[mmsi] : []),
                         ],
