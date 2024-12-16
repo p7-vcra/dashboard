@@ -23,7 +23,7 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
                 return updatedVessels;
             });
         },
-        [filter],
+        [filter]
     );
 
     const updateFilter = useCallback((predicate: (vessel: Vessel) => boolean) => {
@@ -36,10 +36,41 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
 
     const { mapOptions } = useMap();
     const vesselsRef = useRef(vessels);
+    const initialFetchDone = useRef(false);
+
     vesselsRef.current = vessels;
 
     const baseUrl = import.meta.env.VITE_API_URL;
     const predictionEndpoint = import.meta.env.VITE_API_PREDICTION_ENDPOINT;
+    const initialVesselsEndpoint = import.meta.env.VITE_API_INITIAL_VESSELS_ENDPOINT;
+
+    // Fetch initial vessels
+    useEffect(() => {
+        if (initialFetchDone.current) return;
+        const url = new URL(`${baseUrl}${initialVesselsEndpoint}`);
+
+        initialFetchDone.current = true;
+        console.log("Fetching initial vessels from", url);
+        fetch(url)
+            .then(async (response) => {
+                if (response.ok) {
+                    const parsedData = JSON.parse(await response.json(), vesselReviver) as Vessel[];
+                    const updatedVessels = parsedData.reduce<{ [mmsi: string]: Vessel }>((acc, vessel) => {
+                        const { mmsi } = vessel;
+                        acc[mmsi] = {
+                            ...(vesselsRef.current[mmsi] || {}),
+                            ...vessel,
+                        };
+                        return acc;
+                    }, {});
+
+                    updateVessels(updatedVessels);
+                }
+            })
+            .catch((error) => {
+                console.error("Failed to fetch initial vessels:", error);
+            });
+    });
 
     useEffect(() => {
         const { bounds } = mapOptions;
@@ -49,7 +80,7 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
                       latitude_range: `${bounds.south},${bounds.north}`,
                       longitude_range: `${bounds.west},${bounds.east}`,
                   }
-                : {},
+                : {}
         );
         const url = new URL(`${baseUrl}${predictionEndpoint}`);
         url.search = params.toString();
@@ -80,7 +111,7 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
                     const validForecast = forecast?.filter(
                         (point) =>
                             new Date(point.timestamp).getTime() >
-                            new Date(vesselsRef.current[mmsi].timestamp).getTime() - 60 * 1000, // 1 minute
+                            new Date(vesselsRef.current[mmsi].timestamp).getTime() - 60 * 1000 // 1 minute
                     );
                     acc[mmsi] = {
                         ...vesselsRef.current[mmsi],
@@ -130,7 +161,7 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
                         ...vesselsRef.current[mmsi],
                         encounteringVessels: [
                             ...(vesselsRef.current[mmsi].encounteringVessels || []).filter(
-                                (ev) => ev.isFutureCri !== isFutureCri && (isFutureCri || ev.mmsi in parsedData),
+                                (ev) => ev.isFutureCri !== isFutureCri && (isFutureCri || ev.mmsi in parsedData)
                             ),
                             ...(parsedData[mmsi] ? parsedData[mmsi] : []),
                         ],
