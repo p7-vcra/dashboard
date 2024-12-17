@@ -180,7 +180,7 @@ function VesselsProvider({ children }: { children: React.ReactNode }) {
             console.log(`Closing connection to ${url}`);
             eventSource.close();
         };
-    }, [baseUrl, mapOptions, predictionEndpoint, setVessels]);
+    }, [baseUrl, mapOptions, predictionEndpoint, updateVessels]);
 
     return (
         <VesselsContext.Provider
