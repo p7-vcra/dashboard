@@ -27,39 +27,41 @@ function ActiveVesselView() {
                     <>
                         <ContainerTitle className="py-2">Encountering Vessels</ContainerTitle>
                         <ul className="space-y-2">
-                            {vessels[activeVesselMmsi].encounteringVessels.map((encounter, index) => {
-                                const vessel = vessels[encounter.mmsi];
+                            {vessels[activeVesselMmsi].encounteringVessels
+                                .filter((ev) => !ev.isFutureCri)
+                                .map((encounter, index) => {
+                                    const vessel = vessels[encounter.mmsi];
 
-                                if (!vessel)
+                                    if (!vessel)
+                                        return (
+                                            <li key={encounter.mmsi} className="text-zinc-300 italic text-sm ">
+                                                Data not available yet...
+                                            </li>
+                                        );
+
+                                    const futureCri = vessels[activeVesselMmsi]?.encounteringVessels?.find(
+                                        (encounter) => encounter.mmsi === vessel.mmsi && encounter.isFutureCri,
+                                    )?.cri;
+
                                     return (
-                                        <li key={encounter.mmsi} className="text-zinc-300 italic text-sm ">
-                                            Data not available yet...
+                                        <li key={vessel.mmsi} className="w-full flex items-center space-x-2">
+                                            <Badge> {index + 1} </Badge>
+                                            <Button
+                                                className="w-full"
+                                                onClick={() => {
+                                                    setActiveVesselMmsi(vessel.mmsi);
+                                                    map?.setView(new LatLng(vessel.latitude, vessel.longitude));
+                                                }}
+                                            >
+                                                <EncounteringVesselCard
+                                                    vessel={vessel}
+                                                    cri={encounter.cri}
+                                                    futureCri={futureCri}
+                                                />
+                                            </Button>
                                         </li>
                                     );
-
-                                const futureCri = vessels[activeVesselMmsi]?.encounteringVessels?.find(
-                                    (encounter) => encounter.mmsi === vessel.mmsi && encounter.isFutureCri,
-                                )?.cri;
-
-                                return (
-                                    <li key={vessel.mmsi} className="w-full flex items-center space-x-2">
-                                        <Badge> {index + 1} </Badge>
-                                        <Button
-                                            className="w-full"
-                                            onClick={() => {
-                                                setActiveVesselMmsi(vessel.mmsi);
-                                                map?.setView(new LatLng(vessel.latitude, vessel.longitude));
-                                            }}
-                                        >
-                                            <EncounteringVesselCard
-                                                vessel={vessel}
-                                                cri={encounter.cri}
-                                                futureCri={futureCri}
-                                            />
-                                        </Button>
-                                    </li>
-                                );
-                            })}
+                                })}
                         </ul>
                     </>
                 )}

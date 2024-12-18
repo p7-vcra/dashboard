@@ -113,24 +113,26 @@ const VesselClusters = ({ maxZoom }: MapContentProps) => {
                 />
             )}
             {activeVesselMmsi &&
-                vessels[activeVesselMmsi].encounteringVessels?.map(
-                    (encounteringVessel, index) =>
-                        vessels[encounteringVessel.mmsi] && (
-                            <VesselMarker
-                                key={`encountering-vessel-${encounteringVessel.mmsi}`}
-                                vessel={vessels[encounteringVessel.mmsi]}
-                                cri={encounteringVessel.cri}
-                                isActive={false}
-                                isEncountering={true}
-                                index={index + 1}
-                                eventHandlers={{
-                                    click: () => {
-                                        setActiveVesselMmsi(encounteringVessel.mmsi);
-                                    },
-                                }}
-                            />
-                        ),
-                )}
+                vessels[activeVesselMmsi].encounteringVessels
+                    ?.filter((ev) => !ev.isFutureCri)
+                    .map(
+                        (encounteringVessel, index) =>
+                            vessels[encounteringVessel.mmsi] && (
+                                <VesselMarker
+                                    key={`encountering-vessel-${encounteringVessel.mmsi}`}
+                                    vessel={vessels[encounteringVessel.mmsi]}
+                                    cri={encounteringVessel.cri}
+                                    isActive={false}
+                                    isEncountering={true}
+                                    index={index + 1}
+                                    eventHandlers={{
+                                        click: () => {
+                                            setActiveVesselMmsi(encounteringVessel.mmsi);
+                                        },
+                                    }}
+                                />
+                            ),
+                    )}
 
             {clusters.map((cluster) => {
                 const [longitude, latitude] = cluster.geometry.coordinates;
